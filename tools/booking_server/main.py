@@ -1,8 +1,9 @@
 import json
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI, Request, HTTPException, Header
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from calendar_utils import get_available_slots, book_appointment
@@ -28,6 +29,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="DentaVoice Booking API", version="1.0.0", lifespan=lifespan)
+
+
+_INDEX = Path(__file__).resolve().parent.parent.parent / "website" / "index.html"
+
+
+@app.get("/")
+def serve_index():
+    return FileResponse(_INDEX, media_type="text/html")
 
 
 @app.get("/health")
