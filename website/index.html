@@ -941,15 +941,24 @@ function toggleChat(){
 }
 
 /* ─── FORM HANDLING ─────────────────────────────── */
+const BACKEND='https://dentavoice-booking.onrender.com';
 const form=document.getElementById('leadForm');
 if(form){
   form.addEventListener('submit',async(e)=>{
     e.preventDefault();
     const btn=form.querySelector('button[type=submit]');
     btn.textContent='Sending...';btn.disabled=true;
+    const fd=new FormData(form);
+    // Submit to Netlify (data capture)
     try{
-      await fetch(form.action||'/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(new FormData(form)).toString()});
+      await fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(fd).toString()});
     }catch(err){}
+    // Fire-and-forget to backend — triggers SMS + WhatsApp alert to owner
+    fetch(BACKEND+'/lead',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(Object.fromEntries(fd))
+    }).catch(()=>{});
     form.style.display='none';
     document.getElementById('formSuccess').style.display='block';
   });

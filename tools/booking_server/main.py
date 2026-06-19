@@ -3,12 +3,13 @@ import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 from fastapi import FastAPI, Request, HTTPException, Header
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from calendar_utils import get_available_slots, book_appointment
 from sheets_utils import log_booking, ensure_header
-from sms_utils import send_booking_confirmation
+from sms_utils import send_booking_confirmation, send_lead_notification
 from reminder_scheduler import check_and_send_reminders
 from config import VAPI_SECRET, CLINIC_CONFIG
 
@@ -30,6 +31,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="DentaVoice Booking API", version="1.0.0", lifespan=lifespan)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
+
 
 _INDEX = Path(__file__).resolve().parent.parent.parent / "website" / "index.html"
 
@@ -42,6 +50,24 @@ def serve_index():
 @app.get("/health")
 def health():
     return {"status": "ok", "service": "DentaVoice Booking API"}
+
+
+@app.post("/lead")
+async def capture_lead(request: Request):
+    try:
+        lead = await request.json()
+    except Exception:
+        lead = {}
+
+    log.info(f"New lead received: {lead.get('email', 'unknown')}")
+
+    try:
+        send_lead_notification(lead)
+        log.info("Lead notification sent via SMS + WhatsApp")
+    except Exception as e:
+        log.error(f"Lead notification failed: {e}", exc_info=True)
+
+    return JSONResponse({"status": "ok"})
 
 
 @app.post("/vapi/tools")

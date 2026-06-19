@@ -1,6 +1,6 @@
 import logging
 from twilio.rest import Client
-from config import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER, TWILIO_WHATSAPP_FROM
+from config import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER, TWILIO_WHATSAPP_FROM, OWNER_PHONE
 
 log = logging.getLogger(__name__)
 
@@ -56,6 +56,33 @@ def send_booking_confirmation(patient_phone: str, booking: dict):
         f"👨‍⚕️ {booking.get('doctor', 'our dentist')}\n"
         f"🔖 Ref: {booking.get('confirmation_id')}\n\n"
         "Reply STOP to opt out of reminders."
+    )
+    _send_sms(to, body)
+    _send_whatsapp(to, body)
+
+
+def send_lead_notification(lead: dict):
+    if not OWNER_PHONE:
+        log.warning("OWNER_PHONE not set — skipping lead notification")
+        return
+
+    to = _format_phone(OWNER_PHONE)
+    name = f"{lead.get('first_name', '')} {lead.get('last_name', '')}".strip() or "Someone"
+    clinic = lead.get("clinic_name", "Unknown clinic")
+    email = lead.get("email", "N/A")
+    phone = lead.get("phone", "N/A")
+    volume = lead.get("call_volume", "N/A")
+    challenge = lead.get("challenge", "")
+
+    body = (
+        f"🔥 NEW LEAD — DentaVoice AI\n\n"
+        f"👤 {name}\n"
+        f"🏥 {clinic}\n"
+        f"📧 {email}\n"
+        f"📞 {phone}\n"
+        f"📊 {volume}\n"
+        + (f"💬 \"{challenge}\"\n" if challenge else "")
+        + "\nCall or reply now! ⚡"
     )
     _send_sms(to, body)
     _send_whatsapp(to, body)
