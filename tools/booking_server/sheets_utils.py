@@ -52,7 +52,7 @@ def log_booking(data: dict):
         data.get("confirmation_id", ""),
         data.get("patient_name", ""),
         data.get("patient_phone", ""),
-        data.get("date", ""),
+        data.get("date_iso", data.get("date", "")),
         data.get("time", ""),
         data.get("doctor", ""),
         data.get("reason", ""),

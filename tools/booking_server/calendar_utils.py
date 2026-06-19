@@ -98,6 +98,7 @@ def book_appointment(
     return {
         "confirmation_id": created["id"][:8].upper(),
         "date": start_dt.strftime("%A, %d %B %Y"),
+        "date_iso": date_str,  # YYYY-MM-DD — used for sheet storage and reminder parsing
         "time": start_dt.strftime("%H:%M"),
         "doctor": doctor_name or "First available doctor",
         "duration_minutes": slot_len,

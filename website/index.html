@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DentaVoice — AI Receptionist for Dental Clinics</title>
+  <meta name="description" content="DentaVoice gives your dental clinic a 24/7 AI receptionist that answers every call, books appointments and speaks English, French and German. Never miss a patient again." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #1d4ed8; --primary-dark: #1e3a8a; --primary-light: #3b82f6;
+      --accent: #06b6d4; --green: #10b981; --dark: #0f172a; --mid: #334155;
+      --muted: #64748b; --border: #e2e8f0; --surface: #f8fafc; --white: #ffffff;
+      --radius: 12px; --radius-lg: 20px;
+      --shadow: 0 4px 24px rgba(15,23,42,0.08); --shadow-lg: 0 20px 60px rgba(15,23,42,0.14);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--dark); background: var(--white); line-height: 1.6; overflow-x: hidden; }
+
+    /* NAV */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(255,255,255,0.93); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 5%; display: flex; align-items: center; justify-content: space-between; height: 70px; transition: box-shadow .3s; }
+    .nav-logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--mid); font-size: 0.9rem; font-weight: 500; transition: color .2s; }
+    .nav-links a:hover { color: var(--primary); }
+    .nav-cta { display: flex; gap: 12px; align-items: center; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; text-decoration: none; cursor: pointer; border: none; transition: all .2s; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(29,78,216,0.35); }
+    .btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+    .btn-outline:hover { background: #eff6ff; }
+    .btn-lg { padding: 15px 32px; font-size: 1rem; border-radius: 10px; }
+    .btn-xl { padding: 18px 40px; font-size: 1.05rem; border-radius: 12px; }
+    .btn-white { background: white; color: var(--primary); }
+    .btn-white:hover { background: #f0f7ff; transform: translateY(-1px); }
+    .btn-ghost { background: rgba(255,255,255,0.15); color: white; border: 1.5px solid rgba(255,255,255,0.4); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.25); }
+
+    /* HERO */
+    .hero { min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0891b2 100%); display: flex; align-items: center; padding: 120px 5% 80px; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 50%, rgba(6,182,212,0.15) 0%, transparent 60%); }
+    .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.25; pointer-events: none; }
+    .orb1 { width: 500px; height: 500px; background: #06b6d4; top: -150px; right: 0; animation: float 8s ease-in-out infinite; }
+    .orb2 { width: 350px; height: 350px; background: #7c3aed; bottom: -80px; left: 15%; animation: float 11s ease-in-out infinite reverse; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-28px); } }
+    @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.4; transform:scale(1.5); } }
+    @keyframes wave { 0%,100% { transform:scaleY(1); } 50% { transform:scaleY(0.3); } }
+
+    .hero-inner { max-width: 1200px; margin: 0 auto; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 1; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(6,182,212,0.18); border: 1px solid rgba(6,182,212,0.4); color: #67e8f9; font-size: 0.78rem; font-weight: 700; padding: 6px 14px; border-radius: 100px; margin-bottom: 24px; letter-spacing: 0.5px; }
+    .badge-dot { width: 7px; height: 7px; border-radius: 50%; background: #22d3ee; animation: pulse 2s infinite; }
+    .hero h1 { font-size: 3.5rem; font-weight: 900; color: white; line-height: 1.1; margin-bottom: 24px; }
+    .hero h1 em { font-style: normal; background: linear-gradient(90deg, #67e8f9, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-sub { font-size: 1.1rem; color: rgba(255,255,255,0.72); line-height: 1.75; margin-bottom: 40px; max-width: 500px; }
+    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 48px; }
+    .hero-stats { display: flex; gap: 36px; }
+    .stat-num { font-size: 2rem; font-weight: 900; color: #67e8f9; }
+    .stat-label { font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 2px; }
+
+    /* Phone visual */
+    .hero-visual { display: flex; justify-content: center; }
+    .phone { width: 280px; height: 520px; background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 40px; border: 2px solid rgba(255,255,255,0.08); box-shadow: 0 40px 80px rgba(0,0,0,0.5); position: relative; overflow: hidden; animation: float 6s ease-in-out infinite; }
+    .phone-notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 90px; height: 26px; background: #0f172a; border-radius: 0 0 18px 18px; z-index: 2; }
+    .phone-screen { position: absolute; inset: 10px; border-radius: 32px; background: linear-gradient(160deg, #1d4ed8 0%, #0891b2 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 20px; }
+    .phone-waves { display: flex; align-items: flex-end; gap: 4px; height: 46px; }
+    .phone-waves span { width: 5px; background: rgba(255,255,255,0.75); border-radius: 10px; animation: wave 1.2s ease-in-out infinite; }
+    .phone-waves span:nth-child(1){height:18px;animation-delay:0s}
+    .phone-waves span:nth-child(2){height:34px;animation-delay:.1s}
+    .phone-waves span:nth-child(3){height:46px;animation-delay:.2s}
+    .phone-waves span:nth-child(4){height:28px;animation-delay:.3s}
+    .phone-waves span:nth-child(5){height:42px;animation-delay:.4s}
+    .phone-waves span:nth-child(6){height:20px;animation-delay:.5s}
+    .phone-waves span:nth-child(7){height:36px;animation-delay:.3s}
+    .phone-ai-label { color: rgba(255,255,255,0.8); font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+    .phone-name { color: white; font-size: 1.3rem; font-weight: 800; }
+    .phone-live { display: flex; align-items: center; gap: 6px; color: #86efac; font-size: 0.72rem; font-weight: 600; }
+    .phone-live-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; animation: pulse 1.5s infinite; }
+    .phone-bubble { background: rgba(255,255,255,0.14); border-radius: 10px; padding: 10px 13px; color: white; font-size: 0.7rem; line-height: 1.55; text-align: center; }
+
+    /* SECTIONS */
+    section { padding: 96px 5%; }
+    .section-inner { max-width: 1200px; margin: 0 auto; }
+    .section-label { display: inline-block; font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--primary); margin-bottom: 12px; }
+    .section-title { font-size: 2.4rem; font-weight: 800; color: var(--dark); line-height: 1.2; margin-bottom: 16px; }
+    .section-sub { font-size: 1rem; color: var(--muted); line-height: 1.7; max-width: 560px; }
+    .section-header { margin-bottom: 60px; }
+    .section-header.center { text-align: center; }
+    .section-header.center .section-sub { margin: 0 auto; }
+
+    /* TRUST BAR */
+    .trust { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 28px 5%; }
+    .trust-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+    .trust-text { font-size: 0.78rem; color: var(--muted); font-weight: 500; white-space: nowrap; }
+    .trust-logos { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
+    .trust-logo { font-size: 0.9rem; font-weight: 700; color: var(--muted); opacity: 0.55; }
+    .trust-sep { width: 1px; height: 28px; background: var(--border); }
+
+    /* PROBLEM */
+    .problem { background: var(--dark); }
+    .problem .section-title { color: white; }
+    .problem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; border-radius: var(--radius-lg); overflow: hidden; }
+    .prob-card { background: rgba(15,23,42,0.7); padding: 40px 32px; transition: background .2s; }
+    .prob-card:hover { background: rgba(29,78,216,0.12); }
+    .prob-icon { font-size: 2.2rem; margin-bottom: 12px; }
+    .prob-stat { font-size: 3rem; font-weight: 900; color: #f87171; line-height: 1; margin-bottom: 10px; }
+    .prob-card h3 { font-size: 1rem; font-weight: 700; color: white; margin-bottom: 8px; }
+    .prob-card p { font-size: 0.86rem; color: rgba(255,255,255,0.5); line-height: 1.65; }
+
+    /* HOW IT WORKS */
+    .steps { position: relative; display: flex; flex-direction: column; }
+    .steps::before { content: ''; position: absolute; left: 40px; top: 40px; bottom: 40px; width: 2px; background: linear-gradient(to bottom, var(--primary), var(--accent)); }
+    .step { display: flex; gap: 32px; align-items: flex-start; padding: 40px 0; }
+    .step-num { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; font-size: 1.5rem; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 1; box-shadow: 0 4px 20px rgba(29,78,216,0.4); }
+    .step-body { padding-top: 16px; }
+    .step-body h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 10px; }
+    .step-body p { font-size: 0.92rem; color: var(--muted); line-height: 1.7; max-width: 520px; }
+    .step-tag { display: inline-block; margin-top: 12px; background: #eff6ff; color: var(--primary); font-size: 0.73rem; font-weight: 700; padding: 4px 12px; border-radius: 100px; }
+
+    /* FEATURES */
+    .features-bg { background: var(--surface); }
+    .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .feat-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 30px; transition: all .25s; }
+    .feat-card:hover { border-color: var(--primary-light); box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+    .feat-icon { font-size: 1.8rem; margin-bottom: 16px; }
+    .feat-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .feat-card p { font-size: 0.86rem; color: var(--muted); line-height: 1.65; }
+    .chips { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 48px; }
+    .chip { display: flex; align-items: center; gap: 7px; background: white; border: 1px solid var(--border); padding: 9px 18px; border-radius: 100px; font-size: 0.83rem; font-weight: 600; color: var(--mid); box-shadow: var(--shadow); }
+
+    /* DEMO */
+    .demo-section { background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 55%, #0891b2 100%); text-align: center; }
+    .demo-section .section-title { color: white; }
+    .demo-section .section-sub { color: rgba(255,255,255,0.72); margin: 0 auto 48px; }
+    .demo-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius-lg); padding: 48px; max-width: 580px; margin: 0 auto 40px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    .demo-avatar { width: 76px; height: 76px; border-radius: 50%; background: linear-gradient(135deg, #06b6d4, #3b82f6); display: flex; align-items: center; justify-content: center; font-size: 2rem; border: 3px solid rgba(255,255,255,0.25); }
+    .demo-number { font-size: 2.6rem; font-weight: 900; color: white; letter-spacing: 2px; text-decoration: none; }
+    .demo-number:hover { opacity: 0.85; }
+    .demo-sublabel { font-size: 0.82rem; color: rgba(255,255,255,0.6); }
+    .demo-btn { display: inline-flex; align-items: center; gap: 10px; background: white; color: var(--primary); font-size: 1rem; font-weight: 700; padding: 16px 36px; border-radius: 10px; text-decoration: none; box-shadow: 0 4px 20px rgba(0,0,0,0.15); transition: all .2s; }
+    .demo-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+    .demo-hints { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+    .demo-hint { display: flex; align-items: center; gap: 7px; color: rgba(255,255,255,0.65); font-size: 0.83rem; }
+
+    /* TRANSCRIPT */
+    .transcript { background: #0f172a; }
+    .transcript .section-title { color: white; }
+    .transcript .section-sub { color: rgba(255,255,255,0.55); }
+    .twindow { background: #1e293b; border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius-lg); overflow: hidden; max-width: 680px; margin: 0 auto; }
+    .tbar { background: #0f172a; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
+    .tdots { display: flex; gap: 6px; }
+    .tdots span { width: 11px; height: 11px; border-radius: 50%; }
+    .td1{background:#ef4444} .td2{background:#f59e0b} .td3{background:#22c55e}
+    .ttitle { color: rgba(255,255,255,0.4); font-size: 0.78rem; }
+    .tbody { padding: 26px; display: flex; flex-direction: column; gap: 14px; }
+    .msg { display: flex; flex-direction: column; gap: 4px; }
+    .msg-role { font-size: 0.68rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+    .msg-p .msg-role { color: #94a3b8; }
+    .msg-s .msg-role { color: #67e8f9; }
+    .bubble { border-radius: 10px; padding: 11px 15px; font-size: 0.86rem; line-height: 1.58; max-width: 85%; }
+    .msg-p { align-items: flex-end; }
+    .msg-p .bubble { background: #334155; color: rgba(255,255,255,0.82); }
+    .msg-s .bubble { background: linear-gradient(135deg, #1d4ed8, #0891b2); color: white; }
+
+    /* TESTIMONIALS */
+    .test-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .test-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 30px; display: flex; flex-direction: column; gap: 14px; }
+    .stars { color: #f59e0b; font-size: 0.95rem; letter-spacing: 1.5px; }
+    .quote { font-size: 0.92rem; color: var(--mid); line-height: 1.7; font-style: italic; }
+    .author { display: flex; align-items: center; gap: 12px; margin-top: auto; }
+    .avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; color: white; }
+    .author-name { font-size: 0.88rem; font-weight: 700; color: var(--dark); }
+    .author-role { font-size: 0.76rem; color: var(--muted); }
+
+    /* PRICING */
+    .pricing-bg { background: var(--surface); }
+    .price-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: start; }
+    .price-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 34px; position: relative; transition: box-shadow .25s; }
+    .price-card:hover { box-shadow: var(--shadow-lg); }
+    .price-card.feat { background: linear-gradient(145deg, #1e3a8a, var(--primary)); border: none; color: white; transform: scale(1.03); box-shadow: var(--shadow-lg); }
+    .price-badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; font-size: 0.7rem; font-weight: 700; padding: 4px 14px; border-radius: 100px; white-space: nowrap; }
+    .price-tier { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--primary); margin-bottom: 6px; }
+    .price-card.feat .price-tier { color: rgba(255,255,255,0.65); }
+    .price-name { font-size: 1.4rem; font-weight: 800; margin-bottom: 14px; }
+    .price-card.feat .price-name { color: white; }
+    .price-row { display: flex; align-items: baseline; gap: 3px; margin-bottom: 6px; }
+    .price-cur { font-size: 1.2rem; font-weight: 700; color: var(--dark); margin-top: 4px; }
+    .price-card.feat .price-cur { color: white; }
+    .price-amt { font-size: 2.8rem; font-weight: 900; color: var(--dark); line-height: 1; }
+    .price-card.feat .price-amt { color: white; }
+    .price-per { font-size: 0.82rem; color: var(--muted); }
+    .price-card.feat .price-per { color: rgba(255,255,255,0.6); }
+    .price-desc { font-size: 0.83rem; color: var(--muted); margin: 12px 0 22px; line-height: 1.5; }
+    .price-card.feat .price-desc { color: rgba(255,255,255,0.65); }
+    .price-div { height: 1px; background: var(--border); margin: 20px 0; }
+    .price-card.feat .price-div { background: rgba(255,255,255,0.15); }
+    .price-features { list-style: none; display: flex; flex-direction: column; gap: 11px; margin-bottom: 28px; }
+    .pf { display: flex; align-items: flex-start; gap: 9px; font-size: 0.86rem; color: var(--mid); }
+    .price-card.feat .pf { color: rgba(255,255,255,0.82); }
+    .chk { width: 17px; height: 17px; border-radius: 50%; background: #d1fae5; color: var(--green); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 900; flex-shrink: 0; margin-top: 1px; }
+    .price-card.feat .chk { background: rgba(16,185,129,0.2); color: #6ee7b7; }
+    .price-card.feat .btn-primary { background: white; color: var(--primary); }
+    .price-card.feat .btn-primary:hover { background: #eff6ff; }
+
+    /* FAQ */
+    .faq-list { max-width: 740px; margin: 0 auto; }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-q { width: 100%; background: none; border: none; text-align: left; padding: 22px 0; font-size: 0.98rem; font-weight: 600; color: var(--dark); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .faq-q:hover { color: var(--primary); }
+    .faq-icon { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); flex-shrink: 0; font-size: 1.1rem; transition: all .2s; }
+    .faq-item.open .faq-icon { background: var(--primary); border-color: var(--primary); color: white; transform: rotate(45deg); }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height .35s ease; }
+    .faq-item.open .faq-a { max-height: 250px; }
+    .faq-a-text { padding: 0 0 22px; font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+
+    /* FINAL CTA */
+    .final-cta { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #0891b2 100%); text-align: center; }
+    .final-cta .section-title { color: white; font-size: 2.8rem; }
+    .final-cta .section-sub { color: rgba(255,255,255,0.68); margin: 0 auto 44px; font-size: 1.05rem; }
+    .final-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .no-card { font-size: 0.8rem; color: rgba(255,255,255,0.42); margin-top: 16px; }
+    .cta-feats { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; margin-top: 36px; }
+    .cta-feat { display: flex; align-items: center; gap: 7px; font-size: 0.83rem; color: rgba(255,255,255,0.6); }
+    .cta-feat-chk { color: #22c55e; }
+
+    /* FOOTER */
+    footer { background: #0f172a; padding: 56px 5% 28px; border-top: 1px solid rgba(255,255,255,0.05); }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 44px; }
+    .footer-desc { font-size: 0.86rem; color: rgba(255,255,255,0.4); line-height: 1.7; margin-top: 12px; max-width: 270px; }
+    .footer-col h4 { font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 14px; }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+    .footer-links a { text-decoration: none; font-size: 0.86rem; color: rgba(255,255,255,0.5); transition: color .2s; }
+    .footer-links a:hover { color: white; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.05); padding-top: 22px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .footer-copy { font-size: 0.8rem; color: rgba(255,255,255,0.28); }
+    .footer-badges { display: flex; gap: 10px; }
+    .footer-badge { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.36); font-size: 0.7rem; font-weight: 600; padding: 3px 11px; border-radius: 100px; }
+
+    /* FLOAT BTN */
+    .float-btn { position: fixed; bottom: 26px; right: 26px; z-index: 99; display: flex; align-items: center; gap: 9px; background: var(--primary); color: white; text-decoration: none; padding: 13px 22px; border-radius: 50px; font-size: 0.88rem; font-weight: 700; box-shadow: 0 6px 28px rgba(29,78,216,0.5); transition: all .2s; animation: float 4s ease-in-out infinite; }
+    .float-btn:hover { background: var(--primary-dark); transform: scale(1.04); }
+    .float-pulse { width: 9px; height: 9px; border-radius: 50%; background: #22d3ee; animation: pulse 1.5s infinite; }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .feat-grid { grid-template-columns: repeat(2,1fr); }
+      .test-grid { grid-template-columns: repeat(2,1fr); }
+      .price-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+      .price-card.feat { transform: none; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hero-inner { grid-template-columns: 1fr; text-align: center; }
+      .hero h1 { font-size: 2.4rem; }
+      .hero-sub { margin: 0 auto 32px; }
+      .hero-ctas, .hero-stats { justify-content: center; }
+      .hero-visual { display: none; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .feat-grid, .test-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+      .section-title { font-size: 1.9rem; }
+      .final-cta .section-title { font-size: 1.9rem; }
+      .float-btn { display: none; }
+    }
+
+    /* VAPI CALL OVERLAY */
+    .vapi-overlay { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.92); z-index:1000; align-items:center; justify-content:center; }
+    .vapi-overlay.active { display:flex; }
+    .vapi-modal { background:linear-gradient(145deg,#1e293b,#0f172a); border:1px solid rgba(255,255,255,0.1); border-radius:24px; padding:48px 40px; text-align:center; max-width:380px; width:90%; box-shadow:0 40px 80px rgba(0,0,0,0.5); }
+    .vapi-waves { display:flex; align-items:flex-end; justify-content:center; gap:5px; height:52px; margin-bottom:20px; }
+    .vapi-waves span { width:5px; background:rgba(255,255,255,0.6); border-radius:10px; animation:wave 1.2s ease-in-out infinite; }
+    .vapi-waves span:nth-child(1){height:18px;animation-delay:0s} .vapi-waves span:nth-child(2){height:34px;animation-delay:.1s}
+    .vapi-waves span:nth-child(3){height:52px;animation-delay:.2s} .vapi-waves span:nth-child(4){height:30px;animation-delay:.3s}
+    .vapi-waves span:nth-child(5){height:44px;animation-delay:.4s} .vapi-waves span:nth-child(6){height:22px;animation-delay:.5s}
+    .vapi-waves span:nth-child(7){height:38px;animation-delay:.3s}
+    .vapi-label { font-size:0.72rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:6px; }
+    .vapi-name { color:white; font-size:1.5rem; font-weight:800; margin-bottom:8px; }
+    .vapi-live { display:flex; align-items:center; justify-content:center; gap:6px; color:#86efac; font-size:0.78rem; font-weight:600; margin-bottom:16px; }
+    .vapi-live-dot { width:8px; height:8px; border-radius:50%; background:#22c55e; animation:pulse 1.5s infinite; }
+    .vapi-sub { color:rgba(255,255,255,0.45); font-size:0.84rem; margin-bottom:28px; line-height:1.5; }
+    .vapi-end-btn { background:#ef4444; color:white; border:none; padding:13px 32px; border-radius:10px; font-size:0.92rem; font-weight:700; cursor:pointer; transition:background .2s; }
+    .vapi-end-btn:hover { background:#dc2626; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+      <circle cx="15" cy="15" r="14" fill="#1d4ed8"/>
+      <path d="M9 19c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+      <circle cx="15" cy="10" r="2.5" fill="#06b6d4"/>
+      <path d="M12 22h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Denta<span>Voice</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#how-it-works">How it works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#demo">Live Demo</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="#demo" class="btn btn-outline">Try Demo</a>
+    <a href="#contact" class="btn btn-primary">Book a Call</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Live AI Demo Available Now
+      </div>
+      <h1>Your Dental Clinic's<br><em>AI Receptionist</em><br>&#8212; 24 / 7</h1>
+      <p class="hero-sub">Sophie answers every call in under 2 seconds, checks your live calendar, books appointments and speaks English, French &amp; German. No missed patients. No hold music. No extra headcount.</p>
+      <div class="hero-ctas">
+        <a href="javascript:void(0)" onclick="startVapiCall()" class="btn btn-white btn-xl">&#128222;&nbsp; Call Sophie Now</a>
+        <a href="#how-it-works" class="btn btn-ghost btn-xl">See How It Works</a>
+      </div>
+      <div class="hero-stats">
+        <div><div class="stat-num">24/7</div><div class="stat-label">Always on</div></div>
+        <div><div class="stat-num">&lt;2s</div><div class="stat-label">Answer time</div></div>
+        <div><div class="stat-num">3</div><div class="stat-label">Languages</div></div>
+        <div><div class="stat-num">0</div><div class="stat-label">Missed calls</div></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-waves">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="phone-ai-label">AI Receptionist</div>
+          <div class="phone-name">Sophie</div>
+          <div class="phone-live">
+            <span class="phone-live-dot"></span> Active &amp; listening
+          </div>
+          <div class="phone-bubble">"Good morning, Bright Smiles Dental! I'm Sophie. How can I help you today?"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust">
+  <div class="trust-inner">
+    <span class="trust-text">Powered by</span>
+    <div class="trust-logos">
+      <span class="trust-logo">&#128197; Google Calendar</span>
+      <span class="trust-sep"></span>
+      <span class="trust-logo">&#128202; Google Sheets</span>
+      <span class="trust-sep"></span>
+      <span class="trust-logo">&#128222; Twilio</span>
+      <span class="trust-sep"></span>
+      <span class="trust-logo">&#129302; Vapi Voice AI</span>
+      <span class="trust-sep"></span>
+      <span class="trust-logo">&#128274; GDPR Ready</span>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-label" style="color:#f87171;">The Problem</div>
+      <h2 class="section-title">Your front desk is losing you patients every single day</h2>
+    </div>
+    <div class="problem-grid">
+      <div class="prob-card">
+        <div class="prob-icon">&#128245;</div>
+        <div class="prob-stat">62%</div>
+        <h3>Of calls go unanswered</h3>
+        <p>Most dental clinics miss over half their calls during procedures, lunch breaks and evenings. Every missed call is a patient who books your competitor instead.</p>
+      </div>
+      <div class="prob-card">
+        <div class="prob-icon">&#128176;</div>
+        <div class="prob-stat">&#8364;180</div>
+        <h3>Lost per missed patient</h3>
+        <p>Each missed call costs your clinic &#8364;180+ in lifetime value. Multiply by 20 missed calls a week and &#8364;3,600 vanishes every month without you realising.</p>
+      </div>
+      <div class="prob-card">
+        <div class="prob-icon">&#128532;</div>
+        <div class="prob-stat">41%</div>
+        <h3>Don't call back</h3>
+        <p>When callers hit voicemail or hold music, nearly half never leave a message. They simply book elsewhere. You never even know they called.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-label">How It Works</div>
+      <h2 class="section-title">From first ring to confirmed booking<br>in under 2 minutes</h2>
+      <p class="section-sub">Sophie handles the entire conversation &#8212; no hand-offs, no hold music, no double-bookings.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Patient calls your clinic number</h3>
+          <p>Your existing Twilio number routes to Sophie. She answers in under 2 seconds, greets the caller warmly by your clinic name and asks how she can help.</p>
+          <span class="step-tag">&#9889; Sub-2 second answer time</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Sophie checks your live calendar</h3>
+          <p>The patient asks about "next Tuesday." Sophie queries Google Calendar in real-time and offers up to 4 open time slots &#8212; only genuine availability, never invented times.</p>
+          <span class="step-tag">&#128197; Real-time Google Calendar sync</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Appointment confirmed &amp; logged instantly</h3>
+          <p>Sophie collects name, phone and reason for the visit, reads it all back, creates the calendar event, logs it to Google Sheets and gives the patient a confirmation number &#8212; all in one call.</p>
+          <span class="step-tag">&#9989; Instant calendar event + Sheets log</span>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>You see everything in your existing tools</h3>
+          <p>Every booking appears in your Google Calendar and Google Sheets immediately. No new software, no new login &#8212; works on any device your team already uses.</p>
+          <span class="step-tag">&#128202; Zero new software required</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-bg" id="features">
+  <div class="section-inner">
+    <div class="section-header center">
+      <div class="section-label">Features</div>
+      <h2 class="section-title">Everything a receptionist does &#8212; and more</h2>
+      <p class="section-sub">DentaVoice handles the full patient conversation so your team can focus on care, not calls.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-icon">&#128197;</div>
+        <h3>Real-Time Appointment Booking</h3>
+        <p>Reads your live calendar and offers only genuinely open slots. Appointments are created the instant the patient confirms &#8212; zero double-bookings.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">&#127757;</div>
+        <h3>Trilingual &#8212; EN / FR / DE</h3>
+        <p>Detects the caller's language automatically and switches mid-conversation. Perfect for Luxembourg and any multilingual patient base.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">&#128680;</div>
+        <h3>Emergency Triage</h3>
+        <p>Recognises dental emergencies, flags them as urgent, offers the earliest available slot and &#8212; for life-threatening situations &#8212; directs callers to call 112 immediately.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">&#128172;</div>
+        <h3>Clinic FAQ Handler</h3>
+        <p>Hours, parking, insurance (CNS, DKV, CMCM), services, doctor names &#8212; Sophie answers common questions without putting callers on hold or transferring.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">&#128202;</div>
+        <h3>Auto Log to Google Sheets</h3>
+        <p>Every booking is written instantly to a spreadsheet with patient name, phone, reason, doctor, date and time. Live reporting your team can share and filter.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">&#9881;&#65039;</div>
+        <h3>Fully Customisable Per Clinic</h3>
+        <p>Doctors, hours, services, languages, calendar &#8212; all tailored to your clinic. Setup takes under a week with zero coding from your side.</p>
+      </div>
+    </div>
+    <div class="chips">
+      <div class="chip">&#128197; Google Calendar</div>
+      <div class="chip">&#128202; Google Sheets</div>
+      <div class="chip">&#128222; Twilio</div>
+      <div class="chip">&#129302; Vapi Voice AI</div>
+      <div class="chip">&#9729;&#65039; EU Servers</div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE DEMO -->
+<section class="demo-section" id="demo">
+  <div class="section-inner">
+    <div class="section-label" style="color:#67e8f9;">Live Demo</div>
+    <h2 class="section-title">Talk to Sophie right now</h2>
+    <p class="section-sub">Call our demo clinic "Bright Smiles Dental" and experience the full booking flow. Sophie will answer, check real availability and confirm a real appointment.</p>
+    <div class="demo-card">
+      <div class="demo-avatar">&#129463;</div>
+      <div class="demo-sublabel">DEMO LINE &#8212; LIVE 24 / 7</div>
+      <a href="tel:+19898644408" class="demo-number">+1 (989) 864-4408</a>
+      <div class="demo-sublabel">Tap on mobile &nbsp;&middot;&nbsp; Dial on any phone</div>
+      <a href="javascript:void(0)" onclick="startVapiCall()" class="demo-btn">&#128222;&nbsp; Call the Demo Now</a>
+    </div>
+    <div class="demo-hints">
+      <div class="demo-hint">&#128172; "I'd like to book for next Monday"</div>
+      <div class="demo-hint">&#127757; Try speaking French or German</div>
+      <div class="demo-hint">&#129463; "Do you offer teeth whitening?"</div>
+      <div class="demo-hint">&#128336; "What are your opening hours?"</div>
+    </div>
+  </div>
+</section>
+
+<!-- TRANSCRIPT -->
+<section class="transcript">
+  <div class="section-inner" style="text-align:center;">
+    <div class="section-label" style="color:#67e8f9;">Sample Call</div>
+    <h2 class="section-title">See a real booking in action</h2>
+    <p class="section-sub" style="color:rgba(255,255,255,0.55);margin:0 auto 44px;">An actual call transcript &#8212; no script, no edits.</p>
+    <div class="twindow">
+      <div class="tbar">
+        <div class="tdots"><span class="td1"></span><span class="td2"></span><span class="td3"></span></div>
+        <span class="ttitle">Live call &#8212; Bright Smiles Dental</span>
+      </div>
+      <div class="tbody">
+        <div class="msg msg-s"><div class="msg-role">Sophie (AI)</div><div class="bubble">Good afternoon, Bright Smiles Dental! I'm Sophie. How can I help you today?</div></div>
+        <div class="msg msg-p"><div class="msg-role">Patient</div><div class="bubble">Hi, I'd like to book an appointment for next Tuesday if possible.</div></div>
+        <div class="msg msg-s"><div class="msg-role">Sophie (AI)</div><div class="bubble">Of course! Let me check Tuesday for you... I have slots at nine in the morning, half past ten, two in the afternoon, and four o'clock. Which works best?</div></div>
+        <div class="msg msg-p"><div class="msg-role">Patient</div><div class="bubble">Two in the afternoon, please.</div></div>
+        <div class="msg msg-s"><div class="msg-role">Sophie (AI)</div><div class="bubble">Perfect! Could I take your full name?</div></div>
+        <div class="msg msg-p"><div class="msg-role">Patient</div><div class="bubble">Sarah M&#252;ller.</div></div>
+        <div class="msg msg-s"><div class="msg-role">Sophie (AI)</div><div class="bubble">Thank you, Sarah! And your phone number so we can reach you if needed?</div></div>
+        <div class="msg msg-p"><div class="msg-role">Patient</div><div class="bubble">0621 456 789</div></div>
+        <div class="msg msg-s"><div class="msg-role">Sophie (AI)</div><div class="bubble">That's 0-6-2-1, 4-5-6, 7-8-9 &#8212; correct? And briefly, what's the reason for your visit?</div></div>
+        <div class="msg msg-p"><div class="msg-role">Patient</div><div class="bubble">Yes, correct. Just a routine check-up.</div></div>
+        <div class="msg msg-s"><div class="msg-role">Sophie (AI)</div><div class="bubble">You're all booked! Confirmation number DV-28471. Tuesday at 2 pm with Dr. Schmidt for a routine check-up. We look forward to seeing you! Is there anything else I can help with?</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="section-inner">
+    <div class="section-header center">
+      <div class="section-label">Testimonials</div>
+      <h2 class="section-title">Clinics love it. Patients love it.</h2>
+    </div>
+    <div class="test-grid">
+      <div class="test-card">
+        <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="quote">"We used to miss 15&#8211;20 calls a day during surgeries. Since deploying DentaVoice, every call is answered and 80% result in a booking without us lifting a finger. It paid for itself in week one."</p>
+        <div class="author">
+          <div class="avatar" style="background:linear-gradient(135deg,#1d4ed8,#06b6d4);">SK</div>
+          <div><div class="author-name">Dr. Sandra K.</div><div class="author-role">Principal Dentist, Luxembourg City</div></div>
+        </div>
+      </div>
+      <div class="test-card">
+        <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="quote">"Our multilingual patient base was a daily challenge. Sophie switches languages seamlessly &#8212; our French-speaking patients are delighted, and we haven't lost a single one to a language barrier since."</p>
+        <div class="author">
+          <div class="avatar" style="background:linear-gradient(135deg,#7c3aed,#db2777);">MP</div>
+          <div><div class="author-name">Marc P.</div><div class="author-role">Clinic Manager, Esch-sur-Alzette</div></div>
+        </div>
+      </div>
+      <div class="test-card">
+        <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="quote">"Setup was done in three days. The DentaVoice team configured everything &#8212; our calendar, hours, doctors. We didn't change a single workflow. It just silently handles calls in the background."</p>
+        <div class="author">
+          <div class="avatar" style="background:linear-gradient(135deg,#059669,#0891b2);">JL</div>
+          <div><div class="author-name">Dr. Julie L.</div><div class="author-role">Orthodontist, Kirchberg</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-bg" id="pricing">
+  <div class="section-inner">
+    <div class="section-header center">
+      <div class="section-label">Pricing</div>
+      <h2 class="section-title">Simple, transparent pricing</h2>
+      <p class="section-sub">No long-term contracts. Cancel any month. All plans include white-glove onboarding and a 30-day free pilot.</p>
+    </div>
+    <div class="price-grid">
+      <div class="price-card">
+        <div class="price-tier">Starter</div>
+        <div class="price-name">Solo Practice</div>
+        <div class="price-row"><span class="price-cur">&#8364;</span><span class="price-amt">299</span></div>
+        <div class="price-per">per month</div>
+        <div class="price-desc">For solo dentists wanting to eliminate missed calls without complexity.</div>
+        <div class="price-div"></div>
+        <ul class="price-features">
+          <li class="pf"><span class="chk">&#10003;</span>AI receptionist (Sophie)</li>
+          <li class="pf"><span class="chk">&#10003;</span>1 doctor / 1 calendar</li>
+          <li class="pf"><span class="chk">&#10003;</span>Up to 500 calls/month</li>
+          <li class="pf"><span class="chk">&#10003;</span>English + 1 language</li>
+          <li class="pf"><span class="chk">&#10003;</span>Google Calendar &amp; Sheets</li>
+          <li class="pf"><span class="chk">&#10003;</span>Email support</li>
+        </ul>
+        <a href="#contact" class="btn btn-outline btn-lg" style="width:100%;justify-content:center;">Get Started</a>
+      </div>
+      <div class="price-card feat">
+        <div class="price-badge">Most Popular</div>
+        <div class="price-tier">Growth</div>
+        <div class="price-name">Group Practice</div>
+        <div class="price-row"><span class="price-cur">&#8364;</span><span class="price-amt">549</span></div>
+        <div class="price-per">per month</div>
+        <div class="price-desc">For multi-doctor clinics ready for a fully autonomous front desk.</div>
+        <div class="price-div"></div>
+        <ul class="price-features">
+          <li class="pf"><span class="chk">&#10003;</span>Everything in Starter</li>
+          <li class="pf"><span class="chk">&#10003;</span>Up to 5 doctors &amp; calendars</li>
+          <li class="pf"><span class="chk">&#10003;</span>Unlimited calls</li>
+          <li class="pf"><span class="chk">&#10003;</span>English + French + German</li>
+          <li class="pf"><span class="chk">&#10003;</span>SMS confirmations to patients</li>
+          <li class="pf"><span class="chk">&#10003;</span>Monthly call analytics report</li>
+          <li class="pf"><span class="chk">&#10003;</span>Priority phone support</li>
+        </ul>
+        <a href="#contact" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;">Get Started</a>
+      </div>
+      <div class="price-card">
+        <div class="price-tier">Enterprise</div>
+        <div class="price-name">Clinic Network</div>
+        <div class="price-row"><span class="price-cur" style="color:var(--dark);">&#8364;</span><span class="price-amt" style="color:var(--dark);">Custom</span></div>
+        <div class="price-per">per month</div>
+        <div class="price-desc">For dental groups and networks operating multiple locations.</div>
+        <div class="price-div"></div>
+        <ul class="price-features">
+          <li class="pf"><span class="chk">&#10003;</span>Everything in Growth</li>
+          <li class="pf"><span class="chk">&#10003;</span>Unlimited locations</li>
+          <li class="pf"><span class="chk">&#10003;</span>Dedicated AI persona per site</li>
+          <li class="pf"><span class="chk">&#10003;</span>PMS / CRM integration</li>
+          <li class="pf"><span class="chk">&#10003;</span>GDPR data processing agreement</li>
+          <li class="pf"><span class="chk">&#10003;</span>Dedicated account manager</li>
+        </ul>
+        <a href="#contact" class="btn btn-outline btn-lg" style="width:100%;justify-content:center;">Contact Us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="section-inner">
+    <div class="section-header center">
+      <div class="section-label">FAQ</div>
+      <h2 class="section-title">Common questions</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How long does setup take? <span class="faq-icon">+</span></button>
+        <div class="faq-a"><div class="faq-a-text">Most clinics are live within 3&#8211;5 business days. We handle the entire technical setup &#8212; Google Calendar sharing, phone number configuration, and AI personalisation. You provide your hours, doctor names and phone number; we take it from there.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Will Sophie replace my front desk staff? <span class="faq-icon">+</span></button>
+        <div class="faq-a"><div class="faq-a-text">No. DentaVoice handles routine calls (bookings, hours, FAQs) so your team can focus on in-clinic care and complex patient situations. Sophie handles the repetitive 70% of calls, freeing your staff for interactions that genuinely need a human touch.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Does it work with my existing calendar? <span class="faq-icon">+</span></button>
+        <div class="faq-a"><div class="faq-a-text">DentaVoice integrates natively with Google Calendar. If your practice management software syncs to Google Calendar (most do), Sophie sees your real-time availability automatically. Enterprise plans include direct PMS / CRM integrations.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What happens if a patient has an emergency? <span class="faq-icon">+</span></button>
+        <div class="faq-a"><div class="faq-a-text">Sophie is trained to recognise dental emergencies. For severe pain, swelling, trauma or bleeding she flags the call as urgent and offers the earliest available slot. For life-threatening situations she instructs the caller to hang up and dial 112 immediately.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Is this GDPR compliant? <span class="faq-icon">+</span></button>
+        <div class="faq-a"><div class="faq-a-text">Yes. Calls are processed on EU servers. Patient data is stored in your own Google Calendar and Sheets &#8212; you own and control it. Enterprise plans include a formal Data Processing Agreement. We never sell or share patient data.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Can I try it before committing? <span class="faq-icon">+</span></button>
+        <div class="faq-a"><div class="faq-a-text">Yes &#8212; call our live demo at +1 (989) 864-4408 right now. We also offer a 30-day pilot with your own calendar and real patient calls. If you're not satisfied, you pay nothing.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta" id="contact">
+  <div class="section-inner">
+    <div class="section-label" style="color:#67e8f9;">Get Started</div>
+    <h2 class="section-title">Ready to never miss a patient call again?</h2>
+    <p class="section-sub">Join dental clinics across Luxembourg that have handed their phones to Sophie &#8212; and haven't looked back.</p>
+    <div class="final-btns">
+      <a href="javascript:void(0)" onclick="startVapiCall()" class="btn btn-white btn-xl">&#128222;&nbsp; Call Demo &#8212; +1 (989) 864-4408</a>
+      <a href="mailto:hello@dentavoice.com?subject=Set up DentaVoice for my clinic&body=Clinic name:%0D%0ANumber of doctors:%0D%0AMonthly call volume (approx):%0D%0AYour phone number:" class="btn btn-ghost btn-xl">&#9993;&#65039;&nbsp; Email Us</a>
+    </div>
+    <p class="no-card">No credit card required &nbsp;&middot;&nbsp; Setup in 3&#8211;5 days &nbsp;&middot;&nbsp; Cancel anytime</p>
+    <div class="cta-feats">
+      <div class="cta-feat"><span class="cta-feat-chk">&#10003;</span> 30-day free pilot</div>
+      <div class="cta-feat"><span class="cta-feat-chk">&#10003;</span> White-glove setup</div>
+      <div class="cta-feat"><span class="cta-feat-chk">&#10003;</span> GDPR compliant</div>
+      <div class="cta-feat"><span class="cta-feat-chk">&#10003;</span> No long-term contract</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <a href="#" class="nav-logo" style="font-size:1.25rem;">
+          <svg width="26" height="26" viewBox="0 0 30 30" fill="none">
+            <circle cx="15" cy="15" r="14" fill="#1d4ed8"/>
+            <path d="M9 19c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+            <circle cx="15" cy="10" r="2.5" fill="#06b6d4"/>
+            <path d="M12 22h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Denta<span>Voice</span>
+        </a>
+        <p class="footer-desc">AI-powered voice receptionist for dental clinics. 24/7 appointment booking, multilingual, fully integrated with your calendar. Based in Luxembourg.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul class="footer-links">
+          <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#demo">Live Demo</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul class="footer-links">
+          <li><a href="#">About</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="mailto:hello@dentavoice.com">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul class="footer-links">
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">GDPR</a></li>
+          <li><a href="#">Data Processing</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">&#169; 2026 DentaVoice. All rights reserved.</p>
+      <div class="footer-badges">
+        <span class="footer-badge">EU Servers</span>
+        <span class="footer-badge">GDPR Ready</span>
+        <span class="footer-badge">EN / FR / DE</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- FLOATING CALL BUTTON -->
+<!-- VAPI CALL OVERLAY -->
+<div class="vapi-overlay" id="vapiOverlay">
+  <div class="vapi-modal">
+    <div class="vapi-waves">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <p class="vapi-label">AI Receptionist</p>
+    <h3 class="vapi-name">Sophie</h3>
+    <div class="vapi-live">
+      <span class="vapi-live-dot"></span>
+      <span id="vapiStatus">Connecting...</span>
+    </div>
+    <p class="vapi-sub" id="vapiSub">Please allow microphone access when prompted</p>
+    <button class="vapi-end-btn" onclick="endVapiCall()">&#128245; End Call</button>
+  </div>
+</div>
+
+<a href="javascript:void(0)" onclick="startVapiCall()" class="float-btn">
+  <span class="float-pulse"></span>
+  &#128222; Try Demo
+</a>
+
+<script>
+  // FAQ accordion
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  }
+
+  // Nav scroll shadow
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').style.boxShadow =
+      window.scrollY > 10 ? '0 2px 20px rgba(15,23,42,0.1)' : 'none';
+  });
+
+  // Active nav link highlight
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY + 100;
+    sections.forEach(s => {
+      if (y >= s.offsetTop && y < s.offsetTop + s.offsetHeight) {
+        links.forEach(a => {
+          const active = a.getAttribute('href') === '#' + s.id;
+          a.style.color = active ? 'var(--primary)' : '';
+          a.style.fontWeight = active ? '700' : '';
+        });
+      }
+    });
+  });
+
+  // Vapi Web SDK — browser voice call
+  let vapi = null;
+  let vapiReady = false;
+  let callActive = false;
+
+  (function loadVapiSDK() {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@vapi-ai/web/dist/vapi.iife.js';
+    s.onload = function () {
+      vapi = new Vapi('488a6b72-0bed-42d2-90b7-0c19fc10adba');
+      vapiReady = true;
+
+      vapi.on('call-start', function () {
+        document.getElementById('vapiStatus').textContent = 'Live — speak now';
+        document.getElementById('vapiSub').textContent = 'Sophie is listening. Ask about appointments, hours or services.';
+      });
+
+      vapi.on('call-end', function () {
+        closeVapiOverlay();
+      });
+
+      vapi.on('error', function (err) {
+        document.getElementById('vapiStatus').textContent = 'Connection failed';
+        document.getElementById('vapiSub').textContent = (err && err.message) ? err.message : 'Please try again or call +1 (989) 864-4408';
+        callActive = false;
+        setTimeout(closeVapiOverlay, 3500);
+      });
+    };
+    s.onerror = function () {
+      console.warn('Vapi SDK failed to load');
+    };
+    document.head.appendChild(s);
+  })();
+
+  function waitForVapi() {
+    return new Promise(function (resolve) {
+      var attempts = 0;
+      var interval = setInterval(function () {
+        if (vapiReady || ++attempts > 20) { clearInterval(interval); resolve(); }
+      }, 500);
+    });
+  }
+
+  async function startVapiCall() {
+    if (callActive) return;
+
+    // Show overlay immediately so the user gets instant feedback
+    document.getElementById('vapiStatus').textContent = 'Starting...';
+    document.getElementById('vapiSub').textContent = 'Getting ready';
+    document.getElementById('vapiOverlay').classList.add('active');
+
+    // Wait up to 10 s for SDK (handles incognito / cold cache)
+    if (!vapiReady) {
+      document.getElementById('vapiStatus').textContent = 'Loading...';
+      document.getElementById('vapiSub').textContent = 'Just a moment while we load the voice SDK';
+      await waitForVapi();
+      if (!vapiReady) {
+        closeVapiOverlay();
+        window.location.href = 'tel:+19898644408';
+        return;
+      }
+    }
+
+    callActive = true;
+
+    // Request mic ourselves first so the browser prompt appears immediately
+    // rather than after Vapi's internal setup delay (~5 s)
+    try {
+      document.getElementById('vapiStatus').textContent = 'Allow microphone';
+      document.getElementById('vapiSub').textContent = 'Click "Allow" in the browser bar above to start your call';
+      var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(function (t) { t.stop(); }); // release — Vapi re-acquires
+    } catch (err) {
+      document.getElementById('vapiStatus').textContent = 'Microphone blocked';
+      document.getElementById('vapiSub').textContent = 'Please allow microphone access in your browser settings and try again';
+      callActive = false;
+      setTimeout(closeVapiOverlay, 4000);
+      return;
+    }
+
+    document.getElementById('vapiStatus').textContent = 'Connecting Sophie...';
+    document.getElementById('vapiSub').textContent = 'Establishing call — this takes a few seconds';
+    vapi.start('bb721977-cd5a-4fa1-ae21-13f5663cd048');
+  }
+
+  function endVapiCall() {
+    if (vapi) vapi.stop();
+    closeVapiOverlay();
+  }
+
+  function closeVapiOverlay() {
+    callActive = false;
+    document.getElementById('vapiOverlay').classList.remove('active');
+  }
+</script>
+</body>
+</html>
