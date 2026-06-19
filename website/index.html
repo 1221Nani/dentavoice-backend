@@ -720,25 +720,19 @@ const PHONE_NUMBER      = "+12603005428";
 let vapiInstance = null;
 let callActive   = false;
 
-// Load VAPI SDK and initialise with our custom button (no default VAPI button)
-(function(d, t) {
-  var g = document.createElement(t), s = d.getElementsByTagName(t)[0];
-  g.src   = "https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js";
-  g.defer = true; g.async = true;
-  s.parentNode.insertBefore(g, s);
+// Load VAPI SDK (stable npm CDN)
+(function() {
+  var g = document.createElement('script');
+  g.src = "https://cdn.jsdelivr.net/npm/@vapi-ai/web/dist/vapi.iife.js";
+  g.async = true;
   g.onload = function() {
-    vapiInstance = window.vapiSDK.run({
-      apiKey:    VAPI_PUBLIC_KEY,
-      assistant: VAPI_ASSISTANT_ID,
-      config:    { hideDefaultButton: true }
-    });
-    if (vapiInstance) {
-      vapiInstance.on('call-start', () => setCallState(true));
-      vapiInstance.on('call-end',   () => setCallState(false));
-      vapiInstance.on('error',      () => setCallState(false));
-    }
+    vapiInstance = new Vapi(VAPI_PUBLIC_KEY);
+    vapiInstance.on('call-start', () => setCallState(true));
+    vapiInstance.on('call-end',   () => setCallState(false));
+    vapiInstance.on('error',      () => setCallState(false));
   };
-})(document, "script");
+  document.head.appendChild(g);
+})();
 
 function startVAPICall() {
   if(callActive) {
@@ -747,9 +741,8 @@ function startVAPICall() {
     return;
   }
   if(vapiInstance) {
-    vapiInstance.start();
+    vapiInstance.start(VAPI_ASSISTANT_ID);
   } else {
-    // SDK still loading — try native speech as instant fallback
     startVoiceDemo();
   }
 }
