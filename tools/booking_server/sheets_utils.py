@@ -18,12 +18,12 @@ def _service():
 def ensure_header():
     svc = _service()
     result = svc.spreadsheets().values().get(
-        spreadsheetId=BOOKINGS_SHEET_ID, range="Sheet1!A1:I1"
+        spreadsheetId=BOOKINGS_SHEET_ID, range="A1:I1"
     ).execute()
     if not result.get("values"):
         svc.spreadsheets().values().update(
             spreadsheetId=BOOKINGS_SHEET_ID,
-            range="Sheet1!A1:I1",
+            range="A1:I1",
             valueInputOption="USER_ENTERED",
             body={"values": [HEADER]},
         ).execute()
@@ -43,7 +43,7 @@ def log_booking(data: dict):
     ]
     _service().spreadsheets().values().append(
         spreadsheetId=BOOKINGS_SHEET_ID,
-        range="Sheet1!A:I",
+        range="A:I",
         valueInputOption="USER_ENTERED",
         body={"values": [row]},
     ).execute()
