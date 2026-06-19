@@ -740,10 +740,38 @@ function startVAPICall() {
     setCallState(false);
     return;
   }
+  // Show connecting state immediately so the user knows something is happening
+  const btn = document.getElementById('voiceBtn');
+  const icon = document.getElementById('voiceIcon');
+  const label = document.getElementById('vapiLabel');
+  const heroBtn = document.getElementById('vapiCallBtn');
+  if(icon) icon.textContent = '⏳';
+  if(label) label.textContent = 'Connecting…';
+  if(heroBtn) heroBtn.textContent = '⏳ Connecting…';
+  if(btn) btn.disabled = true;
+  appendDemoMsg('⏳ Connecting to Sophie — allow microphone access when prompted…', 'ai');
+
   if(vapiInstance) {
     vapiInstance.start(VAPI_ASSISTANT_ID);
   } else {
-    startVoiceDemo();
+    // SDK still loading — wait for it then start
+    const poll = setInterval(() => {
+      if(vapiInstance) {
+        clearInterval(poll);
+        vapiInstance.start(VAPI_ASSISTANT_ID);
+      }
+    }, 200);
+    // Fallback after 8 seconds
+    setTimeout(() => {
+      clearInterval(poll);
+      if(!callActive) {
+        if(btn) btn.disabled = false;
+        if(icon) icon.textContent = '📞';
+        if(label) label.textContent = 'Start AI Call';
+        if(heroBtn) heroBtn.textContent = '📞 Call the AI Now';
+        startVoiceDemo();
+      }
+    }, 8000);
   }
 }
 
@@ -755,18 +783,18 @@ function setCallState(active) {
   const label = document.getElementById('vapiLabel');
   const heroBtn = document.getElementById('vapiCallBtn');
   if(active) {
+    if(btn) { btn.classList.add('playing'); btn.disabled = false; }
     if(icon) { icon.textContent = '🔴'; icon.classList.add('playing'); }
     if(wave) wave.style.display = 'flex';
     if(label) label.textContent = 'End Call';
     if(heroBtn) heroBtn.textContent = '🔴 End Call';
-    if(btn) btn.classList.add('playing');
-    appendDemoMsg('📞 Live AI call connected — speak now!', 'ai');
+    appendDemoMsg('📞 Connected! Sophie is speaking — listen and respond naturally.', 'ai');
   } else {
+    if(btn) { btn.classList.remove('playing'); btn.disabled = false; }
     if(icon) { icon.textContent = '📞'; icon.classList.remove('playing'); }
     if(wave) wave.style.display = 'none';
     if(label) label.textContent = 'Start AI Call';
     if(heroBtn) heroBtn.textContent = '📞 Call the AI Now';
-    if(btn) btn.classList.remove('playing');
   }
 }
 

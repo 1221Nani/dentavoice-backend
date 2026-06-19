@@ -1,7 +1,10 @@
 import json
 import logging
 from contextlib import asynccontextmanager
+from datetime import datetime
 from pathlib import Path
+
+import pytz
 from fastapi import FastAPI, Request, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
@@ -170,13 +173,30 @@ def _dispatch(name: str, args: dict) -> str:
             "Is there anything else I can help with?"
         )
 
+    elif name == "getCurrentDateTime":
+        tz = pytz.timezone(CLINIC_CONFIG["timezone"])
+        now = datetime.now(tz)
+        return (
+            f"The current date and time is "
+            f"{now.strftime('%A, %B %d, %Y')} at {now.strftime('%I:%M %p')} "
+            f"({CLINIC_CONFIG['timezone']})."
+        )
+
     elif name == "getClinicInfo":
         doctors = ", ".join(CLINIC_CONFIG["doctors"])
+        services = (
+            "routine check-ups, hygiene cleaning, teeth whitening, fillings, "
+            "dental implants, orthodontics, and children's dentistry"
+        )
         open_days = []
         for day, hrs in CLINIC_CONFIG["business_hours"].items():
             if hrs:
                 open_days.append(f"{day.capitalize()} {hrs['start']}–{hrs['end']}")
-        return f"Our doctors are: {doctors}. Opening hours: {'; '.join(open_days)}."
+        return (
+            f"Our services include: {services}. "
+            f"Our doctors are: {doctors}. "
+            f"Opening hours: {'; '.join(open_days)}."
+        )
 
     else:
         log.warning(f"Unknown tool called: {name}")

@@ -24,7 +24,32 @@ HEADERS = {
     "Content-Type": "application/json",
 }
 
+FIRST_MESSAGE = (
+    "Thank you for calling Bright Smiles Dental! "
+    "This is Sophie, your AI receptionist. How can I help you today?"
+)
+
 TOOLS = [
+    {
+        "type": "function",
+        "server": {
+            "url": f"{SERVER_URL}/vapi/tools",
+            "secret": VAPI_SECRET,
+        },
+        "function": {
+            "name": "getCurrentDateTime",
+            "description": (
+                "Get the current date and time in the clinic's timezone. "
+                "Call this whenever a patient asks what time it is, what today's date is, "
+                "or what day of the week it is. Never guess the date or time from memory."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+            },
+        },
+    },
     {
         "type": "function",
         "server": {
@@ -123,9 +148,10 @@ LANGUAGES: Default to English. If the caller speaks French or German, switch ful
 
 YOU CAN:
 1. BOOK APPOINTMENTS — ask what date they'd like, then call checkAvailability to get real open slots. Offer up to 4 options. Once they pick a time, collect their full name, phone number, and reason for the visit. Repeat both back. Then call bookAppointment to confirm. Read back the date, time, doctor, and confirmation number. Say "You're all booked — we look forward to seeing you."
-2. ANSWER CLINIC FAQs — For hours and available doctors, call getClinicInfo. Services: check-ups, hygiene cleaning, teeth whitening, fillings, implants, orthodontics, children's dentistry. Address: 12 Avenue de la Liberté, Luxembourg City. Parking nearby.
+2. ANSWER CLINIC FAQs — For hours and available doctors, call getClinicInfo. Our services are: routine check-ups, hygiene cleaning, teeth whitening, fillings, dental implants, orthodontics, and children's dentistry. Address: 12 Avenue de la Liberté, Luxembourg City. Parking nearby. When asked about services, list them clearly.
 3. INSURANCE — The clinic works with CNS reimbursement; patients pay and are reimbursed per CNS tariffs. Complementary insurers like DKV or CMCM may cover the remainder, depending on the policy.
 4. EMERGENCIES — For severe pain, swelling, trauma or bleeding: show empathy, say you're flagging it as urgent and the on-call dentist will be notified immediately, and offer the earliest available slot. If anything sounds life-threatening (difficulty breathing, uncontrolled bleeding, loss of consciousness), tell them to hang up and call 112 right away.
+5. DATE AND TIME — If a caller asks what time it is, what today's date is, or what day of the week it is, call getCurrentDateTime immediately. Never state or guess the date or time from memory.
 
 BOOKING FLOW:
 1. Ask what date they'd like → call checkAvailability (convert natural language to YYYY-MM-DD internally; speak dates naturally to the caller)
@@ -163,7 +189,10 @@ def configure_tools():
 
     # Tools must live under model.tools, not at the top level
     updated_model = {**existing_model, "tools": TOOLS}
-    payload = {"model": updated_model}
+    payload = {
+        "model": updated_model,
+        "firstMessage": FIRST_MESSAGE,
+    }
     r = requests.patch(
         f"https://api.vapi.ai/assistant/{VAPI_ASSISTANT_ID}",
         headers=HEADERS,
@@ -172,7 +201,8 @@ def configure_tools():
 
     if r.status_code == 200:
         print("✅  Tools updated successfully!")
-        print("    Tools wired: checkAvailability, bookAppointment, getClinicInfo")
+        print("    Tools wired: getCurrentDateTime, checkAvailability, bookAppointment, getClinicInfo")
+        print(f"    First message set: {FIRST_MESSAGE[:60]}...")
     else:
         print(f"❌  Failed: {r.status_code}")
         print(r.text)
