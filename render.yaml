@@ -20,7 +20,7 @@ services:
       - key: CLINIC_TIMEZONE
         value: Europe/Luxembourg
       - key: BOOKING_SERVER_URL
-        value: https://dentavoice-booking.onrender.com
+        value: https://dentavoice-backend.onrender.com
       - key: TWILIO_ACCOUNT_SID
         sync: false
       - key: TWILIO_AUTH_TOKEN
