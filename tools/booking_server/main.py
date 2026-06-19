@@ -55,6 +55,45 @@ def health():
     return {"status": "ok", "service": "DentaVoice Booking API"}
 
 
+@app.get("/test-notify")
+async def test_notify():
+    """Diagnostic: attempt to send a test notification and return exactly what happened."""
+    from config import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER, TWILIO_WHATSAPP_FROM, OWNER_PHONE
+
+    checks = {
+        "TWILIO_ACCOUNT_SID": bool(TWILIO_ACCOUNT_SID),
+        "TWILIO_AUTH_TOKEN": bool(TWILIO_AUTH_TOKEN),
+        "TWILIO_FROM_NUMBER": TWILIO_FROM_NUMBER or "NOT SET",
+        "TWILIO_WHATSAPP_FROM": TWILIO_WHATSAPP_FROM or "NOT SET",
+        "OWNER_PHONE": OWNER_PHONE or "NOT SET",
+    }
+
+    if not OWNER_PHONE:
+        return JSONResponse({"error": "OWNER_PHONE is not set in env vars", "checks": checks})
+
+    from sms_utils import _format_phone, _client, TWILIO_FROM_NUMBER as FROM, TWILIO_WHATSAPP_FROM as WA_FROM
+    to = _format_phone(OWNER_PHONE)
+    results = {}
+
+    try:
+        msg = _client().messages.create(to=to, from_=FROM, body="DentaVoice test SMS - working!")
+        results["sms"] = {"status": "sent", "sid": msg.sid}
+    except Exception as e:
+        results["sms"] = {"status": "failed", "error": str(e)}
+
+    try:
+        msg = _client().messages.create(
+            to=f"whatsapp:{to}",
+            from_=f"whatsapp:{WA_FROM}",
+            body="DentaVoice test WhatsApp - working!",
+        )
+        results["whatsapp"] = {"status": "sent", "sid": msg.sid}
+    except Exception as e:
+        results["whatsapp"] = {"status": "failed", "error": str(e)}
+
+    return JSONResponse({"checks": checks, "results": results})
+
+
 @app.post("/lead")
 async def capture_lead(request: Request):
     try:
