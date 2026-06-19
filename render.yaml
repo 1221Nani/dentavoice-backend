@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: dentavoice-booking
+    runtime: python
+    buildCommand: pip install -r tools/booking_server/requirements.txt
+    startCommand: cd tools/booking_server && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: VAPI_API_KEY
+        sync: false
+      - key: VAPI_ASSISTANT_ID
+        sync: false
+      - key: VAPI_SECRET
+        sync: false
+      - key: GOOGLE_SERVICE_ACCOUNT_B64
+        sync: false
+      - key: CLINIC_CALENDAR_ID
+        sync: false
+      - key: BOOKINGS_SHEET_ID
+        sync: false
+      - key: CLINIC_TIMEZONE
+        value: Europe/Luxembourg
+      - key: BOOKING_SERVER_URL
+        value: https://dentavoice-booking.onrender.com
