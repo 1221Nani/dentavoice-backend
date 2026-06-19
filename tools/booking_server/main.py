@@ -3,20 +3,28 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, HTTPException, Header
 from fastapi.responses import JSONResponse
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from calendar_utils import get_available_slots, book_appointment
 from sheets_utils import log_booking, ensure_header
+from sms_utils import send_booking_confirmation
+from reminder_scheduler import check_and_send_reminders
 from config import VAPI_SECRET, CLINIC_CONFIG
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
+scheduler = BackgroundScheduler()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     ensure_header()
-    log.info("DentaVoice Booking API started")
+    scheduler.add_job(check_and_send_reminders, "interval", minutes=15, id="reminders")
+    scheduler.start()
+    log.info("DentaVoice Booking API started — reminder scheduler running every 15 min")
     yield
+    scheduler.shutdown()
 
 
 app = FastAPI(title="DentaVoice Booking API", version="1.0.0", lifespan=lifespan)
@@ -93,21 +101,37 @@ def _dispatch(name: str, args: dict) -> str:
         if len(t) == 4 and t[1] == ":":
             t = "0" + t
 
+        # Step 1: Create calendar event
         try:
             booking = book_appointment(name_p, phone, date, t, doctor, reason)
-            log_booking({**booking, "patient_name": name_p, "patient_phone": phone, "reason": reason})
-            return (
-                f"All booked! Your confirmation number is {booking['confirmation_id']}. "
-                f"Appointment: {booking['date']} at {booking['time']} "
-                f"with {booking['doctor']} ({booking['duration_minutes']} minutes). "
-                "We look forward to seeing you — is there anything else I can help with?"
-            )
         except Exception as e:
-            log.error(f"Booking failed: {e}", exc_info=True)
+            log.error(f"Calendar booking failed: {e}", exc_info=True)
             return (
-                "I'm sorry, something went wrong while booking. "
+                "I'm sorry, something went wrong while booking the appointment. "
                 "Please call us directly and we'll sort it out right away."
             )
+
+        booking_data = {**booking, "patient_name": name_p, "patient_phone": phone, "reason": reason}
+
+        # Step 2: Log to Sheets (non-fatal — calendar event already exists)
+        try:
+            log_booking(booking_data)
+        except Exception as e:
+            log.error(f"Sheets logging failed (booking still confirmed): {e}", exc_info=True)
+
+        # Step 3: Send confirmation SMS (non-fatal)
+        try:
+            send_booking_confirmation(phone, booking_data)
+        except Exception as e:
+            log.error(f"Confirmation SMS failed (booking still confirmed): {e}", exc_info=True)
+
+        return (
+            f"All booked! Your confirmation number is {booking['confirmation_id']}. "
+            f"Appointment: {booking['date']} at {booking['time']} "
+            f"with {booking['doctor']} ({booking['duration_minutes']} minutes). "
+            "You'll receive a text confirmation shortly. "
+            "Is there anything else I can help with?"
+        )
 
     elif name == "getClinicInfo":
         doctors = ", ".join(CLINIC_CONFIG["doctors"])

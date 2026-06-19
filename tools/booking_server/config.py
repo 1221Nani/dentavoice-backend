@@ -12,6 +12,10 @@ CLINIC_CALENDAR_ID = os.getenv("CLINIC_CALENDAR_ID")
 BOOKINGS_SHEET_ID = os.getenv("BOOKINGS_SHEET_ID")
 CLINIC_TIMEZONE = os.getenv("CLINIC_TIMEZONE", "Europe/Luxembourg")
 BOOKING_SERVER_URL = os.getenv("BOOKING_SERVER_URL", "https://dentavoice-booking.onrender.com")
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_FROM_NUMBER = os.getenv("TWILIO_FROM_NUMBER")
+TWILIO_WHATSAPP_FROM = os.getenv("TWILIO_WHATSAPP_FROM", "+14155238886")
 
 
 def get_google_credentials():
