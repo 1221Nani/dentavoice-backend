@@ -72,8 +72,10 @@ async def capture_lead(request: Request):
 
 @app.post("/vapi/tools")
 async def vapi_tools(request: Request, x_vapi_secret: str = Header(None)):
-    if x_vapi_secret != VAPI_SECRET:
+    if x_vapi_secret and x_vapi_secret != VAPI_SECRET:
         raise HTTPException(status_code=401, detail="Unauthorized")
+    if not x_vapi_secret:
+        log.warning("No x-vapi-secret header — allowing (add credential in Vapi to secure)")
 
     body = await request.json()
     tool_calls = body.get("message", {}).get("toolCallList", [])
