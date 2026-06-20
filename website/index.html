@@ -729,17 +729,22 @@ window.addEventListener('load', function() {
   fetch('https://dentavoice-backend.onrender.com/health').catch(function(){});
 });
 
-// Load VAPI SDK (stable npm CDN)
+// Load VAPI SDK (pinned to @latest for explicit resolution)
 (function() {
   var g = document.createElement('script');
-  g.src = "https://cdn.jsdelivr.net/npm/@vapi-ai/web/dist/vapi.iife.js";
+  g.src = "https://cdn.jsdelivr.net/npm/@vapi-ai/web@latest/dist/vapi.iife.js";
   g.async = true;
   g.onload = function() {
-    vapiInstance = new Vapi(VAPI_PUBLIC_KEY);
-    vapiInstance.on('call-start', () => setCallState(true));
-    vapiInstance.on('call-end',   () => setCallState(false));
-    vapiInstance.on('error',      () => setCallState(false));
+    try {
+      vapiInstance = new Vapi(VAPI_PUBLIC_KEY);
+      vapiInstance.on('call-start', () => setCallState(true));
+      vapiInstance.on('call-end',   () => setCallState(false));
+      vapiInstance.on('error',      (e) => { console.error('VAPI error', e); setCallState(false); });
+    } catch(e) {
+      console.error('VAPI SDK init failed:', e);
+    }
   };
+  g.onerror = function() { console.error('VAPI SDK failed to load from CDN'); };
   document.head.appendChild(g);
 })();
 
@@ -772,7 +777,16 @@ function startVAPICall() {
   appendDemoMsg('⏳ Connecting to Sophie — allow microphone access when prompted…', 'ai');
 
   if(vapiInstance) {
-    vapiInstance.start(VAPI_ASSISTANT_ID, _vapiAssistantOverrides());
+    try {
+      vapiInstance.start(VAPI_ASSISTANT_ID, _vapiAssistantOverrides());
+    } catch(e) {
+      console.error('VAPI start failed:', e);
+      if(btn) btn.disabled = false;
+      if(icon) icon.textContent = '📞';
+      if(label) label.textContent = 'Start AI Call';
+      if(heroBtn) heroBtn.textContent = '📞 Call the AI Now';
+      appendDemoMsg('⚠️ Could not connect. Try calling ' + PHONE_NUMBER + ' directly.', 'ai');
+    }
   } else {
     // SDK still loading — wait for it then start
     const poll = setInterval(() => {
