@@ -845,8 +845,15 @@ function animateCounters(){
   });
 }
 const statsBar=document.querySelector('.stats-bar');
-const obs=new IntersectionObserver(e=>{if(e[0].isIntersecting){animateCounters();obs.disconnect()}},{threshold:.3});
-obs.observe(statsBar);
+if(statsBar){
+  const obs=new IntersectionObserver(e=>{if(e[0].isIntersecting){animateCounters();obs.disconnect()}},{threshold:0,rootMargin:'0px 0px -50px 0px'});
+  obs.observe(statsBar);
+  // Also run immediately if already in view
+  setTimeout(()=>{
+    const r=statsBar.getBoundingClientRect();
+    if(r.top<window.innerHeight)animateCounters();
+  },300);
+}
 
 /* ─── VOICE DEMO (Web Speech API) ──────────────── */
 const voiceScripts=[
