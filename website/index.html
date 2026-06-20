@@ -734,6 +734,17 @@ let callActive   = false;
   document.head.appendChild(g);
 })();
 
+function _vapiAssistantOverrides() {
+  const now = new Date();
+  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric',
+                 hour:'numeric', minute:'2-digit', hour12:true, timeZoneName:'short' };
+  return {
+    variableValues: {
+      current_datetime: now.toLocaleString('en-US', opts)
+    }
+  };
+}
+
 function startVAPICall() {
   if(callActive) {
     if(vapiInstance) vapiInstance.stop();
@@ -752,13 +763,13 @@ function startVAPICall() {
   appendDemoMsg('⏳ Connecting to Sophie — allow microphone access when prompted…', 'ai');
 
   if(vapiInstance) {
-    vapiInstance.start(VAPI_ASSISTANT_ID);
+    vapiInstance.start(VAPI_ASSISTANT_ID, _vapiAssistantOverrides());
   } else {
     // SDK still loading — wait for it then start
     const poll = setInterval(() => {
       if(vapiInstance) {
         clearInterval(poll);
-        vapiInstance.start(VAPI_ASSISTANT_ID);
+        vapiInstance.start(VAPI_ASSISTANT_ID, _vapiAssistantOverrides());
       }
     }, 200);
     // Fallback after 8 seconds

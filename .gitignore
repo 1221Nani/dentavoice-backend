@@ -6,3 +6,12 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# Google service account credentials
+*-[0-9a-f]*.json
+
+# Build artifacts
+*.zip
+
+# Local Claude Code settings
+.claude/settings.json
