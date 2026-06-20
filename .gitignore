@@ -15,3 +15,9 @@ venv/
 
 # Local Claude Code settings
 .claude/settings.json
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
