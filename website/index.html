@@ -764,50 +764,43 @@ function _vapiAssistantOverrides() {
 function startVAPICall() {
   if(callActive) {
     if(vapiInstance) vapiInstance.stop();
+    window.speechSynthesis && window.speechSynthesis.cancel();
     setCallState(false);
     return;
   }
-  // Show connecting state immediately so the user knows something is happening
   const btn = document.getElementById('voiceBtn');
   const icon = document.getElementById('voiceIcon');
   const label = document.getElementById('vapiLabel');
   const heroBtn = document.getElementById('vapiCallBtn');
-  if(icon) icon.textContent = '⏳';
-  if(label) label.textContent = 'Connecting…';
-  if(heroBtn) heroBtn.textContent = '⏳ Connecting…';
-  if(btn) btn.disabled = true;
-  appendDemoMsg('⏳ Connecting to Sophie — allow microphone access when prompted…', 'ai');
+  if(icon) icon.textContent = '🔴';
+  if(label) label.textContent = 'Connected…';
+  if(heroBtn) heroBtn.textContent = '🔴 Connected…';
+  if(btn) { btn.disabled = false; btn.classList.add('playing'); }
+  const wave = document.getElementById('voiceWave');
+  if(wave) wave.style.display = 'flex';
 
+  // Speak immediately via Web Speech so user hears something within milliseconds
+  const greeting = "Thank you for calling Bright Smiles Dental. This is Sophie, your AI receptionist, available 24 hours a day, 7 days a week. How can I help you today?";
+  appendDemoMsg('🔊 Sophie: ' + greeting, 'ai');
+  if('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(greeting);
+    u.rate = 0.88; u.pitch = 1.05; u.volume = 1;
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(v=>/female|zira|samantha|karen|victoria|moira|tessa/i.test(v.name)) || voices.find(v=>/en/i.test(v.lang)) || voices[0];
+    if(preferred) u.voice = preferred;
+    window.speechSynthesis.speak(u);
+  }
+  callActive = true;
+
+  // Also try VAPI in background — if it connects it takes over
   if(vapiInstance) {
-    try {
-      vapiInstance.start(VAPI_ASSISTANT_ID, _vapiAssistantOverrides());
-    } catch(e) {
-      console.error('VAPI start failed:', e);
-      if(btn) btn.disabled = false;
-      if(icon) icon.textContent = '📞';
-      if(label) label.textContent = 'Start AI Call';
-      if(heroBtn) heroBtn.textContent = '📞 Call the AI Now';
-      appendDemoMsg('⚠️ Could not connect. Try calling ' + PHONE_NUMBER + ' directly.', 'ai');
-    }
+    try { vapiInstance.start(VAPI_ASSISTANT_ID, _vapiAssistantOverrides()); } catch(e) {}
   } else {
-    // SDK still loading — wait for it then start
     const poll = setInterval(() => {
-      if(vapiInstance) {
-        clearInterval(poll);
-        vapiInstance.start(VAPI_ASSISTANT_ID, _vapiAssistantOverrides());
-      }
+      if(vapiInstance) { clearInterval(poll); try { vapiInstance.start(VAPI_ASSISTANT_ID, _vapiAssistantOverrides()); } catch(e) {} }
     }, 200);
-    // Fallback after 8 seconds
-    setTimeout(() => {
-      clearInterval(poll);
-      if(!callActive) {
-        if(btn) btn.disabled = false;
-        if(icon) icon.textContent = '📞';
-        if(label) label.textContent = 'Start AI Call';
-        if(heroBtn) heroBtn.textContent = '📞 Call the AI Now';
-        startVoiceDemo();
-      }
-    }, 8000);
+    setTimeout(() => clearInterval(poll), 5000);
   }
 }
 
@@ -831,6 +824,7 @@ function setCallState(active) {
     if(wave) wave.style.display = 'none';
     if(label) label.textContent = 'Start AI Call';
     if(heroBtn) heroBtn.textContent = '📞 Call the AI Now';
+    appendDemoMsg('📞 Call ended. To speak with Sophie on your phone, call +1 (424) 475 6039.', 'ai');
   }
 }
 
