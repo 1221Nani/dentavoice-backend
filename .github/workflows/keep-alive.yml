@@ -1,4 +1,4 @@
-name: Keep AdPilot Backend Alive
+name: Keep Backends Alive
 on:
   schedule:
     - cron: '*/14 * * * *'
@@ -7,10 +7,24 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping AdPilot health endpoint
+      - name: Ping DentaVoice booking backend
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.RENDER_BACKEND_URL }}/api/health)
-          echo "Health check status: $STATUS"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://dentavoice-backend.onrender.com/health)
+          echo "DentaVoice health: $STATUS"
           if [ "$STATUS" != "200" ]; then
-            echo "Warning: backend returned $STATUS"
+            echo "Warning: DentaVoice backend returned $STATUS"
+          fi
+
+      - name: Ping AdPilot backend
+        env:
+          RENDER_BACKEND_URL: ${{ secrets.RENDER_BACKEND_URL }}
+        run: |
+          if [ -z "$RENDER_BACKEND_URL" ]; then
+            echo "RENDER_BACKEND_URL not set — skipping AdPilot ping"
+            exit 0
+          fi
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$RENDER_BACKEND_URL/api/health")
+          echo "AdPilot health: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "Warning: AdPilot backend returned $STATUS"
           fi
