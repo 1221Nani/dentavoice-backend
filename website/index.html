@@ -835,9 +835,12 @@ function setCallState(active) {
 }
 
 /* ─── COUNTER ANIMATION ─────────────────────────── */
+let countersRan=false;
 function animateCounters(){
+  if(countersRan)return;
+  countersRan=true;
   document.querySelectorAll('[data-target]').forEach(el=>{
-    const target=+el.dataset.target, suffix=el.nextSibling?.textContent?.replace(el.textContent,'') || '';
+    const target=+el.dataset.target;
     let cur=0; const step=target/60;
     const t=setInterval(()=>{
       cur=Math.min(cur+step,target);
@@ -848,13 +851,8 @@ function animateCounters(){
 }
 const statsBar=document.querySelector('.stats-bar');
 if(statsBar){
-  const obs=new IntersectionObserver(e=>{if(e[0].isIntersecting){animateCounters();obs.disconnect()}},{threshold:0,rootMargin:'0px 0px -50px 0px'});
+  const obs=new IntersectionObserver(e=>{if(e[0].isIntersecting){animateCounters();obs.disconnect();}},{threshold:0.1});
   obs.observe(statsBar);
-  // Also run immediately if already in view
-  setTimeout(()=>{
-    const r=statsBar.getBoundingClientRect();
-    if(r.top<window.innerHeight)animateCounters();
-  },300);
 }
 
 /* ─── VOICE DEMO (Web Speech API) ──────────────── */
@@ -906,7 +904,7 @@ const aiReplies={
   'book':['I can book that for you right now! We have openings: Tuesday 2PM, Wednesday 11AM, Thursday 10AM, or Friday 3PM. Which day works best?','Perfect! And what\'s the best name and phone number for the booking? I\'ll send a confirmation text right after.'],
   'appointment':['Absolutely! What type of appointment do you need — a routine check-up, a specific treatment, or something urgent?','Great. We have availability Tuesday at 2PM or Thursday at 10AM. Which suits you best?'],
   'hour':['We\'re open Monday–Friday 8AM–6PM and Saturdays 9AM–2PM. But our AI receptionist (that\'s me!) is available 24/7 to book appointments and answer questions anytime!'],
-  'insurance':['I can answer patient questions about CNS reimbursement and private complementary insurance (DKV, CMCM, Foyer) based on your clinic\\'s own setup — so patients know what to expect before they arrive.'],
+  'insurance':['I can answer patient questions about CNS reimbursement and private complementary insurance (DKV, CMCM, Foyer) based on your clinic\'s own setup — so patients know what to expect before they arrive.'],
   'emergency':['This sounds urgent — I\'m treating this as a priority! I\'m alerting your dentist right now. In the meantime: if you\'re in severe pain, please go to your nearest urgent care. Can you describe your symptoms so I can brief the doctor?'],
   'price':['Our fees vary by treatment. A standard check-up and clean starts at $89. Fillings from $120. We also offer flexible payment plans. Would you like a full cost estimate for a specific treatment?'],
   'tooth':['I\'m sorry to hear that! Toothache can mean different things — how long have you been in pain, and would you rate it mild, moderate, or severe? I can either book you for tomorrow morning or, if it\'s severe, treat this as an emergency.'],
