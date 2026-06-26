@@ -899,17 +899,22 @@ window.speechSynthesis.onvoiceschanged=function(){window.speechSynthesis.getVoic
 
 /* ─── DEMO CHAT ─────────────────────────────────── */
 const aiReplies={
-  'book':['I can book that for you right now! We have openings: Tuesday 2PM, Wednesday 11AM, Thursday 10AM, or Friday 3PM. Which day works best?','Perfect! And what\'s the best name and phone number for the booking? I\'ll send a confirmation text right after.'],
-  'appointment':['Absolutely! What type of appointment do you need — a routine check-up, a specific treatment, or something urgent?','Great. We have availability Tuesday at 2PM or Thursday at 10AM. Which suits you best?'],
-  'hour':['We\'re open Monday–Friday 8AM–6PM and Saturdays 9AM–2PM. But our AI receptionist (that\'s me!) is available 24/7 to book appointments and answer questions anytime!'],
-  'insurance':['I can answer patient questions about CNS reimbursement and private complementary insurance (DKV, CMCM, Foyer) based on your clinic\'s own setup — so patients know what to expect before they arrive.'],
-  'emergency':['This sounds urgent — I\'m treating this as a priority! I\'m alerting your dentist right now. In the meantime: if you\'re in severe pain, please go to your nearest urgent care. Can you describe your symptoms so I can brief the doctor?'],
-  'price':['Our fees vary by treatment. A standard check-up and clean starts at $89. Fillings from $120. We also offer flexible payment plans. Would you like a full cost estimate for a specific treatment?'],
-  'tooth':['I\'m sorry to hear that! Toothache can mean different things — how long have you been in pain, and would you rate it mild, moderate, or severe? I can either book you for tomorrow morning or, if it\'s severe, treat this as an emergency.'],
-  'cancel':['No problem at all! I\'ve flagged your appointment for cancellation. Could you confirm your name and appointment date so I can complete this?'],
-  'remind':['I\'ll note that! We automatically send SMS reminders 24 hours and 2 hours before every appointment. Would you also like a phone call reminder?'],
-  'location':['Bright Smiles Dental is located at 1428 Oak Street, Suite 200. We have free parking in the lot behind the building. Would you like me to text you the directions?'],
-  'default':['Thanks for getting in touch! I\'m the AI receptionist for Bright Smiles Dental. I can book appointments, answer your questions, or connect you with the team. What do you need?','Got it! Let me help you with that. Could you tell me a little more so I can give you the best answer?','Happy to help! I can handle bookings, FAQs, and emergencies anytime. What would you like to do?'],
+  'book':['I can book that right now! We have openings Tuesday at 2PM, Wednesday at 11AM, or Thursday at 10AM. Which works for you?','Perfect! Just tell me your name and mobile number — I\'ll send you a confirmation via SMS and WhatsApp straight away.'],
+  'appointment':['Of course! What type of appointment — routine check-up, a specific treatment, or something urgent?','Great. We have Tuesday at 2PM or Thursday at 10AM available. Which suits you? I\'ll just need your name and mobile to confirm and send you a reminder.'],
+  'hour':['We\'re open Monday to Friday 8AM to 6PM and Saturdays 9AM to 2PM. But I\'m available 24 hours a day, 7 days a week to book appointments anytime!'],
+  'service':['We offer routine check-ups and cleaning, fillings, teeth whitening, root canal treatment, extractions, crowns and bridges, orthodontics, and emergency dental care. Would you like to book any of these today?'],
+  'today':['Today\'s date is '+new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'. Would you like to book an appointment for today or another day?'],
+  'date':['Today is '+new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'. Is there an appointment date you have in mind?'],
+  'insurance':['We work with CNS reimbursement and private complementary insurance including DKV, CMCM, and Foyer. Patients know exactly what to expect before they arrive. Would you like to book?'],
+  'emergency':['This sounds urgent — I\'m flagging this as a priority right now! Please describe your symptoms so I can brief the dentist. If you\'re in severe pain, head to your nearest urgent care and I\'ll alert the team immediately.'],
+  'price':['A standard check-up and clean starts at €89. Fillings from €120. We offer flexible payment plans too. Can I book you in for a consultation so we can give you an exact quote?'],
+  'tooth':['I\'m sorry to hear that! How long have you been in pain, and is it mild, moderate, or severe? I can book you for first thing tomorrow, or treat this as an emergency if needed.'],
+  'cancel':['No problem! Could you give me your name and the appointment date so I can cancel it for you right away?'],
+  'remind':['We automatically send SMS and WhatsApp reminders 24 hours and 2 hours before every appointment. You\'ll never miss it!'],
+  'location':['We\'re at 1428 Oak Street, Suite 200, with free parking behind the building. Would you like me to send you the address via text?'],
+  'sms':['Yes! Every booking gets an instant SMS and WhatsApp confirmation sent to your mobile number, plus reminders before your appointment. No email needed.'],
+  'whatsapp':['Absolutely — we send booking confirmations and reminders via WhatsApp and SMS. Just share your mobile number when booking and you\'ll get everything straight to your phone.'],
+  'default':['I\'m the AI receptionist for Bright Smiles Dental. I can book appointments, answer questions about our services, or handle emergencies — 24 hours a day. How can I help?','Sure! Could you tell me a little more so I can give you the best answer?','Happy to help! I can book appointments, tell you about our services, or help with anything else. What do you need?'],
 };
 function getAIReply(msg){
   const m=msg.toLowerCase();
@@ -933,22 +938,26 @@ function showTyping(){
   s.appendChild(t);s.scrollTop=s.scrollHeight;
   return t;
 }
+function speakReply(text){
+  if(!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.rate=0.88; u.pitch=1.05; u.volume=1;
+  const voices=window.speechSynthesis.getVoices();
+  const preferred=voices.find(v=>/female|zira|samantha|karen|victoria|moira|tessa/i.test(v.name))||voices.find(v=>/en/i.test(v.lang))||voices[0];
+  if(preferred) u.voice=preferred;
+  window.speechSynthesis.speak(u);
+}
 function sendDemoMsg(msg){
   appendDemoMsg(msg,'user');
+  window.speechSynthesis && window.speechSynthesis.cancel();
   const t=showTyping();
   setTimeout(()=>{
     t.remove();
     const reply=getAIReply(msg);
     appendDemoMsg(reply,'ai');
-    if('speechSynthesis' in window&&!voicePlaying){
-      const u=new SpeechSynthesisUtterance(reply);
-      u.rate=0.9;u.pitch=1.05;
-      const voices=window.speechSynthesis.getVoices();
-      const preferred=voices.find(v=>/female|zira|samantha|karen|victoria|moira|tessa/i.test(v.name))||voices[0];
-      if(preferred)u.voice=preferred;
-      window.speechSynthesis.speak(u);
-    }
-  },1200+Math.random()*600);
+    speakReply(reply);
+  },900+Math.random()*400);
 }
 function sendDemoChat(){
   const inp=document.getElementById('demoInput');
