@@ -715,6 +715,19 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 3
   </div>
 </div>
 
+<vapi-widget
+  public-key="504ffa78-bd95-40c7-af2c-d0e44b1debfe"
+  assistant-id="bb721977-cd5a-4fa1-ae21-13f5663cd048"
+  mode="voice"
+  position="bottom-right"
+  size="compact"
+  theme="dark"
+  main-label="Talk to Sophie"
+  start-button-text="Start Call"
+  end-button-text="End Call"
+  empty-voice-message="Click to start a voice conversation"
+></vapi-widget>
+
 <script>
 // ── VAPI Configuration (live) ──────────────────────
 const VAPI_PUBLIC_KEY   = "504ffa78-bd95-40c7-af2c-d0e44b1debfe";
@@ -735,29 +748,12 @@ window.addEventListener('load', function() {
 // Load the official Vapi widget, which handles browser/mobile audio more reliably.
 (function() {
   var g = document.createElement('script');
-  g.src = "https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js";
+  g.src = "https://unpkg.com/@vapi-ai/client-sdk-react/dist/embed/widget.umd.js";
   g.async = true;
   g.defer = true;
   g.onload = function() {
     try {
-      vapiInstance = window.vapiSDK.run({
-        apiKey: VAPI_PUBLIC_KEY,
-        assistant: VAPI_ASSISTANT_ID,
-        config: {
-          mode: 'voice',
-          position: 'bottom-right',
-          size: 'compact',
-          theme: 'dark',
-          mainLabel: 'Talk to Sophie',
-          startButtonText: 'Start Call',
-          endButtonText: 'End Call',
-          emptyVoiceMessage: 'Click to start a voice conversation',
-          buttonBaseColor: '#00d4a4',
-          buttonAccentColor: '#000000',
-          showTranscript: true,
-        },
-      });
-
+      vapiInstance = document.querySelector('vapi-widget');
       bindVapiWidgetEvents();
       setTimeout(bindVapiWidgetEvents, 1000);
     } catch(e) {
