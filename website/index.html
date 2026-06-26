@@ -779,21 +779,9 @@ function startVAPICall() {
   const wave = document.getElementById('voiceWave');
   if(wave) wave.style.display = 'flex';
 
-  // Speak immediately via Web Speech so user hears something within milliseconds
-  const greeting = "Thank you for calling Bright Smiles Dental. This is Sophie, your AI receptionist, available 24 hours a day, 7 days a week. How can I help you today?";
-  appendDemoMsg('🔊 Sophie: ' + greeting, 'ai');
-  if('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(greeting);
-    u.rate = 0.88; u.pitch = 1.05; u.volume = 1;
-    const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find(v=>/female|zira|samantha|karen|victoria|moira|tessa/i.test(v.name)) || voices.find(v=>/en/i.test(v.lang)) || voices[0];
-    if(preferred) u.voice = preferred;
-    window.speechSynthesis.speak(u);
-  }
   callActive = true;
 
-  // Also try VAPI in background — if it connects it takes over
+  // Let Vapi handle the call voice so Sophie stays on the configured clone.
   if(vapiInstance) {
     try { vapiInstance.start(VAPI_ASSISTANT_ID, _vapiAssistantOverrides()); } catch(e) {}
   } else {
@@ -854,6 +842,13 @@ if(statsBar){
 }
 
 /* ─── VOICE DEMO (Web Speech API) ──────────────── */
+function pickFemaleVoice() {
+  if(!('speechSynthesis' in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  const femaleMatch = /female|zira|samantha|karen|victoria|moira|tessa|hazel|serena|ava|allison|emma|lisa|susan|google uk english female/i;
+  return voices.find(v => femaleMatch.test(v.name)) || null;
+}
+
 const voiceScripts=[
   "Thank you for calling Bright Smiles Dental. This is your AI receptionist. I'm available 24 hours a day, 7 days a week. How can I help you today?",
   "I'd be happy to book an appointment for you. We have availability this Tuesday at 2 PM or Thursday at 10 AM. Which works best for you?",
@@ -867,10 +862,9 @@ function startVoiceDemo(){
   const script=voiceScripts[voiceIdx%voiceScripts.length]; voiceIdx++;
   const u=new SpeechSynthesisUtterance(script);
   u.rate=0.88; u.pitch=1.05; u.volume=1;
-  // Pick a female voice if available
-  const voices=window.speechSynthesis.getVoices();
-  const preferred=voices.find(v=>/female|zira|samantha|karen|victoria|moira|tessa/i.test(v.name)) || voices.find(v=>/en/i.test(v.lang)) || voices[0];
-  if(preferred)u.voice=preferred;
+  const preferred=pickFemaleVoice();
+  if(!preferred){ window.speechSynthesis.cancel(); setVoiceState(false); return; }
+  u.voice=preferred;
   u.onend=()=>setVoiceState(false);
   u.onerror=()=>setVoiceState(false);
   window.speechSynthesis.speak(u);
@@ -988,9 +982,9 @@ function speakReply(text){
   window.speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(text);
   u.rate=0.88; u.pitch=1.05; u.volume=1;
-  const voices=window.speechSynthesis.getVoices();
-  const preferred=voices.find(v=>/female|zira|samantha|karen|victoria|moira|tessa/i.test(v.name))||voices.find(v=>/en/i.test(v.lang))||voices[0];
-  if(preferred) u.voice=preferred;
+  const preferred=pickFemaleVoice();
+  if(!preferred) return;
+  u.voice=preferred;
   window.speechSynthesis.speak(u);
 }
 function sendDemoMsg(msg){
