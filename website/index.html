@@ -898,32 +898,77 @@ function setVoiceState(playing){
 window.speechSynthesis.onvoiceschanged=function(){window.speechSynthesis.getVoices()};
 
 /* ─── DEMO CHAT ─────────────────────────────────── */
-const aiReplies={
-  'book':['I can book that right now! We have openings Tuesday at 2PM, Wednesday at 11AM, or Thursday at 10AM. Which works for you?','Perfect! Just tell me your name and mobile number — I\'ll send you a confirmation via SMS and WhatsApp straight away.'],
-  'appointment':['Of course! What type of appointment — routine check-up, a specific treatment, or something urgent?','Great. We have Tuesday at 2PM or Thursday at 10AM available. Which suits you? I\'ll just need your name and mobile to confirm and send you a reminder.'],
-  'hour':['We\'re open Monday to Friday 8AM to 6PM and Saturdays 9AM to 2PM. But I\'m available 24 hours a day, 7 days a week to book appointments anytime!'],
-  'service':['We offer routine check-ups and cleaning, fillings, teeth whitening, root canal treatment, extractions, crowns and bridges, orthodontics, and emergency dental care. Would you like to book any of these today?'],
-  'today':['Today\'s date is '+new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'. Would you like to book an appointment for today or another day?'],
-  'date':['Today is '+new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'. Is there an appointment date you have in mind?'],
-  'insurance':['We work with CNS reimbursement and private complementary insurance including DKV, CMCM, and Foyer. Patients know exactly what to expect before they arrive. Would you like to book?'],
-  'emergency':['This sounds urgent — I\'m flagging this as a priority right now! Please describe your symptoms so I can brief the dentist. If you\'re in severe pain, head to your nearest urgent care and I\'ll alert the team immediately.'],
-  'price':['A standard check-up and clean starts at €89. Fillings from €120. We offer flexible payment plans too. Can I book you in for a consultation so we can give you an exact quote?'],
-  'tooth':['I\'m sorry to hear that! How long have you been in pain, and is it mild, moderate, or severe? I can book you for first thing tomorrow, or treat this as an emergency if needed.'],
-  'cancel':['No problem! Could you give me your name and the appointment date so I can cancel it for you right away?'],
-  'remind':['We automatically send SMS and WhatsApp reminders 24 hours and 2 hours before every appointment. You\'ll never miss it!'],
-  'location':['We\'re at 1428 Oak Street, Suite 200, with free parking behind the building. Would you like me to send you the address via text?'],
-  'sms':['Yes! Every booking gets an instant SMS and WhatsApp confirmation sent to your mobile number, plus reminders before your appointment. No email needed.'],
-  'whatsapp':['Absolutely — we send booking confirmations and reminders via WhatsApp and SMS. Just share your mobile number when booking and you\'ll get everything straight to your phone.'],
-  'default':['I\'m the AI receptionist for Bright Smiles Dental. I can book appointments, answer questions about our services, or handle emergencies — 24 hours a day. How can I help?','Sure! Could you tell me a little more so I can give you the best answer?','Happy to help! I can book appointments, tell you about our services, or help with anything else. What do you need?'],
-};
+const _today=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const _time=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+const demoKB=[
+  {keys:['book','schedul','appointment','see a dentist','come in','visit','slot','availab','reserve','make a','fix a'],
+   reply:'Of course! We have openings this week: Tuesday at 2PM, Wednesday at 11AM, and Thursday at 10AM. Which works for you? Just share your name and mobile number and I\'ll send a confirmation straight away via SMS and WhatsApp — no email needed.'},
+  {keys:['reschedul','change my appointment','move my appointment','different time','different day','postpone'],
+   reply:'No problem at all! Please give me your name and your current appointment date and I\'ll get that moved for you right away. You\'ll receive an updated confirmation via SMS and WhatsApp.'},
+  {keys:['cancel','cancell','won\'t make it','can\'t come','not able to','remove my','cancel my','cancel appointment','cancelling'],
+   reply:'Understood! Just confirm your name and appointment date and I\'ll cancel it immediately. Would you like me to book you in for another time while I\'m here?'},
+  {keys:['hour','open','close','opening time','closing time','when are you','what time','office hour','work hour','business hour','monday','tuesday','wednesday','thursday','friday','saturday','sunday','weekend'],
+   reply:'We\'re open Monday to Friday 8AM–6PM and Saturday 9AM–2PM. We\'re closed Sundays. But I\'m here 24 hours a day, 7 days a week to book appointments or answer questions anytime!'},
+  {keys:['service','offer','provide','what can you','speciali','procedure','what do you','what treatment','what dental'],
+   reply:'We offer: routine check-ups and cleaning, white fillings, teeth whitening, root canal treatment, tooth extractions, crowns and bridges, dental implants, orthodontics and clear aligners, children\'s dentistry, and emergency dental care. Would you like to book any of these?'},
+  {keys:['clean','hygien','scale','polish','check.?up','check up','routine'],
+   reply:'A routine check-up and professional clean takes about 45 minutes. We recommend every 6 months. It starts at €89 and includes a full oral health assessment. Shall I book you in?'},
+  {keys:['whiten','bleach','white teeth','cosmetic','bright'],
+   reply:'We offer professional teeth whitening — both in-clinic (1 hour, results immediately) and take-home kits. In-clinic whitening starts at €250. Would you like to book a consultation?'},
+  {keys:['filling','cavity','decay','hole in','caries'],
+   reply:'White composite fillings start from €120 depending on size. The procedure is quick — usually 30–45 minutes under local anaesthetic. Shall I check availability for you?'},
+  {keys:['root canal','nerve','infected tooth','abscess','throbbing'],
+   reply:'Root canal treatment removes the infection inside the tooth to save it. It typically takes 1–2 appointments. I\'d recommend booking an emergency or priority appointment — shall I do that now?'},
+  {keys:['extract','pull','remove a tooth','tooth out','wisdom'],
+   reply:'Tooth extractions including wisdom teeth are carried out by our dentist under local anaesthetic. Simple extractions start at €80. Surgical wisdom tooth removal starts at €180. Would you like to book?'},
+  {keys:['crown','bridge','cap','veneer','porcelain'],
+   reply:'We fit crowns, bridges, and veneers to restore damaged or missing teeth. Crowns start at €450. I\'d recommend a consultation first so the dentist can advise the best option — shall I book that?'},
+  {keys:['implant','missing tooth','missing teeth','replace a tooth','do you do implant','do you offer implant','tooth implant'],
+   reply:'Dental implants are a permanent solution for missing teeth. An implant with a crown starts from €1,200. We offer a free implant consultation — would you like me to book that for you?'},
+  {keys:['brace','orthodont','aligner','invisalign','straight teeth','crooked','do you do brace','do you offer brace','teeth align'],
+   reply:'We offer orthodontics including traditional braces and clear aligners. Clear aligner treatment starts from €1,800. A free orthodontic consultation is available — shall I book you in?'},
+  {keys:['child','kid','children','paediatric','pediatric','my son','my daughter','baby','infant','young'],
+   reply:'We love seeing young patients! We recommend a child\'s first dental visit by age 2. Children\'s check-ups start at €50. We make it fun and stress-free. Would you like to book for your little one?'},
+  {keys:['emergency','urgent','severe pain','can\'t sleep','broken tooth','knocked','swollen','bleeding','abscess','excruciating','hurts badly','really bad'],
+   reply:'This sounds like a dental emergency — I\'m treating this as a priority! Please describe your symptoms so I can brief the dentist. We keep emergency slots available every day. If you\'re in severe pain right now, please go to your nearest urgent care. Shall I book you an emergency slot?'},
+  {keys:['pain','ache','hurt','sore','sensitive','toothache','my tooth'],
+   reply:'I\'m sorry to hear you\'re in discomfort. How long has it been hurting, and would you rate it mild, moderate, or severe? I can book you for the earliest available slot — or flag it as an emergency if needed.'},
+  {keys:['insurance','cns','dkv','cmcm','foyer','covered','coverage','reimburse','mutuelle','health plan','pay by'],
+   reply:'We work with CNS reimbursement and private complementary insurance including DKV, CMCM, and Foyer. Most routine treatments are at least partially covered. Patients are told what to expect cost-wise before any treatment starts. Would you like to book?'},
+  {keys:['price','cost','fee','how much','charge','expensive','afford','pay','rate','quote'],
+   reply:'Here\'s a quick guide — Check-up & clean: from €89 · Filling: from €120 · Whitening: from €250 · Crown: from €450 · Implant: from €1,200 · Root canal: from €350. We also offer flexible payment plans. Want a specific quote? I can book a free consultation.'},
+  {keys:['location','address','where','find you','directions','parking','how to get','near','close to','map'],
+   reply:'We\'re at 1428 Oak Street, Suite 200. There\'s free parking in the lot behind the building. Would you like me to send the address and directions to your mobile?'},
+  {keys:['sms','whatsapp','text message','notification','no email','without email','send me a text','send confirmation','do you send','after booking','after appointment','confirmation message'],
+   reply:'Yes — every booking gets an instant SMS and WhatsApp confirmation sent to your mobile number, plus reminders 24 hours and 2 hours before your appointment. We never need your email address.'},
+  {keys:['how long','duration','wait','time take','takes','quick'],
+   reply:'It depends on the treatment — check-up: 45 min · Filling: 30–45 min · Extraction: 30 min · Root canal: 60–90 min · Whitening: 60 min. Waiting times are minimal as we book by appointment. Want me to schedule yours?'},
+  {keys:['dentist','doctor','staff','team','who','dr ','specialist','surgeon'],
+   reply:'Our team includes experienced general dentists, an orthodontist, and an oral surgeon. All are fully qualified and registered. Would you like to book with a specific type of specialist?'},
+  {keys:['new patient','first time','first visit','never been','register','sign up'],
+   reply:'Welcome! New patients are always welcome. Your first visit includes a full examination and X-rays so the dentist has a complete picture of your oral health. It takes about 60 minutes. Shall I book your new patient appointment?'},
+  {keys:['date','today','what day','what\'s the date','current date','day is it'],
+   reply:'Today is '+_today+' and the time is '+_time+'. Would you like to book an appointment for today or another day?'},
+  {keys:['hello','hi','hey','good morning','good afternoon','good evening','howdy','greetings'],
+   reply:'Hello! I\'m Sophie, the AI receptionist at Bright Smiles Dental. I can book appointments, answer questions about our services, or help in an emergency — anytime, day or night. How can I help you today?'},
+  {keys:['thank','thanks','appreciate','helpful','great','perfect','awesome'],
+   reply:'You\'re very welcome! Is there anything else I can help you with — or shall I go ahead and book an appointment for you?'},
+  {keys:['bye','goodbye','that\'s all','no thanks','nothing else','see you'],
+   reply:'That\'s all set! We look forward to seeing you at Bright Smiles Dental. Remember, you can call us or chat here anytime. Take care of your smile!'},
+];
+const _outOfScope=['weather','football','sport','recipe','cook','movie','film','music','politic','news','stock','crypto','bitcoin','invest','travel','hotel','flight','restaurant','code','program','software','game'];
 function getAIReply(msg){
   const m=msg.toLowerCase();
-  for(const[key,replies]of Object.entries(aiReplies)){
-    if(key!=='default'&&m.includes(key)){
-      return replies[Math.floor(Math.random()*replies.length)];
-    }
+  if(_outOfScope.some(w=>m.includes(w))){
+    return 'That\'s a bit outside my area! I\'m Sophie, a dental receptionist AI — I specialise in bookings, dental services, costs, and clinic information. Is there anything dental-related I can help you with?';
   }
-  return aiReplies.default[Math.floor(Math.random()*aiReplies.default.length)];
+  let best=null,bestScore=0;
+  for(const entry of demoKB){
+    const score=entry.keys.filter(k=>m.includes(k)).length;
+    if(score>bestScore){bestScore=score;best=entry;}
+  }
+  if(best&&bestScore>0) return best.reply;
+  return 'I want to make sure I give you the right answer! I can help with booking appointments, our services, opening hours, costs, location, insurance, and emergency care. Could you tell me a bit more about what you\'re looking for?';
 }
 function appendDemoMsg(text,type){
   const s=document.getElementById('demoScreen');
