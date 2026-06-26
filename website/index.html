@@ -723,6 +723,7 @@ const PHONE_NUMBER      = "+14244756039";
 
 let vapiInstance = null;
 let callActive   = false;
+let vapiWidgetBound = false;
 
 // Pre-warm mic permission silently so there's no popup when user clicks Sophie.
 window.addEventListener('load', function() {
@@ -731,39 +732,88 @@ window.addEventListener('load', function() {
     .catch(function() {});
 });
 
-// Load VAPI SDK (pinned to @latest for explicit resolution)
+// Load the official Vapi widget, which handles browser/mobile audio more reliably.
 (function() {
   var g = document.createElement('script');
-  g.src = "https://cdn.jsdelivr.net/npm/@vapi-ai/web@latest/dist/vapi.js";
+  g.src = "https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js";
   g.async = true;
+  g.defer = true;
   g.onload = function() {
     try {
-      vapiInstance = new Vapi(VAPI_PUBLIC_KEY);
-      vapiInstance.on('call-start', () => setCallState(true));
-      vapiInstance.on('call-end',   () => setCallState(false));
-      vapiInstance.on('error',      (e) => { console.error('VAPI error', e); setCallState(false); });
+      vapiInstance = window.vapiSDK.run({
+        apiKey: VAPI_PUBLIC_KEY,
+        assistant: VAPI_ASSISTANT_ID,
+        config: {
+          mode: 'voice',
+          position: 'bottom-right',
+          size: 'compact',
+          theme: 'dark',
+          mainLabel: 'Talk to Sophie',
+          startButtonText: 'Start Call',
+          endButtonText: 'End Call',
+          emptyVoiceMessage: 'Click to start a voice conversation',
+          buttonBaseColor: '#00d4a4',
+          buttonAccentColor: '#000000',
+          showTranscript: true,
+        },
+      });
+
+      bindVapiWidgetEvents();
+      setTimeout(bindVapiWidgetEvents, 1000);
     } catch(e) {
-      console.error('VAPI SDK init failed:', e);
+      console.error('Vapi widget init failed:', e);
     }
   };
-  g.onerror = function() { console.error('VAPI SDK failed to load from CDN'); };
+  g.onerror = function() { console.error('Vapi widget failed to load from CDN'); };
   document.head.appendChild(g);
 })();
 
-function _vapiAssistantOverrides() {
-  const now = new Date();
-  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric',
-                 hour:'numeric', minute:'2-digit', hour12:true, timeZoneName:'short' };
-  return {
-    variableValues: {
-      current_datetime: now.toLocaleString('en-US', opts)
+function openVoiceWidget() {
+  const widget = document.querySelector('vapi-widget');
+  if (widget) {
+    const shadowButton = widget.shadowRoot && widget.shadowRoot.querySelector('button');
+    if (shadowButton) {
+      shadowButton.click();
+      return true;
     }
-  };
+    if (typeof widget.click === 'function') {
+      widget.click();
+      return true;
+    }
+  }
+  if (vapiInstance && typeof vapiInstance.start === 'function') {
+    try {
+      vapiInstance.start();
+      return true;
+    } catch (e) {
+      console.error('Vapi start failed:', e);
+    }
+  }
+  return false;
+}
+
+function bindVapiWidgetEvents() {
+  if (vapiWidgetBound) return;
+  const widget = document.querySelector('vapi-widget');
+  if (!widget) return;
+
+  widget.addEventListener('call-start', () => setCallState(true));
+  widget.addEventListener('call-end', () => setCallState(false));
+  widget.addEventListener('error', (e) => {
+    console.error('Vapi widget error:', e.detail || e);
+    setCallState(false);
+  });
+  vapiWidgetBound = true;
 }
 
 function startVAPICall() {
   if(callActive) {
-    if(vapiInstance) vapiInstance.stop();
+    const widget = document.querySelector('vapi-widget');
+    if(widget && typeof widget.stop === 'function') {
+      widget.stop();
+    } else if(vapiInstance && typeof vapiInstance.stop === 'function') {
+      vapiInstance.stop();
+    }
     window.speechSynthesis && window.speechSynthesis.cancel();
     setCallState(false);
     return;
@@ -773,22 +823,18 @@ function startVAPICall() {
   const label = document.getElementById('vapiLabel');
   const heroBtn = document.getElementById('vapiCallBtn');
   if(icon) icon.textContent = '🔴';
-  if(label) label.textContent = 'Connected…';
-  if(heroBtn) heroBtn.textContent = '🔴 Connected…';
+  if(label) label.textContent = 'Opening…';
+  if(heroBtn) heroBtn.textContent = '🔴 Opening…';
   if(btn) { btn.disabled = false; btn.classList.add('playing'); }
   const wave = document.getElementById('voiceWave');
   if(wave) wave.style.display = 'flex';
 
-  callActive = true;
-
-  // Let Vapi handle the call voice so Sophie stays on the configured clone.
-  if(vapiInstance) {
-    try { vapiInstance.start(VAPI_ASSISTANT_ID, _vapiAssistantOverrides()); } catch(e) {}
-  } else {
-    const poll = setInterval(() => {
-      if(vapiInstance) { clearInterval(poll); try { vapiInstance.start(VAPI_ASSISTANT_ID, _vapiAssistantOverrides()); } catch(e) {} }
-    }, 200);
-    setTimeout(() => clearInterval(poll), 5000);
+  const started = openVoiceWidget();
+  if(!started) {
+    if(label) label.textContent = 'Voice unavailable';
+    if(heroBtn) heroBtn.textContent = 'Voice unavailable';
+    if(btn) btn.classList.remove('playing');
+    if(wave) wave.style.display = 'none';
   }
 }
 
