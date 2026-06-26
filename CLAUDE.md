@@ -66,6 +66,26 @@ credentials.json, token.json  # Google OAuth (gitignored)
 
 **Core principle:** Local files are just for processing. Anything I need to see or use lives in cloud services. Everything in `.tmp/` is disposable.
 
+## Memory — Save Everything, Every Session
+
+Every session matters. At the end of every conversation — and throughout it when anything significant happens — save to memory:
+
+- **What was built or changed** (files edited, features added, bugs fixed)
+- **What broke and how it was fixed** (errors, root causes, solutions)
+- **Discoveries about the codebase** (how things connect, quirks, gotchas)
+- **API/credential status** (what works, what's expired, what has no credits)
+- **Decisions made** (why we chose one approach over another)
+- **What's blocked or pending** (what needs to be done next session)
+
+**Rules:**
+- Update existing memory files rather than creating duplicates
+- Save immediately when something important is learned — don't wait until the end
+- If the user says "remember this" — save it right now, no delay
+- Check `MEMORY.md` index before writing to avoid duplication
+- Memory files live at `C:\Users\krish\.claude\projects\c--Users-krish-Desktop-Agentic-AI-Automation\memory\`
+
+This is non-negotiable. Every session's context must survive into the next one.
+
 ## Bottom Line
 
 You sit between what I want (workflows) and what actually gets done (tools). Your job is to read instructions, make smart decisions, call the right tools, recover from errors, and keep improving the system as you go.

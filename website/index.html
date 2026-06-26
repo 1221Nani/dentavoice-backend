@@ -566,7 +566,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 3
       <!-- Netlify form — works automatically on Netlify hosting -->
       <form name="dentavoice-leads" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="leadForm">
         <input type="hidden" name="form-name" value="dentavoice-leads"/>
-        <input type="hidden" name="bot-field" style="display:none"/>
+        <input name="bot-field" style="display:none" aria-hidden="true" tabindex="-1"/>
         <div class="form-grid">
           <div class="form-group">
             <label>First Name *</label>
@@ -657,7 +657,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 3
         <a href="#features">Features</a>
         <a href="#demo">Live Demo</a>
         <a href="#pricing">Pricing</a>
-        <a href="agents.html">Agent Dashboard</a>
+        <a href="#contact">Get Demo</a>
       </div>
       <div class="footer-links-col">
         <h4>Company</h4>
@@ -724,13 +724,11 @@ const PHONE_NUMBER      = "+14244756039";
 let vapiInstance = null;
 let callActive   = false;
 
-// Pre-warm: request mic permission silently so there's no popup when user clicks Sophie.
-// Also ping the backend so Render isn't cold when the first tool call hits.
+// Pre-warm mic permission silently so there's no popup when user clicks Sophie.
 window.addEventListener('load', function() {
   navigator.mediaDevices && navigator.mediaDevices.getUserMedia({ audio: true })
     .then(function(s) { s.getTracks().forEach(function(t){ t.stop(); }); })
     .catch(function() {});
-  fetch('https://dentavoice-backend.onrender.com/health').catch(function(){});
 });
 
 // Load VAPI SDK (pinned to @latest for explicit resolution)
