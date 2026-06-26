@@ -851,8 +851,12 @@ function animateCounters(){
 }
 const statsBar=document.querySelector('.stats-bar');
 if(statsBar){
-  const obs=new IntersectionObserver(e=>{if(e[0].isIntersecting){animateCounters();obs.disconnect();}},{threshold:0.1});
+  const obs=new IntersectionObserver(e=>{if(e[0].isIntersecting){animateCounters();obs.disconnect()}},{threshold:0,rootMargin:'0px 0px -50px 0px'});
   obs.observe(statsBar);
+  setTimeout(()=>{
+    const r=statsBar.getBoundingClientRect();
+    if(r.top<window.innerHeight)animateCounters();
+  },300);
 }
 
 /* ─── VOICE DEMO (Web Speech API) ──────────────── */
