@@ -621,10 +621,10 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 3
     <div class="section-tag" style="text-align:center">Prefer a Live Call?</div>
     <div class="section-title" style="text-align:center;margin-bottom:32px">Book a 15-Minute Demo Call</div>
     <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap">
-      <a href="https://calendly.com/dentavoiceai/demo" target="_blank" class="book-card" style="max-width:440px">
+      <a href="#contact" class="book-card" style="max-width:440px">
         <div class="book-icon">📅</div>
         <div class="book-text">
-          <h3>Schedule a Free Demo — Pick Your Time</h3>
+          <h3>Schedule a Free Demo — Request a Slot</h3>
           <p>15 minutes · See the AI live on your clinic number · No obligations</p>
         </div>
         <div style="color:var(--teal);font-size:1.3rem;flex-shrink:0">→</div>
@@ -661,9 +661,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 3
       </div>
       <div class="footer-links-col">
         <h4>Company</h4>
-        <a href="#">About Us</a>
-        <a href="#">Case Studies</a>
-        <a href="#">Blog</a>
+        <a href="#features">About Us</a>
+        <a href="#pricing">Case Studies</a>
+        <a href="#demo">Blog</a>
         <a href="#contact">Contact</a>
       </div>
       <div class="footer-links-col">
@@ -675,9 +675,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 3
       <div class="footer-links-col">
         <h4>Legal</h4>
         <a href="privacy.html">Privacy Policy</a>
-        <a href="#">Terms of Service</a>
+        <a href="privacy.html#terms">Terms of Service</a>
         <a href="privacy.html#gdpr">GDPR &amp; Data Protection</a>
-        <a href="#">Cookie Policy</a>
+        <a href="privacy.html#cookies">Cookie Policy</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -734,7 +734,7 @@ window.addEventListener('load', function() {
 // Load VAPI SDK (pinned to @latest for explicit resolution)
 (function() {
   var g = document.createElement('script');
-  g.src = "https://cdn.jsdelivr.net/npm/@vapi-ai/web@latest/dist/vapi.iife.js";
+  g.src = "https://cdn.jsdelivr.net/npm/@vapi-ai/web@latest/dist/vapi.js";
   g.async = true;
   g.onload = function() {
     try {
