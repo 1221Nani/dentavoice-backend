@@ -284,7 +284,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 3
     <h1><span class="hl">Your Dental Clinic</span><br/><span class="hl grad">Never Misses a Call</span><br/><span class="hl">Again</span></h1>
     <p>DentaVoice AI answers every patient call instantly, books appointments, sends reminders, and handles FAQs — like your best receptionist, working 24/7 for a fraction of the cost.</p>
     <div class="hero-ctas">
-      <button onclick="startVAPICall()" id="vapiCallBtn" class="btn btn-primary btn-xl">💬 Open Sophie</button>
+      <button onclick="startVAPICall()" id="vapiCallBtn" class="btn btn-primary btn-xl">📞 Call the AI Now</button>
       <a href="tel:+14244756039" class="btn btn-outline btn-lg">🔔 +1 (424) 475 6039</a>
     </div>
     <p style="font-size:.8rem;color:var(--muted);margin-top:-20px;margin-bottom:28px">↑ Try the live demo from your browser — or dial our demo line. Your clinic keeps its own +352 number: going live is one simple call forward, no porting.</p>
@@ -333,8 +333,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 3
           <button class="voice-btn" id="voiceBtn" onclick="startVAPICall()" style="margin-bottom:0;padding:14px">
             <div class="voice-icon" id="voiceIcon">📞</div>
             <div style="flex:1;text-align:left">
-              <div style="font-size:.9rem;font-weight:700" id="vapiLabel">Talk to Sophie</div>
-              <div style="font-size:.74rem;color:var(--muted);font-weight:400;margin-top:2px">Tap to hear Sophie speak · no microphone needed</div>
+              <div style="font-size:.9rem;font-weight:700" id="vapiLabel">Start AI Call</div>
+              <div style="font-size:.74rem;color:var(--muted);font-weight:400;margin-top:2px">Tap to allow microphone access · real AI conversation</div>
             </div>
             <div class="wave" id="voiceWave" style="display:none">
               <span></span><span></span><span></span><span></span><span></span>
@@ -687,50 +687,101 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 3
   </div>
 </footer>
 
-<!-- ──────── CHAT WIDGET ──────── -->
-<button class="chat-fab" onclick="toggleChat()" id="chatFab">
-  <span id="chatFabIcon">📞</span>
-  <span class="chat-fab-badge" id="chatBadge">1</span>
-</button>
-<div class="chat-box" id="chatBox">
-  <div class="chat-header">
-    <div class="chat-hav">S</div>
-    <div>
-      <div class="chat-hname">Sophie — DentaVoice AI</div>
-      <div class="chat-hstatus">● Ready to speak — tap to chat</div>
-    </div>
-    <button class="chat-close" onclick="toggleChat()">✕</button>
-  </div>
-  <div class="chat-messages" id="chatMessages">
-    <div class="chat-msg ai">Hi! 👋 I’m Sophie, your DentaVoice AI receptionist. Ask me anything about bookings, hours, or pricing — and I’ll speak the answer aloud.</div>
-  </div>
-  <div class="chat-quick" id="chatQuick">
-    <button class="chat-qbtn" onclick="chatQuick('How does it work?')">How does it work?</button>
-    <button class="chat-qbtn" onclick="chatQuick('What are your hours?')">Clinic hours</button>
-    <button class="chat-qbtn" onclick="chatQuick('Can you book an appointment?')">Book a visit</button>
-  </div>
-  <div class="chat-input-area">
-    <input class="chat-input" id="chatInput" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendChat()"/>
-    <button class="chat-send-btn" onclick="sendChat()">Send</button>
-  </div>
-</div>
-
 <script>
-const SOPHIE_GREETING = "Hi, I’m Sophie, your DentaVoice AI receptionist. How can I help you today?";
-let sophieIntroPlayed = false;
+// ── VAPI Configuration (live) ──────────────────────
+const VAPI_PUBLIC_KEY   = "504ffa78-bd95-40c7-af2c-d0e44b1debfe";
+const VAPI_ASSISTANT_ID = "bb721977-cd5a-4fa1-ae21-13f5663cd048";
+const PHONE_NUMBER      = "+14244756039";
+
+let vapiInstance = null;
+let callActive   = false;
+
+// Load the official Vapi voice widget.
+(function() {
+  var g = document.createElement('script');
+  g.src = "https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js";
+  g.async = true;
+  g.defer = true;
+  g.onload = function() {
+    try {
+      vapiInstance = window.vapiSDK.run({
+        apiKey: VAPI_PUBLIC_KEY,
+        assistant: VAPI_ASSISTANT_ID,
+        config: {}
+      });
+      if(vapiInstance && typeof vapiInstance.on === 'function') {
+        vapiInstance.on('call-start', function() { setCallState(true); });
+        vapiInstance.on('call-end', function() { setCallState(false); });
+        vapiInstance.on('error', function(error) {
+          console.error('Vapi widget error:', error);
+          setCallState(false);
+          const label = document.getElementById('vapiLabel');
+          const heroBtn = document.getElementById('vapiCallBtn');
+          if(label) label.textContent = 'Allow microphone access';
+          if(heroBtn) heroBtn.textContent = 'Allow microphone access';
+        });
+      }
+    } catch (error) {
+      console.error('Vapi widget failed to initialize:', error);
+    }
+  };
+  g.onerror = function() { console.error('Vapi widget failed to load from CDN'); };
+  document.head.appendChild(g);
+})();
 
 function startVAPICall() {
   const btn = document.getElementById('voiceBtn');
   const icon = document.getElementById('voiceIcon');
   const label = document.getElementById('vapiLabel');
   const heroBtn = document.getElementById('vapiCallBtn');
-  if(icon) icon.textContent = '💬';
-  if(label) label.textContent = 'Talk to Sophie';
-  if(heroBtn) heroBtn.textContent = '💬 Open Sophie';
+  if(icon) icon.textContent = '🔴';
+  if(label) label.textContent = 'Connecting...';
+  if(heroBtn) heroBtn.textContent = '🔴 Connecting...';
   if(btn) { btn.disabled = false; btn.classList.add('playing'); }
   const wave = document.getElementById('voiceWave');
   if(wave) wave.style.display = 'flex';
-  openSophieChat(true);
+  const widgetButton = document.querySelector('button.vapi-btn');
+  if(widgetButton && typeof widgetButton.click === 'function') {
+    try {
+      widgetButton.click();
+      return;
+    } catch (error) {
+      console.error('Vapi widget click failed:', error);
+    }
+  }
+  if(vapiInstance && typeof vapiInstance.start === 'function') {
+    try {
+      vapiInstance.start(VAPI_ASSISTANT_ID);
+      return;
+    } catch (error) {
+      console.error('Vapi start failed:', error);
+    }
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setCallState(active) {
+  callActive = active;
+  const btn = document.getElementById('voiceBtn');
+  const icon = document.getElementById('voiceIcon');
+  const wave = document.getElementById('voiceWave');
+  const label = document.getElementById('vapiLabel');
+  const heroBtn = document.getElementById('vapiCallBtn');
+  if(active) {
+    if(btn) { btn.classList.add('playing'); btn.disabled = false; }
+    if(icon) { icon.textContent = '🔴'; icon.classList.add('playing'); }
+    if(wave) wave.style.display = 'flex';
+    if(label) label.textContent = 'End Call';
+    if(heroBtn) heroBtn.textContent = '🔴 End Call';
+    appendDemoMsg('📞 Connected! Sophie is speaking — listen and respond naturally.', 'ai');
+  } else {
+    if(btn) { btn.classList.remove('playing'); btn.disabled = false; }
+    if(icon) { icon.textContent = '📞'; icon.classList.remove('playing'); }
+    if(wave) wave.style.display = 'none';
+    if(label) label.textContent = 'Start AI Call';
+    if(heroBtn) heroBtn.textContent = '📞 Call the AI Now';
+    appendDemoMsg('📞 Call ended. To speak with Sophie on your phone, call +1 (424) 475 6039.', 'ai');
+  }
 }
 
 /* ─── COUNTER ANIMATION ─────────────────────────── */
@@ -765,61 +816,6 @@ function pickFemaleVoice() {
   const femaleMatch = /female|zira|samantha|karen|victoria|moira|tessa|hazel|serena|ava|allison|emma|lisa|susan|google uk english female/i;
   return voices.find(v => femaleMatch.test(v.name)) || null;
 }
-
-function speakSophie(text) {
-  if(!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  if(window.speechSynthesis.paused) window.speechSynthesis.resume();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 0.92;
-  utterance.pitch = 1.05;
-  utterance.volume = 1;
-  const preferred = pickFemaleVoice();
-  if(preferred) utterance.voice = preferred;
-  window.speechSynthesis.speak(utterance);
-}
-
-const voiceScripts=[
-  "Thank you for calling Bright Smiles Dental. This is your AI receptionist. I'm available 24 hours a day, 7 days a week. How can I help you today?",
-  "I'd be happy to book an appointment for you. We have availability this Tuesday at 2 PM or Thursday at 10 AM. Which works best for you?",
-  "No problem! I've booked your appointment for Thursday at 10 AM. You'll receive a confirmation text shortly, along with a reminder 24 hours before. Is there anything else I can help you with?",
-];
-let voicePlaying=false, voiceIdx=0;
-function startVoiceDemo(){
-  if(!('speechSynthesis' in window)){alert('Your browser supports voice playback. Please use Chrome or Edge for the best experience.');return;}
-  if(voicePlaying){window.speechSynthesis.cancel();setVoiceState(false);return;}
-  setVoiceState(true);
-  const script=voiceScripts[voiceIdx%voiceScripts.length]; voiceIdx++;
-  const u=new SpeechSynthesisUtterance(script);
-  u.rate=0.88; u.pitch=1.05; u.volume=1;
-  const preferred=pickFemaleVoice();
-  if(!preferred){ window.speechSynthesis.cancel(); setVoiceState(false); return; }
-  u.voice=preferred;
-  u.onend=()=>setVoiceState(false);
-  u.onerror=()=>setVoiceState(false);
-  window.speechSynthesis.speak(u);
-  // Add message to demo screen
-  appendDemoMsg(script,'ai');
-}
-function setVoiceState(playing){
-  voicePlaying=playing;
-  const btn=document.getElementById('voiceBtn');
-  const icon=document.getElementById('voiceIcon');
-  const wave=document.getElementById('voiceWave');
-  if(playing){
-    btn.classList.add('playing');
-    icon.textContent='⏹';icon.classList.add('playing');
-    wave.style.display='flex';
-    btn.querySelector('div:nth-child(2) div').textContent='⏹ Stop AI Voice';
-  }else{
-    btn.classList.remove('playing');
-    icon.textContent='🎙️';icon.classList.remove('playing');
-    wave.style.display='none';
-    btn.querySelector('div:nth-child(2) div').textContent='▶ Listen to a Live AI Call';
-  }
-}
-// Load voices on page load
-window.speechSynthesis.onvoiceschanged=function(){window.speechSynthesis.getVoices()};
 
 /* ─── DEMO CHAT ─────────────────────────────────── */
 const _today=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
