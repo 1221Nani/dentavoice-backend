@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from calendar_utils import get_available_slots, book_appointment
+from calendar_utils import get_available_slots, get_nearest_available_slots, book_appointment
 from sheets_utils import log_booking, ensure_header
 from sms_utils import send_booking_confirmation, send_lead_notification, send_owner_booking_alert
 from reminder_scheduler import check_and_send_reminders
@@ -149,9 +149,20 @@ def _dispatch(name: str, args: dict) -> str:
 
         slots = get_available_slots(date, args.get("doctor_preference"))
         if not slots:
+            nearby = get_nearest_available_slots(date, args.get("doctor_preference"))
+            if not nearby:
+                return (
+                    "I couldn’t find any openings in the next two weeks. "
+                    "Could you try a different week or give me a morning or afternoon preference?"
+                )
+
+            parts = []
+            for item in nearby:
+                joined_slots = ", ".join(item["slots"])
+                parts.append(f"{item['label']} at {joined_slots}")
             return (
-                f"The clinic has no available slots on {date} — it may be closed or fully booked. "
-                "Would you like to try a different date?"
+                f"I couldn’t find anything on {date}. The nearest openings are "
+                f"{'; '.join(parts)}. Which of those works best for you?"
             )
 
         shown = slots[:8]

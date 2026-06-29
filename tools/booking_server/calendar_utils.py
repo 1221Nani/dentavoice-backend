@@ -66,6 +66,30 @@ def get_available_slots(date_str: str, doctor_preference: str = None) -> list:
     return available
 
 
+def get_nearest_available_slots(date_str: str, doctor_preference: str = None, search_days: int = 14, max_dates: int = 3) -> list:
+    try:
+        target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        return []
+
+    matches = []
+    for offset in range(1, search_days + 1):
+        if len(matches) >= max_dates:
+            break
+
+        candidate_date = target_date + timedelta(days=offset)
+        candidate_str = candidate_date.strftime("%Y-%m-%d")
+        candidate_slots = get_available_slots(candidate_str, doctor_preference)
+        if candidate_slots:
+            matches.append({
+                "date": candidate_str,
+                "label": candidate_date.strftime("%A, %d %B %Y"),
+                "slots": candidate_slots[:4],
+            })
+
+    return matches
+
+
 def book_appointment(
     patient_name: str,
     patient_phone: str,
