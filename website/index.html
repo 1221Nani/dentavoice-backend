@@ -374,9 +374,18 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 3
             <li><span class="check">✓</span>Books appointments in real time, 24/7</li>
             <li><span class="check">✓</span>Answers clinic FAQs (hours, services, location)</li>
             <li><span class="check">✓</span>Handles emergencies with priority routing</li>
-            <li><span class="check">✓</span>Sends SMS confirmation after every booking</li>
+            <li><span class="check">✓</span>Confirms bookings and shows notification status clearly</li>
             <li><span class="check">✓</span>Follows up on missed calls automatically</li>
             <li><span class="check">✓</span>Transfers to human staff when needed</li>
+          </ul>
+        </div>
+        <div class="demo-info-card">
+          <h3>⚙️ What Happens After a Booking</h3>
+          <p>The booking is saved instantly, the clinic owner is alerted, and the customer confirmation path is ready for a production messaging setup.</p>
+          <ul class="capability-list">
+            <li><span class="check">✓</span>Booking saved to calendar and spreadsheet</li>
+            <li><span class="check">✓</span>Owner notification sent automatically</li>
+            <li><span class="check">✓</span>Customer SMS/WhatsApp enabled in production setup</li>
           </ul>
         </div>
         <div class="demo-info-card">
@@ -414,7 +423,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 3
       <div class="feature-card">
         <div class="feature-icon">🔔</div>
         <h3>Automated Reminders</h3>
-        <p>Reduces no-shows by up to 47% with automated SMS and voice reminders sent 48 hours and 2 hours before every appointment.</p>
+        <p>Reduces no-shows by up to 47% with automated reminders sent when the clinic's messaging line is connected.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">🚨</div>
@@ -514,7 +523,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 3
         <ul class="price-features">
           <li>Up to 300 calls/month</li>
           <li>Appointment booking</li>
-          <li>SMS confirmations</li>
+          <li>Booking confirmations</li>
           <li>Clinic FAQ answers</li>
           <li>Email support</li>
         </ul>
@@ -528,7 +537,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 3
         <ul class="price-features">
           <li>Unlimited calls</li>
           <li>Appointment booking + sync</li>
-          <li>SMS + voice reminders</li>
+          <li>Booking reminders</li>
           <li>Emergency triage</li>
           <li>Insurance Q&amp;A</li>
           <li>Analytics dashboard</li>
@@ -822,9 +831,9 @@ const _today=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric'
 const _time=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 const demoKB=[
   {keys:['book','schedul','appointment','see a dentist','come in','visit','slot','availab','reserve','make a','fix a'],
-   reply:'Of course! We have openings this week: Tuesday at 2PM, Wednesday at 11AM, and Thursday at 10AM. Which works for you? Just share your name and mobile number and I\'ll send a confirmation straight away via SMS and WhatsApp — no email needed.'},
+    reply:'Of course! We have openings this week: Tuesday at 2PM, Wednesday at 11AM, and Thursday at 10AM. Which works for you? Just share your name and mobile number and I\'ll confirm the booking right away.'},
   {keys:['reschedul','change my appointment','move my appointment','different time','different day','postpone'],
-   reply:'No problem at all! Please give me your name and your current appointment date and I\'ll get that moved for you right away. You\'ll receive an updated confirmation via SMS and WhatsApp.'},
+    reply:'No problem at all! Please give me your name and your current appointment date and I\'ll get that moved for you right away. I\'ll update the booking immediately.'},
   {keys:['cancel','cancell','won\'t make it','can\'t come','not able to','remove my','cancel my','cancel appointment','cancelling'],
    reply:'Understood! Just confirm your name and appointment date and I\'ll cancel it immediately. Would you like me to book you in for another time while I\'m here?'},
   {keys:['hour','open','close','opening time','closing time','when are you','what time','office hour','work hour','business hour','monday','tuesday','wednesday','thursday','friday','saturday','sunday','weekend'],
@@ -860,7 +869,7 @@ const demoKB=[
   {keys:['location','address','where','find you','directions','parking','how to get','near','close to','map'],
    reply:'We\'re at 1428 Oak Street, Suite 200. There\'s free parking in the lot behind the building. Would you like me to send the address and directions to your mobile?'},
   {keys:['sms','whatsapp','text message','notification','no email','without email','send me a text','send confirmation','do you send','after booking','after appointment','confirmation message'],
-   reply:'Yes — every booking gets an instant SMS and WhatsApp confirmation sent to your mobile number, plus reminders 24 hours and 2 hours before your appointment. We never need your email address.'},
+   reply:'Yes — the platform is built to send SMS and WhatsApp confirmations. In demo mode, the booking is saved instantly and the notification status is visible; in a production clinic setup, the patient confirmation is sent to their phone.'},
   {keys:['how long','duration','wait','time take','takes','quick'],
    reply:'It depends on the treatment — check-up: 45 min · Filling: 30–45 min · Extraction: 30 min · Root canal: 60–90 min · Whitening: 60 min. Waiting times are minimal as we book by appointment. Want me to schedule yours?'},
   {keys:['dentist','doctor','staff','team','who','dr ','specialist','surgeon'],
@@ -942,7 +951,7 @@ const chatKB={
   'gdpr':['Good question! DentaVoice AI is designed around GDPR principles: calls are encrypted, data processing is documented, and we sign a Data Processing Agreement (DPA) with every clinic. Full details are in our Privacy Policy.'],
   'hello':['Hi there! 👋 I\'m your DentaVoice AI assistant. How can I help you today? Ask me about pricing, how it works, or start a free trial!'],
   'hi':['Hey! 👋 Happy to help. Are you looking to set up AI for your clinic, or do you have questions about how DentaVoice works?'],
-  'demo':['Our live demo is right on the page — hit the green "Hear the AI Live" button to hear it speak! Or fill in the form to get a personalised demo on your clinic\'s actual phone number.'],
+  'demo':['Our live demo is right on the page — hit the green "Hear the AI Live" button to hear it speak! The demo shows the booking flow, owner alerts, and notification status so you can see the full experience.'],
   'default':['Great question! DentaVoice AI handles calls 24/7, books appointments automatically, and reduces no-shows. Want me to explain a specific feature, or shall I help you start a free trial?','Happy to help! The easiest next step is either trying our live voice demo above, or filling in the form for a free 14-day trial. What would you prefer?'],
 };
 function getChatReply(msg){
