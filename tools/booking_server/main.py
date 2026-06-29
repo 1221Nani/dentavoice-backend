@@ -12,7 +12,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from calendar_utils import get_available_slots, book_appointment
 from sheets_utils import log_booking, ensure_header
-from sms_utils import send_booking_confirmation, send_lead_notification
+from sms_utils import send_booking_confirmation, send_lead_notification, send_owner_booking_alert
 from reminder_scheduler import check_and_send_reminders
 from config import VAPI_SECRET, CLINIC_CONFIG
 
@@ -203,6 +203,12 @@ def _dispatch(name: str, args: dict) -> str:
             send_booking_confirmation(phone, booking_data)
         except Exception as e:
             log.error(f"Confirmation SMS failed (booking still confirmed): {e}", exc_info=True)
+
+        # Step 4: Send owner booking alert (non-fatal)
+        try:
+            send_owner_booking_alert(booking_data)
+        except Exception as e:
+            log.error(f"Owner booking alert failed (booking still confirmed): {e}", exc_info=True)
 
         return (
             f"All booked! Your confirmation number is {booking['confirmation_id']}. "

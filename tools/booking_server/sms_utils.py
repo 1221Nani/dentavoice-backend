@@ -88,6 +88,26 @@ def send_lead_notification(lead: dict):
     _send_whatsapp(to, body)
 
 
+def send_owner_booking_alert(booking: dict):
+    if not OWNER_PHONE:
+        log.warning("OWNER_PHONE not set — skipping booking alert")
+        return
+
+    to = _format_phone(OWNER_PHONE)
+    body = (
+        f"📅 NEW BOOKING — DentaVoice AI\n\n"
+        f"👤 {booking.get('patient_name', 'Unknown patient')}\n"
+        f"📞 {booking.get('patient_phone', 'N/A')}\n"
+        f"🗓️ {booking.get('date')} at {booking.get('time')}\n"
+        f"👨‍⚕️ {booking.get('doctor', 'our dentist')}\n"
+        f"🔖 Ref: {booking.get('confirmation_id')}\n"
+        + (f"💬 {booking.get('reason')}\n" if booking.get('reason') else "")
+        + "\nThe patient has also been sent a confirmation."
+    )
+    _send_sms(to, body)
+    _send_whatsapp(to, body)
+
+
 def send_reminder(patient_phone: str, booking: dict) -> bool:
     if not patient_phone:
         log.warning("No patient phone — skipping reminder")
