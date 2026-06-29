@@ -14,7 +14,7 @@ from calendar_utils import get_available_slots, book_appointment
 from sheets_utils import log_booking, ensure_header
 from sms_utils import send_booking_confirmation, send_lead_notification, send_owner_booking_alert
 from reminder_scheduler import check_and_send_reminders
-from config import VAPI_SECRET, CLINIC_CONFIG
+from config import VAPI_SECRET, CLINIC_CONFIG, MESSAGING_FALLBACK_MODE
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -210,11 +210,19 @@ def _dispatch(name: str, args: dict) -> str:
         except Exception as e:
             log.error(f"Owner booking alert failed (booking still confirmed): {e}", exc_info=True)
 
+        fallback_note = (
+            " This demo is using fallback messaging mode, so the booking is saved instantly "
+            "and the clinic owner is alerted. Customer SMS and WhatsApp confirmations can be "
+            "enabled when the clinic connects a production messaging line."
+            if MESSAGING_FALLBACK_MODE
+            else " You'll receive a text confirmation shortly."
+        )
+
         return (
             f"All booked! Your confirmation number is {booking['confirmation_id']}. "
             f"Appointment: {booking['date']} at {booking['time']} "
             f"with {booking['doctor']} ({booking['duration_minutes']} minutes). "
-            "You'll receive a text confirmation shortly. "
+            f"{fallback_note} "
             "Is there anything else I can help with?"
         )
 
