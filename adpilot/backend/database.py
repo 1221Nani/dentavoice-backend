@@ -12,11 +12,10 @@ elif DATABASE_URL.startswith("postgresql://") and "+asyncpg" not in DATABASE_URL
 
 is_postgres = DATABASE_URL.startswith("postgresql+asyncpg://")
 
-# Supabase requires SSL and statement_cache_size=0 for PgBouncer pooler compatibility
 engine = create_async_engine(
     DATABASE_URL,
     echo=False,
-    connect_args={"ssl": "require", "statement_cache_size": 0} if is_postgres else {},
+    connect_args={"ssl": "require"} if is_postgres else {},
 )
 AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 

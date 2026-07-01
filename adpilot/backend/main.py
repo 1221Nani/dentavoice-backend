@@ -47,7 +47,11 @@ app.include_router(insights_router.router)
 
 @app.on_event("startup")
 async def startup():
-    await init_db()
+    try:
+        await init_db()
+    except Exception as e:
+        import logging
+        logging.warning(f"DB init failed at startup (will retry on first request): {e}")
 
 
 @app.get("/api/health")
