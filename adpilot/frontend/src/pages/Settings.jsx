@@ -332,9 +332,9 @@ function GoogleSection({ mccId, onMccChange, onSaveMcc, saving }) {
 
 // ── AI Services Section ───────────────────────────────────────────────────────
 const AI_FIELDS = [
-  { key: 'ANTHROPIC_API_KEY', label: 'Anthropic API Key', placeholder: 'sk-ant-...', help: 'Powers AI chat and ad copy generation. Get yours at console.anthropic.com' },
-  { key: 'OPENAI_API_KEY', label: 'OpenAI API Key', placeholder: 'sk-proj-...', help: 'Powers image generation via DALL-E 3. Get yours at platform.openai.com' },
-  { key: 'RUNWAY_API_KEY', label: 'Runway API Key', placeholder: 'key_...', help: 'Powers video ad generation. Get yours at dev.runwayml.com' },
+  { key: 'ANTHROPIC_API_KEY', label: 'Anthropic API Key', placeholder: 'sk-ant-...', help: 'Optional — overrides the platform default. Only needed if you want to use your own quota.' },
+  { key: 'OPENAI_API_KEY', label: 'OpenAI API Key', placeholder: 'sk-proj-...', help: 'Optional — overrides the platform default for image generation.' },
+  { key: 'RUNWAY_API_KEY', label: 'Runway API Key', placeholder: 'key_...', help: 'Optional — overrides the platform default for video generation.' },
 ]
 
 export default function Settings() {
@@ -446,7 +446,7 @@ export default function Settings() {
           <div className="px-5 py-4 flex items-center justify-between bg-purple-50 border-b border-purple-100">
             <div>
               <h3 className="font-semibold text-gray-900">AI Services</h3>
-              <p className="text-sm text-gray-500">Your own API keys for ad copy, images, and video</p>
+              <p className="text-sm text-gray-500">AI features work out of the box. Add your own keys to use your personal quota.</p>
             </div>
             <span className="text-xs font-medium px-3 py-1 rounded-full bg-purple-100 text-purple-700">
               {[status.anthropic, status.openai, status.runway].filter(s => s?.connected).length}/3 Connected

@@ -22,7 +22,10 @@ jobs:
         working-directory: adpilot/frontend
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_BASE_URL: /dentavoice-backend/
         run: npm run build
+      - name: Create 404 fallback for GitHub Pages routing
+        run: cp adpilot/frontend/dist/index.html adpilot/frontend/dist/404.html
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:

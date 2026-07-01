@@ -22,7 +22,7 @@ import AICampaignBuilder from './pages/AICampaignBuilder'
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <AccountProvider>
       <AuthProvider>
         <Routes>

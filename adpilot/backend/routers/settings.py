@@ -190,9 +190,9 @@ def _mask(value: str) -> str:
 
 def _check_configured(settings: dict) -> dict:
     return {
-        "meta": bool(settings.get("META_APP_ID")),
-        "google": bool(settings.get("GOOGLE_ADS_DEVELOPER_TOKEN")),
-        "anthropic": bool(settings.get("ANTHROPIC_API_KEY")),
-        "openai": bool(settings.get("OPENAI_API_KEY")),
-        "runway": bool(settings.get("RUNWAY_API_KEY")),
+        "meta": bool(settings.get("META_ACCESS_TOKEN")),
+        "google": bool(settings.get("GOOGLE_ADS_REFRESH_TOKEN") or os.getenv("GOOGLE_ADS_REFRESH_TOKEN")),
+        "anthropic": bool(settings.get("ANTHROPIC_API_KEY") or os.getenv("ANTHROPIC_API_KEY")),
+        "openai": bool(settings.get("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY")),
+        "runway": bool(settings.get("RUNWAY_API_KEY") or os.getenv("RUNWAY_API_KEY")),
     }

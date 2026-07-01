@@ -1,3 +1,9 @@
+databases:
+  - name: adpilot-db
+    databaseName: adpilot
+    user: adpilot
+    plan: free
+
 services:
   - type: web
     name: adpilot-backend
@@ -6,31 +12,36 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
-      - key: SECRET_KEY
-        generateValue: true
       - key: PYTHON_VERSION
         value: "3.12"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: adpilot-db
+          property: connectionString
+      # Set these after first deploy to get the Render URL
+      - key: BACKEND_URL
+        sync: false   # e.g. https://adpilot-backend-xxxx.onrender.com
+      - key: FRONTEND_URL
+        sync: false   # e.g. https://1221nani.github.io/dentavoice-backend
+      # Your Meta App credentials (create at developers.facebook.com)
+      - key: META_APP_ID
+        sync: false
+      - key: META_APP_SECRET
+        sync: false
+      # Your Google OAuth app credentials (create at console.cloud.google.com)
+      - key: GOOGLE_ADS_CLIENT_ID
+        sync: false
+      - key: GOOGLE_ADS_CLIENT_SECRET
+        sync: false
+      # Your Google Ads developer token (apply at ads.google.com/aw/apicenter)
+      - key: GOOGLE_ADS_DEVELOPER_TOKEN
+        sync: false
+      # AI service keys — set once, all users benefit (users can also enter their own in Settings)
       - key: ANTHROPIC_API_KEY
         sync: false
       - key: OPENAI_API_KEY
         sync: false
       - key: RUNWAY_API_KEY
-        sync: false
-      - key: META_APP_ID
-        sync: false
-      - key: META_APP_SECRET
-        sync: false
-      - key: GOOGLE_ADS_DEVELOPER_TOKEN
-        sync: false
-      - key: GOOGLE_ADS_CLIENT_ID
-        sync: false
-      - key: GOOGLE_ADS_CLIENT_SECRET
-        sync: false
-      - key: GOOGLE_ADS_LOGIN_CUSTOMER_ID
-        sync: false
-      - key: GOOGLE_ADS_CUSTOMER_ID
-        sync: false
-      - key: GOOGLE_ADS_REFRESH_TOKEN
-        sync: false
-      - key: ALLOWED_ORIGINS
         sync: false
