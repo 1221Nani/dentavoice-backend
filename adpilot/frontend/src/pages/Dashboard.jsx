@@ -9,6 +9,7 @@ import {
   RefreshCw, ChevronDown, CloudDownload, CheckCircle, AlertCircle,
   Brain, Target, AlertTriangle, TrendingDown, ArrowRight,
   Lightbulb, ShieldCheck, Activity, Play, Trophy, ThumbsDown, Percent,
+  FlaskConical, BarChart2, Settings,
 } from 'lucide-react'
 import MetricCard from '../components/MetricCard'
 import DateRangePicker from '../components/DateRangePicker'
@@ -79,6 +80,7 @@ export default function Dashboard() {
   const [metaAccounts, setMetaAccounts] = useState([])
   const [googleAccounts, setGoogleAccounts] = useState([])
   const [accountsLoading, setAccountsLoading] = useState(true)
+  const [isDemoMode, setIsDemoMode] = useState(false)
 
   // AI state
   const [insights, setInsights] = useState([])
@@ -172,6 +174,7 @@ export default function Dashboard() {
     setSeeding(true)
     try {
       await api.seedDemo()
+      setIsDemoMode(true)
       await load()
       await loadAI()
     } finally {
@@ -184,8 +187,24 @@ export default function Dashboard() {
     setSyncResult(null)
     try {
       const result = await api.syncAll(dateRange.days)
-      const msg = [result.meta?.message, result.google?.message].filter(Boolean).join(' | ')
-      setSyncResult({ ok: result.ok, message: msg || 'Sync complete' })
+      const parts = []
+      // Only surface results for platforms that are actually connected
+      if (result.meta?.configured !== false) {
+        if (result.meta?.message) parts.push(`Meta: ${result.meta.message}`)
+        else if (result.meta?.error) parts.push(`Meta error: ${result.meta.error}`)
+      }
+      if (result.google?.configured !== false) {
+        if (result.google?.message) parts.push(`Google: ${result.google.message}`)
+        else if (result.google?.error) parts.push(`Google error: ${result.google.error}`)
+      }
+      if (parts.length === 0) {
+        setSyncResult({ ok: false, message: 'No ad accounts connected. Go to Settings to connect Meta or Google Ads.' })
+      } else {
+        const ok = (result.meta?.configured !== false && result.meta?.ok !== false) ||
+                   (result.google?.configured !== false && result.google?.ok !== false)
+        setSyncResult({ ok, message: parts.join(' | ') || 'Sync complete' })
+        if (ok) setIsDemoMode(false)
+      }
       await load()
       await loadAI()
     } catch (e) {
@@ -236,6 +255,54 @@ export default function Dashboard() {
   }
 
   const isEmpty = !loading && summary?.total_campaigns === 0
+
+  if (isEmpty) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center p-6">
+        <div className="card p-10 text-center max-w-lg w-full">
+          <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-5">
+            <Zap size={30} className="text-blue-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome to AdPilot AI</h2>
+          <p className="text-gray-500 mb-6 leading-relaxed">
+            Your AI-powered performance marketing hub. Get campaign health scores, AI insights,
+            ROAS optimization, and competitor intelligence — all in one place.
+          </p>
+          <div className="grid grid-cols-3 gap-3 mb-8 text-left">
+            <div className="bg-gray-50 rounded-xl p-3">
+              <Brain size={16} className="text-violet-500 mb-1.5" />
+              <p className="text-xs font-semibold text-gray-700">AI Insights</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">Auto-detected wins and risks</p>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-3">
+              <BarChart2 size={16} className="text-blue-500 mb-1.5" />
+              <p className="text-xs font-semibold text-gray-700">Performance</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">ROAS, CTR, spend trends</p>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-3">
+              <Target size={16} className="text-orange-500 mb-1.5" />
+              <p className="text-xs font-semibold text-gray-700">Optimizer</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">Budget and bid suggestions</p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button onClick={handleSeedDemo} disabled={seeding}
+              className="btn-primary flex items-center justify-center gap-2">
+              <FlaskConical size={15} />
+              {seeding ? 'Loading demo…' : 'Explore with Demo Data'}
+            </button>
+            <a href="/settings" className="btn-secondary flex items-center justify-center gap-2">
+              <Settings size={15} />
+              Connect My Accounts
+            </a>
+          </div>
+          <p className="text-[11px] text-gray-400 mt-4">
+            Demo data is sample-only and does not affect your real accounts.
+          </p>
+        </div>
+      </div>
+    )
+  }
   const accountOptions = platform === 'meta'
     ? metaAccounts.map(a => ({ value: a.id.replace('act_', ''), label: a.name }))
     : platform === 'google'
@@ -245,21 +312,15 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {isEmpty && (
-        <div className="card p-8 text-center">
-          <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Zap size={28} className="text-blue-500" />
+      {isDemoMode && (
+        <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-800">
+          <div className="flex items-center gap-2">
+            <FlaskConical size={14} className="shrink-0" />
+            <span>Viewing sample demo data — this is not your real ad performance.</span>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Welcome to AdPilot AI</h2>
-          <p className="text-gray-500 mb-6 max-w-md mx-auto">
-            Connect your ad accounts in Settings, then sync to see AI-powered insights and recommendations.
-          </p>
-          <div className="flex gap-3 justify-center">
-            <button onClick={handleSeedDemo} disabled={seeding} className="btn-primary">
-              {seeding ? 'Seeding...' : 'Load Demo Data'}
-            </button>
-            <a href="/settings" className="btn-secondary">Configure API Keys</a>
-          </div>
+          <a href="/settings" className="font-medium underline whitespace-nowrap hover:text-amber-900">
+            Connect accounts →
+          </a>
         </div>
       )}
 
@@ -324,8 +385,7 @@ export default function Dashboard() {
       )}
 
       {/* ── 1. AI INSIGHTS ── */}
-      {!isEmpty && (
-        <div className="card p-5">
+      <div className="card p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 bg-violet-100 rounded-lg flex items-center justify-center">
@@ -383,11 +443,9 @@ export default function Dashboard() {
             </div>
           )}
         </div>
-      )}
 
       {/* ── 2. HEALTH SCORE + OPPORTUNITIES ── */}
-      {!isEmpty && (
-        <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-3 gap-6">
           {/* Health Score */}
           <div className="card p-5">
             <div className="flex items-center gap-2 mb-4">
@@ -481,7 +539,6 @@ export default function Dashboard() {
             )}
           </div>
         </div>
-      )}
 
       {/* AI Audit Panel */}
       {auditOpen && (
@@ -588,7 +645,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── 4. CAMPAIGN SPOTLIGHT ── */}
-      {!isEmpty && campaigns.length > 0 && (() => {
+      {campaigns.length > 0 && (() => {
         const withSpend = campaigns.filter(c => c.spend > 0)
         if (withSpend.length === 0) return null
         const topRevenue   = withSpend.reduce((a, b) => b.revenue > a.revenue ? b : a)
@@ -622,7 +679,7 @@ export default function Dashboard() {
       })()}
 
       {/* ── QUICK WINS ── */}
-      {!isEmpty && campaigns.length > 0 && (() => {
+      {campaigns.length > 0 && (() => {
         const withSpend = campaigns.filter(c => c.spend > 0 && c.status === 'active')
         const wins = []
         withSpend.filter(c => c.roas >= 4.0).slice(0, 2).forEach(c => {

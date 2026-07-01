@@ -33,7 +33,7 @@ async def sync_meta(
     svc = MetaAdsService(settings=settings)
 
     if not svc._is_configured():
-        return {"ok": False, "error": "Meta Ads not connected. Go to Settings → Meta and connect your account."}
+        return {"ok": False, "configured": False, "error": "Meta Ads not connected. Go to Settings → Meta and connect your account."}
 
     # 1. Pull campaigns
     campaigns_resp = await svc.get_campaigns()
@@ -207,7 +207,7 @@ async def sync_google(
     svc = GoogleAdsService(settings=settings)
 
     if not svc._is_configured():
-        return {"ok": False, "error": "Google Ads not configured. Check your credentials in Settings."}
+        return {"ok": False, "configured": False, "error": "Google Ads not configured. Check your credentials in Settings."}
 
     # Map days to Google date range
     if days <= 7:

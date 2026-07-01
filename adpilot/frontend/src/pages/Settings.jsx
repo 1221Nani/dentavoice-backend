@@ -46,9 +46,19 @@ function MetaSection() {
       setSelectedName(data.selected_account_name || '')
       setConnected(true)
       setError('')
-    } catch {
-      setConnected(false)
-      setAccounts([])
+    } catch (e) {
+      const msg = e.message || ''
+      // 400 "not connected" = no token stored → truly not connected
+      // anything else = token exists but API failed → show error, keep connected=true
+      if (msg.toLowerCase().includes('not connected') || msg.includes('400')) {
+        setConnected(false)
+        setAccounts([])
+        setError('')
+      } else {
+        setConnected(true)
+        setAccounts([])
+        setError(`Could not load ad accounts: ${msg}`)
+      }
     } finally { setLoading(false) }
   }
 
@@ -61,6 +71,7 @@ function MetaSection() {
         setConnecting(false)
         if (params?.meta === 'connected') checkConnection()
         else if (params?.meta_error) setError(`Connection failed: ${params.meta_error.replace(/_/g, ' ')}`)
+        else if (params === null) setError('Popup closed before completing. Please try again.')
       })
     } catch (e) {
       setError(e.message || 'Failed to start connection. Contact support.')
@@ -196,9 +207,23 @@ function GoogleSection({ mccId, onMccChange, onSaveMcc, saving }) {
       setSelectedId(data.selected_customer_id || '')
       setConnected(true)
       setError('')
-    } catch {
-      setConnected(false)
-      setAccounts([])
+    } catch (e) {
+      const msg = e.message || ''
+      // "not connected" = no refresh token stored → truly not connected
+      // 403 or other API error = token exists but API rejected it → show why
+      if (msg.toLowerCase().includes('not connected') || msg.includes('Click \'Connect')) {
+        setConnected(false)
+        setAccounts([])
+        setError('')
+      } else if (msg.includes('403')) {
+        setConnected(true)
+        setAccounts([])
+        setError('Google account connected, but the Ads API returned 403. The developer token needs Basic Access approval — this is a one-time platform setup step.')
+      } else {
+        setConnected(true)
+        setAccounts([])
+        setError(`Could not load accounts: ${msg}`)
+      }
     } finally { setLoading(false) }
   }
 
@@ -207,10 +232,16 @@ function GoogleSection({ mccId, onMccChange, onSaveMcc, saving }) {
     setError('')
     try {
       const { url } = await api.googleConnect()
-      openOAuthPopup(url, (params) => {
+      openOAuthPopup(url, async (params) => {
         setConnecting(false)
-        if (params?.google === 'connected') checkConnection()
-        else if (params?.google_error) setError(`Connection failed: ${params.google_error.replace(/_/g, ' ')}`)
+        if (params?.google === 'connected') {
+          setConnected(true) // token was saved — mark connected immediately
+          await checkConnection() // try to load accounts (may fail due to API issues)
+        } else if (params?.google_error) {
+          setError(`Connection failed: ${params.google_error.replace(/_/g, ' ')}`)
+        } else if (params === null) {
+          setError('Popup closed before completing. Please try again.')
+        }
       })
     } catch (e) {
       setError(e.message || 'Failed to start connection. Contact support.')
