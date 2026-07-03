@@ -19,6 +19,9 @@ import Reports from './pages/Reports'
 import Settings from './pages/Settings'
 import AIAssistant from './pages/AIAssistant'
 import AICampaignBuilder from './pages/AICampaignBuilder'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import Terms from './pages/Terms'
+import DataDeletion from './pages/DataDeletion'
 
 export default function App() {
   return (
@@ -32,6 +35,10 @@ export default function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           {/* Public: receives OAuth popup result and posts message to opener */}
           <Route path="/oauth-callback" element={<OAuthCallback />} />
+          {/* Public: required for Meta/Google app review */}
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/data-deletion" element={<DataDeletion />} />
           {/* Onboarding: protected but no sidebar */}
           <Route
             path="/onboarding"
