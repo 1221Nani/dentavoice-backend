@@ -22,6 +22,7 @@ import AICampaignBuilder from './pages/AICampaignBuilder'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import Terms from './pages/Terms'
 import DataDeletion from './pages/DataDeletion'
+import LandingPage from './pages/LandingPage'
 
 export default function App() {
   return (
@@ -29,6 +30,8 @@ export default function App() {
       <AccountProvider>
       <AuthProvider>
         <Routes>
+          {/* Public: marketing homepage, required so Google/Meta review can see the app's purpose without logging in */}
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -54,7 +57,7 @@ export default function App() {
               <ProtectedRoute>
                 <Layout>
                   <Routes>
-                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/creative" element={<CreativeStudio />} />
                     <Route path="/campaigns" element={<CampaignManager />} />
                     <Route path="/campaigns/ai-build" element={<AICampaignBuilder />} />
@@ -64,7 +67,7 @@ export default function App() {
                     <Route path="/reports" element={<Reports />} />
                     <Route path="/ai" element={<AIAssistant />} />
                     <Route path="/settings" element={<Settings />} />
-                    <Route path="*" element={<Navigate to="/" replace />} />
+                    <Route path="*" element={<Navigate to="/dashboard" replace />} />
                   </Routes>
                 </Layout>
               </ProtectedRoute>

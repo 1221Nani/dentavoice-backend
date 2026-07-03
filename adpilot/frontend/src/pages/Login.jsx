@@ -18,7 +18,7 @@ export default function Login() {
       const data = await api.login(form)
       login(data.token, data.user)
       const onboardingDone = localStorage.getItem('adpilot_onboarding_done')
-      navigate(onboardingDone ? '/' : '/onboarding')
+      navigate(onboardingDone ? '/dashboard' : '/onboarding')
     } catch (err) {
       setError(err.message || 'Login failed')
     } finally {

@@ -6,7 +6,7 @@ import {
 import clsx from 'clsx'
 
 const nav = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/ai', icon: Bot, label: 'AI Assistant', highlight: true },
   { to: '/creative', icon: Wand2, label: 'Creative Studio' },
   { to: '/campaigns', icon: Megaphone, label: 'Campaigns' },
@@ -38,7 +38,7 @@ export default function Sidebar() {
           <NavLink
             key={to}
             to={to}
-            end={to === '/'}
+            end={to === '/dashboard'}
             className={({ isActive }) =>
               clsx(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',

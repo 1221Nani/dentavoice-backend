@@ -53,7 +53,7 @@ export default function Onboarding() {
       // Already fully set up → skip to dashboard
       if ((metaConnected && metaSelectedId) || (googleConnected && googleSelectedId)) {
         localStorage.setItem('adpilot_onboarding_done', 'true')
-        navigate('/', { replace: true })
+        navigate('/dashboard', { replace: true })
         return
       }
 
@@ -154,7 +154,7 @@ export default function Onboarding() {
 
   function goToDashboard() {
     localStorage.setItem('adpilot_onboarding_done', 'true')
-    navigate('/', { replace: true })
+    navigate('/dashboard', { replace: true })
   }
 
   const anyConnected = meta.connected || google.connected
