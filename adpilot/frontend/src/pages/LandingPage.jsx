@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom'
-import { LayoutDashboard, Megaphone, Wand2, LineChart, Zap, Search, FileBarChart, Bot } from 'lucide-react'
+import { motion } from 'motion/react'
+import {
+  LayoutDashboard, Megaphone, Wand2, LineChart, Zap, Search, FileBarChart, Bot, ArrowRight,
+} from 'lucide-react'
 
 const FEATURES = [
   { icon: LayoutDashboard, title: 'Unified Dashboard', desc: 'See KPIs, AI insights, and account health across Meta and Google Ads in one place.' },
@@ -12,56 +15,111 @@ const FEATURES = [
   { icon: Bot, title: 'AI Assistant', desc: 'Chat with an assistant that can create campaigns and answer questions about your account.' },
 ]
 
-export default function LandingPage() {
+function Navbar() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b border-gray-100 bg-white">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="inline-flex items-center gap-2">
-            <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">A</span>
-            </div>
-            <span className="text-xl font-bold text-gray-900">AdPilot AI</span>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent px-6 py-4">
+      <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div className="inline-flex items-center gap-2">
+          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+            <Zap size={16} className="text-white" />
           </div>
-          <div className="flex items-center gap-3">
-            <Link to="/login" className="text-sm font-medium text-gray-600 hover:text-gray-900">
-              Sign in
-            </Link>
-            <Link
-              to="/register"
-              className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-            >
-              Get started
-            </Link>
-          </div>
+          <span className="text-white font-semibold">AdPilot AI</span>
         </div>
-      </header>
-
-      <section className="max-w-6xl mx-auto px-4 py-20 text-center">
-        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 max-w-3xl mx-auto leading-tight">
-          Manage Meta Ads and Google Ads from one AI-powered dashboard
-        </h1>
-        <p className="text-lg text-gray-500 mt-5 max-w-2xl mx-auto">
-          AdPilot AI connects to your existing ad accounts and helps you build campaigns, track
-          performance, and act on AI-generated recommendations — without switching between platforms.
-        </p>
-        <div className="flex items-center justify-center gap-4 mt-8">
+        <div className="flex items-center gap-4">
+          <Link to="/login" className="text-sm font-medium text-white/80 hover:text-white transition-colors">
+            Sign in
+          </Link>
           <Link
             to="/register"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg transition-colors"
+            className="bg-white hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] text-black rounded-full px-5 py-2.5 text-sm font-semibold transition-all hover:scale-105"
           >
-            Get started for free
+            Get Started
+          </Link>
+        </div>
+      </div>
+    </nav>
+  )
+}
+
+function Hero() {
+  return (
+    <div className="relative w-full min-h-screen bg-black text-white overflow-hidden flex flex-col">
+      <Navbar />
+
+      {/* Decorative gradient orbs */}
+      <div
+        className="absolute top-[-20%] left-[10%] w-[600px] h-[600px] bg-blue-600/20 rounded-full pointer-events-none"
+        style={{ filter: 'blur(120px)', mixBlendMode: 'screen' }}
+      />
+      <div
+        className="absolute bottom-[-10%] right-[10%] w-[500px] h-[500px] bg-indigo-600/20 rounded-full pointer-events-none"
+        style={{ filter: 'blur(120px)', mixBlendMode: 'screen' }}
+      />
+
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-4 max-w-5xl mx-auto space-y-8 pt-24 pb-16">
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="font-serif text-3xl sm:text-4xl leading-tight text-white"
+          style={{ fontFamily: "'Instrument Serif', serif" }}
+        >
+          Ad management at the speed of thought
+        </motion.p>
+
+        <motion.h1
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="text-6xl sm:text-7xl lg:text-8xl font-semibold leading-[0.95] tracking-tight bg-gradient-to-b from-white via-white to-[#b4c0ff] bg-clip-text text-transparent"
+        >
+          Run Better Ads
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.7 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+          className="text-lg sm:text-xl leading-relaxed text-white max-w-xl"
+        >
+          Manage Meta Ads and Google Ads from one AI-powered dashboard — connect your accounts,
+          build campaigns, and act on real-time performance insights.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          className="flex flex-col sm:flex-row items-center gap-6 pt-2"
+        >
+          <Link
+            to="/register"
+            className="group flex items-center gap-3 bg-white rounded-full pl-6 pr-2 py-2 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all hover:scale-105"
+          >
+            <span className="font-medium text-lg text-[#0a0400]">Start Building Free</span>
+            <span className="w-10 h-10 rounded-full bg-blue-600 group-hover:bg-blue-700 flex items-center justify-center transition-colors">
+              <ArrowRight size={20} className="text-white" />
+            </span>
           </Link>
           <Link
             to="/login"
-            className="bg-white hover:bg-gray-50 text-gray-700 font-medium px-6 py-3 rounded-lg border border-gray-200 transition-colors"
+            className="group flex items-center gap-2 text-white/70 hover:text-white px-4 py-2 rounded-lg hover:bg-white/5 transition-all"
           >
-            Sign in
+            <span className="text-lg">Sign in</span>
+            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
           </Link>
-        </div>
-      </section>
+        </motion.div>
+      </div>
+    </div>
+  )
+}
 
-      <section className="max-w-6xl mx-auto px-4 pb-20">
+export default function LandingPage() {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Hero />
+
+      <section className="max-w-6xl mx-auto px-4 py-20">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {FEATURES.map(({ icon: Icon, title, desc }) => (
             <div key={title} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
