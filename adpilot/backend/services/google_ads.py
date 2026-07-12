@@ -76,8 +76,15 @@ class GoogleAdsService:
             for d in err.get("details", []):
                 for e in d.get("errors", []):
                     m = e.get("message")
+                    field_path = ".".join(
+                        el.get("fieldName", "")
+                        for el in e.get("location", {}).get("fieldPathElements", [])
+                    )
+                    code = e.get("errorCode", {})
+                    code_str = ", ".join(f"{k}={v}" for k, v in code.items()) if code else ""
                     if m:
-                        parts.append(m)
+                        tag = " [" + " ".join(x for x in (field_path, code_str) if x) + "]" if (field_path or code_str) else ""
+                        parts.append(m + tag)
             message = " — ".join(p for p in parts if p)
         except Exception:
             pass
