@@ -278,7 +278,7 @@ function GoogleCampaignSection({ campaign }) {
   )
 }
 
-function GoogleAdGroupsSection({ adGroups }) {
+function GoogleAdGroupsSection({ adGroups, landingUrls, onLandingUrlChange, defaultLandingUrl }) {
   const [expanded, setExpanded] = useState(0)
   return (
     <Section title={`Ad Groups (${adGroups.length})`} icon={Target}>
@@ -299,6 +299,19 @@ function GoogleAdGroupsSection({ adGroups }) {
 
             {expanded === i && (
               <div className="p-4 space-y-4">
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Landing page for this ad group</p>
+                  <input
+                    type="url"
+                    value={landingUrls?.[i] || ''}
+                    onChange={e => onLandingUrlChange?.(i, e.target.value)}
+                    placeholder={defaultLandingUrl || 'https://yourbusiness.com/this-service'}
+                    className="input w-full text-sm"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Optional — send this ad group to a page specific to "{ag.name}" instead of the campaign's default landing page.
+                  </p>
+                </div>
                 <div>
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Keywords ({ag.keywords?.length})</p>
                   <div className="flex flex-wrap gap-1.5">
@@ -424,6 +437,7 @@ export default function AICampaignBuilder() {
   const [error, setError] = useState(null)
   const [creating, setCreating] = useState(false)
   const [landingUrl, setLandingUrl] = useState('')
+  const [adGroupLandingUrls, setAdGroupLandingUrls] = useState({})
 
   async function handleBuild(e) {
     e.preventDefault()
@@ -454,7 +468,11 @@ export default function AICampaignBuilder() {
   async function handleCreate() {
     setCreating(true)
     try {
-      await api.aiCreateCampaign({ brief, platform, landing_url: landingUrl.trim() || undefined })
+      const hasPerGroupUrls = platform === 'google' && Object.values(adGroupLandingUrls).some(v => v?.trim())
+      const mergedBrief = hasPerGroupUrls
+        ? { ...brief, ad_groups: (brief.ad_groups || []).map((ag, i) => adGroupLandingUrls[i]?.trim() ? { ...ag, landing_url: adGroupLandingUrls[i].trim() } : ag) }
+        : brief
+      await api.aiCreateCampaign({ brief: mergedBrief, platform, landing_url: landingUrl.trim() || undefined })
       navigate('/campaigns')
     } catch (err) {
       setError(err.message)
@@ -583,7 +601,12 @@ export default function AICampaignBuilder() {
           ) : (
             <>
               <GoogleCampaignSection campaign={brief.campaign || {}} />
-              <GoogleAdGroupsSection adGroups={brief.ad_groups || []} />
+              <GoogleAdGroupsSection
+                adGroups={brief.ad_groups || []}
+                landingUrls={adGroupLandingUrls}
+                onLandingUrlChange={(i, v) => setAdGroupLandingUrls(prev => ({ ...prev, [i]: v }))}
+                defaultLandingUrl={landingUrl}
+              />
               <GoogleNegativesSection negatives={brief.negative_keywords || []} />
               <GoogleExtensionsSection extensions={brief.extensions || {}} />
             </>

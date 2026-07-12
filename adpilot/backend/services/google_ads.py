@@ -302,7 +302,15 @@ class GoogleAdsService:
             )
             self._raise_detailed(r)
             body = r.json()
-            return self._parse_partial_failure(body, kw_texts)
+            succeeded = len(body.get("results", []))
+            sent = len(operations)
+            parsed_failures = self._parse_partial_failure(body, kw_texts)
+            if succeeded < sent and not parsed_failures:
+                # Some keywords didn't make it but Google's error shape didn't match
+                # what _parse_partial_failure expects — report the fact rather than
+                # silently claiming success with fewer keywords than were sent.
+                parsed_failures = [f"{sent - succeeded} of {sent} keyword(s) were rejected (reason unavailable — check Google Ads UI for this ad group)"]
+            return parsed_failures
 
     async def create_responsive_search_ad(self, ad_group_resource: str, headlines: list[str], descriptions: list[str], final_url: str) -> str:
         if not self._is_configured():
@@ -353,7 +361,8 @@ class GoogleAdsService:
             rsa = ag.get("rsa", {})
             headlines = rsa.get("headlines") or [ag.get("name", "Learn More")]
             descriptions = rsa.get("descriptions") or ["Learn more today."]
-            await self.create_responsive_search_ad(ad_group_resource, headlines, descriptions, landing_url)
+            ag_landing_url = ag.get("landing_url") or landing_url
+            await self.create_responsive_search_ad(ad_group_resource, headlines, descriptions, ag_landing_url)
             ad_group_resources.append(ad_group_resource)
         return {"ad_groups": ad_group_resources, "keyword_warnings": keyword_failures}
 
