@@ -14,6 +14,19 @@ from utils import get_user_settings_dict
 router = APIRouter(prefix="/api/campaigns", tags=["campaigns"])
 
 
+def _google_status(status: str) -> str:
+    return "ENABLED" if status.lower() == "active" else status.upper()
+
+
+async def _push_status_to_platform(campaign: Campaign, status: str, settings: dict):
+    if not campaign.platform_id:
+        return
+    if campaign.platform == "meta":
+        await MetaAdsService(settings=settings).update_campaign_status(campaign.platform_id, status)
+    elif campaign.platform == "google":
+        await GoogleAdsService(settings=settings).update_campaign_status(campaign.platform_id, _google_status(status))
+
+
 class CampaignCreate(BaseModel):
     name: str
     platform: str
@@ -190,15 +203,14 @@ async def update_campaign(
     if payload.name is not None:
         campaign.name = payload.name
     if payload.status is not None:
+        try:
+            await _push_status_to_platform(campaign, payload.status, settings)
+        except Exception as e:
+            raise HTTPException(
+                status_code=502,
+                detail=f"Failed to update status on {campaign.platform.capitalize()} Ads: {str(e)}. Local status not changed."
+            )
         campaign.status = payload.status
-        if campaign.platform_id:
-            try:
-                if campaign.platform == "meta":
-                    await MetaAdsService(settings=settings).update_campaign_status(campaign.platform_id, payload.status)
-                elif campaign.platform == "google":
-                    await GoogleAdsService(settings=settings).update_campaign_status(campaign.platform_id, payload.status.upper())
-            except Exception:
-                pass
     if payload.daily_budget is not None:
         campaign.daily_budget = payload.daily_budget
     if payload.end_date is not None:
@@ -288,6 +300,14 @@ async def change_status(
     db: AsyncSession = Depends(get_db),
 ):
     campaign = await _get_owned(db, campaign_id, current_user.id)
+    settings = await get_user_settings_dict(db, current_user.id)
+    try:
+        await _push_status_to_platform(campaign, status, settings)
+    except Exception as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Failed to update status on {campaign.platform.capitalize()} Ads: {str(e)}. Local status not changed."
+        )
     campaign.status = status
     campaign.updated_at = datetime.utcnow()
     await db.commit()
