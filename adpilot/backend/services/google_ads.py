@@ -179,6 +179,108 @@ class GoogleAdsService:
             r.raise_for_status()
             return r.json()
 
+    async def create_ad_group(self, campaign_resource: str, name: str, cpc_bid_micros: int) -> str:
+        if not self._is_configured():
+            raise ValueError("Google Ads not configured")
+        headers = await self._headers()
+        async with httpx.AsyncClient() as client:
+            r = await client.post(
+                f"{self.BASE_URL}/customers/{self.customer_id}/adGroups:mutate",
+                headers=headers,
+                json={
+                    "operations": [{
+                        "create": {
+                            "name": name,
+                            "campaign": campaign_resource,
+                            "status": "PAUSED",
+                            "type": "SEARCH_STANDARD",
+                            "cpcBidMicros": cpc_bid_micros,
+                        }
+                    }]
+                },
+            )
+            r.raise_for_status()
+            return r.json()["results"][0]["resourceName"]
+
+    async def create_ad_group_keywords(self, ad_group_resource: str, keywords: list[dict]):
+        if not self._is_configured():
+            raise ValueError("Google Ads not configured")
+        if not keywords:
+            return
+        headers = await self._headers()
+        match_type_map = {"exact": "EXACT", "phrase": "PHRASE", "broad": "BROAD"}
+        operations = [
+            {
+                "create": {
+                    "adGroup": ad_group_resource,
+                    "status": "ENABLED",
+                    "keyword": {
+                        "text": kw.get("keyword", ""),
+                        "matchType": match_type_map.get(str(kw.get("match_type", "broad")).lower(), "BROAD"),
+                    },
+                }
+            }
+            for kw in keywords if kw.get("keyword")
+        ]
+        if not operations:
+            return
+        async with httpx.AsyncClient() as client:
+            r = await client.post(
+                f"{self.BASE_URL}/customers/{self.customer_id}/adGroupCriteria:mutate",
+                headers=headers,
+                json={"operations": operations},
+            )
+            r.raise_for_status()
+            return r.json()
+
+    async def create_responsive_search_ad(self, ad_group_resource: str, headlines: list[str], descriptions: list[str], final_url: str) -> str:
+        if not self._is_configured():
+            raise ValueError("Google Ads not configured")
+        headers = await self._headers()
+        async with httpx.AsyncClient() as client:
+            r = await client.post(
+                f"{self.BASE_URL}/customers/{self.customer_id}/adGroupAds:mutate",
+                headers=headers,
+                json={
+                    "operations": [{
+                        "create": {
+                            "adGroup": ad_group_resource,
+                            "status": "PAUSED",
+                            "ad": {
+                                "finalUrls": [final_url],
+                                "responsiveSearchAd": {
+                                    "headlines": [{"text": h[:30]} for h in headlines[:15]],
+                                    "descriptions": [{"text": d[:90]} for d in descriptions[:4]],
+                                },
+                            },
+                        }
+                    }]
+                },
+            )
+            r.raise_for_status()
+            return r.json()["results"][0]["resourceName"]
+
+    async def launch_ads(self, campaign_resource: str, daily_budget: float, landing_url: str, ad_groups: list[dict]) -> list[str]:
+        """For each ad group in the brief: creates the ad group, its keywords, and one
+        responsive search ad. Ad groups and ads are created PAUSED — nothing serves or
+        spends until the user enables the campaign."""
+        if not ad_groups:
+            raise ValueError("No ad group data available to create ads from")
+        campaign_resource = self._campaign_resource_name(campaign_resource)
+        # Rough default CPC bid: 1/20th of daily budget, floored at $0.50 — avoids a
+        # zero/missing bid under the campaign's manual CPC bidding strategy.
+        cpc_bid_micros = max(int(daily_budget * 1_000_000 / 20), 500_000)
+        ad_group_resources = []
+        for ag in ad_groups:
+            ad_group_resource = await self.create_ad_group(campaign_resource, ag.get("name", "Ad Group"), cpc_bid_micros)
+            await self.create_ad_group_keywords(ad_group_resource, ag.get("keywords", []))
+            rsa = ag.get("rsa", {})
+            headlines = rsa.get("headlines") or [ag.get("name", "Learn More")]
+            descriptions = rsa.get("descriptions") or ["Learn more today."]
+            await self.create_responsive_search_ad(ad_group_resource, headlines, descriptions, landing_url)
+            ad_group_resources.append(ad_group_resource)
+        return ad_group_resources
+
     async def get_campaign_metrics(self, date_range: str = "LAST_30_DAYS"):
         if not self._is_configured():
             return {"configured": False, "data": []}

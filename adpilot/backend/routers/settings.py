@@ -15,6 +15,7 @@ router = APIRouter(prefix="/api/settings", tags=["settings"])
 SECRET_KEYS = [
     "META_APP_ID",
     "META_APP_SECRET",
+    "META_PAGE_ID",
     "GOOGLE_ADS_DEVELOPER_TOKEN",
     "GOOGLE_ADS_CLIENT_ID",
     "GOOGLE_ADS_CLIENT_SECRET",
@@ -30,6 +31,7 @@ SECRET_KEYS = [
 class SettingsPayload(BaseModel):
     META_APP_ID: Optional[str] = None
     META_APP_SECRET: Optional[str] = None
+    META_PAGE_ID: Optional[str] = None
     GOOGLE_ADS_DEVELOPER_TOKEN: Optional[str] = None
     GOOGLE_ADS_CLIENT_ID: Optional[str] = None
     GOOGLE_ADS_CLIENT_SECRET: Optional[str] = None

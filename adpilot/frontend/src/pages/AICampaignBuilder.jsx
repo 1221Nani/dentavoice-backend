@@ -423,6 +423,7 @@ export default function AICampaignBuilder() {
   const [brief, setBrief] = useState(null)
   const [error, setError] = useState(null)
   const [creating, setCreating] = useState(false)
+  const [landingUrl, setLandingUrl] = useState('')
 
   async function handleBuild(e) {
     e.preventDefault()
@@ -453,7 +454,7 @@ export default function AICampaignBuilder() {
   async function handleCreate() {
     setCreating(true)
     try {
-      await api.aiCreateCampaign({ brief, platform })
+      await api.aiCreateCampaign({ brief, platform, landing_url: landingUrl.trim() || undefined })
       navigate('/campaigns')
     } catch (err) {
       setError(err.message)
@@ -587,6 +588,21 @@ export default function AICampaignBuilder() {
               <GoogleExtensionsSection extensions={brief.extensions || {}} />
             </>
           )}
+
+          <div className="card p-5 space-y-2">
+            <label className="label text-sm font-semibold text-gray-900">Landing page URL</label>
+            <p className="text-xs text-gray-500 mb-1">
+              Where the ads should send people. Required before this campaign can be pushed live —
+              without it, AdPilot can create the campaign shell but cannot attach any real ads to it.
+            </p>
+            <input
+              type="url"
+              value={landingUrl}
+              onChange={e => setLandingUrl(e.target.value)}
+              placeholder="https://yourbusiness.com/landing-page"
+              className="input w-full"
+            />
+          </div>
 
           <div className="flex gap-3 pt-2">
             <button onClick={() => { setStep(1); setBrief(null) }} className="btn-secondary flex-1 justify-center">

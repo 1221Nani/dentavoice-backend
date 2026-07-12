@@ -53,7 +53,7 @@ export default function CampaignManager() {
   const [form, setForm] = useState({
     name: '', platform: 'meta', objective: 'sales',
     daily_budget: '', start_date: '', end_date: '',
-    push_to_platform: false,
+    push_to_platform: false, landing_url: '',
   })
 
   useEffect(() => { load() }, [])
@@ -72,9 +72,10 @@ export default function CampaignManager() {
     try {
       const result = await api.createCampaign({ ...form, daily_budget: parseFloat(form.daily_budget) })
       setShowCreate(false)
-      setForm({ name: '', platform: 'meta', objective: 'sales', daily_budget: '', start_date: '', end_date: '', push_to_platform: false })
+      setForm({ name: '', platform: 'meta', objective: 'sales', daily_budget: '', start_date: '', end_date: '', push_to_platform: false, landing_url: '' })
       await load()
-      if (result?.warning) setPageWarning(result.warning)
+      const warning = [result?.warning, result?.ads_warning].filter(Boolean).join(' ')
+      if (warning) setPageWarning(warning)
     } catch (err) { setError(err.message) } finally { setCreating(false) }
   }
 
@@ -109,7 +110,8 @@ export default function CampaignManager() {
     setPageWarning(null)
     try {
       const result = await api.pushCampaignLive(c.id)
-      setPageWarning(result?.message || 'Campaign pushed to platform successfully.')
+      const message = [result?.message, result?.ads_warning].filter(Boolean).join(' ')
+      setPageWarning(message || 'Campaign pushed to platform successfully.')
       await load()
     } catch (err) {
       setPageWarning(`Push failed: ${err.message}`)
@@ -331,6 +333,16 @@ export default function CampaignManager() {
                   <p className="text-xs text-blue-600">Requires API key configured in Settings</p>
                 </div>
               </label>
+              {form.push_to_platform && (
+                <div>
+                  <label className="label">Landing Page URL</label>
+                  <input className="input" type="url" placeholder="https://yourbusiness.com/landing-page"
+                    value={form.landing_url} onChange={e => setForm(f => ({...f, landing_url: e.target.value}))} />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Without ad copy from AI Campaign Builder, this quick-create only sets up the campaign shell — use AI Campaign Builder for a fully working ad.
+                  </p>
+                </div>
+              )}
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => { setShowCreate(false); setError(null) }} className="btn-secondary flex-1 justify-center">Cancel</button>
                 <button type="submit" disabled={creating} className="btn-primary flex-1 justify-center">

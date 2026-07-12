@@ -6,10 +6,21 @@ from typing import Optional
 class MetaAdsService:
     BASE_URL = "https://graph.facebook.com/v20.0"
 
+    CTA_MAP = {
+        "shop now": "SHOP_NOW", "buy now": "SHOP_NOW", "get yours": "SHOP_NOW", "order today": "SHOP_NOW",
+        "claim offer": "SHOP_NOW", "book now": "BOOK_TRAVEL", "book a call": "CONTACT_US",
+        "sign up free": "SIGN_UP", "sign up": "SIGN_UP", "request info": "CONTACT_US",
+        "get started": "SIGN_UP", "get a free quote": "GET_QUOTE", "learn more": "LEARN_MORE",
+        "discover more": "LEARN_MORE", "see how it works": "LEARN_MORE", "find out more": "LEARN_MORE",
+        "explore": "LEARN_MORE", "visit now": "LEARN_MORE", "see more": "LEARN_MORE",
+        "read more": "LEARN_MORE", "explore now": "LEARN_MORE", "click here": "LEARN_MORE",
+    }
+
     def __init__(self, settings: dict = None):
         _s = settings or {}
         self.access_token = _s.get("META_ACCESS_TOKEN") or os.getenv("META_ACCESS_TOKEN")
         self.ad_account_id = _s.get("META_AD_ACCOUNT_ID") or os.getenv("META_AD_ACCOUNT_ID")
+        self.page_id = _s.get("META_PAGE_ID") or os.getenv("META_PAGE_ID")
 
     def _is_configured(self):
         return bool(self.access_token and self.ad_account_id)
@@ -48,6 +59,105 @@ class MetaAdsService:
             )
             r.raise_for_status()
             return r.json()
+
+    def _cta_type(self, cta: str) -> str:
+        return self.CTA_MAP.get((cta or "").strip().lower(), "LEARN_MORE")
+
+    async def create_ad_set(self, campaign_id: str, name: str, audience: dict = None) -> str:
+        """Creates an ad set with minimal, safe targeting. The campaign already carries
+        the budget (Campaign Budget Optimization), so no budget is set here."""
+        if not self._is_configured():
+            raise ValueError("Meta Ads not configured")
+        audience = audience or {}
+        targeting = {
+            "geo_locations": {"countries": ["US"]},
+            "age_min": int(audience.get("age_min") or 18),
+            "age_max": int(audience.get("age_max") or 65),
+        }
+        genders = str(audience.get("genders") or "all").lower()
+        if genders == "male":
+            targeting["genders"] = [1]
+        elif genders == "female":
+            targeting["genders"] = [2]
+        async with httpx.AsyncClient() as client:
+            r = await client.post(
+                f"{self.BASE_URL}/act_{self.ad_account_id}/adsets",
+                params={"access_token": self.access_token},
+                json={
+                    "name": name,
+                    "campaign_id": campaign_id,
+                    "status": "PAUSED",
+                    "billing_event": "IMPRESSIONS",
+                    "optimization_goal": "LINK_CLICKS",
+                    "destination_type": "WEBSITE",
+                    "targeting": targeting,
+                },
+            )
+            r.raise_for_status()
+            return r.json()["id"]
+
+    async def create_ad_creative(self, name: str, link: str, message: str, headline: str, description: str, cta: str) -> str:
+        if not self._is_configured():
+            raise ValueError("Meta Ads not configured")
+        if not self.page_id:
+            raise ValueError("No Facebook Page connected — add META_PAGE_ID in Settings before creating ads.")
+        async with httpx.AsyncClient() as client:
+            r = await client.post(
+                f"{self.BASE_URL}/act_{self.ad_account_id}/adcreatives",
+                params={"access_token": self.access_token},
+                json={
+                    "name": name,
+                    "object_story_spec": {
+                        "page_id": self.page_id,
+                        "link_data": {
+                            "message": message,
+                            "link": link,
+                            "name": headline,
+                            "description": description,
+                            "call_to_action": {"type": self._cta_type(cta), "value": {"link": link}},
+                        },
+                    },
+                },
+            )
+            r.raise_for_status()
+            return r.json()["id"]
+
+    async def create_ad(self, name: str, adset_id: str, creative_id: str) -> str:
+        if not self._is_configured():
+            raise ValueError("Meta Ads not configured")
+        async with httpx.AsyncClient() as client:
+            r = await client.post(
+                f"{self.BASE_URL}/act_{self.ad_account_id}/ads",
+                params={"access_token": self.access_token},
+                json={
+                    "name": name,
+                    "adset_id": adset_id,
+                    "creative": {"creative_id": creative_id},
+                    "status": "PAUSED",
+                },
+            )
+            r.raise_for_status()
+            return r.json()["id"]
+
+    async def launch_ads(self, campaign_id: str, campaign_name: str, landing_url: str, audience: dict, ad_copies: list[dict]) -> list[str]:
+        """Creates one ad set and, for each ad_copy variant, one creative + ad under it.
+        Everything is created PAUSED — nothing serves or spends until the user enables it."""
+        if not ad_copies:
+            raise ValueError("No ad copy available to create ads from")
+        adset_id = await self.create_ad_set(campaign_id, f"{campaign_name} — Ad Set", audience)
+        ad_ids = []
+        for i, copy in enumerate(ad_copies):
+            creative_id = await self.create_ad_creative(
+                name=f"{campaign_name} — Creative {i + 1}",
+                link=landing_url,
+                message=copy.get("primary_text", ""),
+                headline=copy.get("headline", campaign_name)[:40],
+                description=copy.get("description", "")[:30],
+                cta=copy.get("cta", "Learn More"),
+            )
+            ad_id = await self.create_ad(f"{campaign_name} — Ad {i + 1}", adset_id, creative_id)
+            ad_ids.append(ad_id)
+        return ad_ids
 
     async def update_campaign_status(self, platform_id: str, status: str):
         if not self._is_configured():

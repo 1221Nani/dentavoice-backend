@@ -34,8 +34,31 @@ function MetaSection() {
   const [loading, setLoading] = useState(false)
   const [connecting, setConnecting] = useState(false)
   const [error, setError] = useState('')
+  const [pageId, setPageId] = useState('')
+  const [pageIdSaved, setPageIdSaved] = useState(false)
+  const [savingPageId, setSavingPageId] = useState(false)
 
-  useEffect(() => { checkConnection() }, [])
+  useEffect(() => { checkConnection(); loadPageId() }, [])
+
+  async function loadPageId() {
+    try {
+      const data = await api.getSettings()
+      const val = data?.settings?.META_PAGE_ID
+      if (val) { setPageId(val); setPageIdSaved(true) }
+    } catch { /* not fatal — field just starts empty */ }
+  }
+
+  async function handleSavePageId() {
+    setSavingPageId(true)
+    try {
+      await api.saveSettings({ META_PAGE_ID: pageId.trim() })
+      setPageIdSaved(true)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setSavingPageId(false)
+    }
+  }
 
   async function checkConnection() {
     setLoading(true)
@@ -179,6 +202,27 @@ function MetaSection() {
                     </Link>
                   </div>
                 )}
+
+                <div className="mt-3 p-3 border border-gray-200 rounded-xl space-y-2">
+                  <p className="text-sm font-medium text-gray-700">Facebook Page ID</p>
+                  <p className="text-xs text-gray-500">
+                    Required to create real ads — Meta attributes every ad to a Page you manage.
+                    Find it under your Page's About section on Facebook.
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={pageId}
+                      onChange={e => { setPageId(e.target.value); setPageIdSaved(false) }}
+                      placeholder="e.g. 102938475610283"
+                      className="input flex-1 text-sm"
+                    />
+                    <button type="button" onClick={handleSavePageId} disabled={savingPageId || !pageId.trim()}
+                      className="px-4 py-2 bg-gray-900 hover:bg-gray-800 disabled:opacity-40 text-white text-sm font-medium rounded-lg transition-colors">
+                      {savingPageId ? 'Saving…' : pageIdSaved ? 'Saved' : 'Save'}
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>

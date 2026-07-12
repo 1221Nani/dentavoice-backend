@@ -50,6 +50,42 @@ async def _push_budget_to_platform(campaign: Campaign, daily_budget: float, sett
         await GoogleAdsService(settings=settings).update_campaign_budget(campaign.platform_id, daily_budget)
 
 
+async def _launch_ads_for_campaign(campaign: Campaign, targeting: dict, settings: dict) -> Optional[str]:
+    """Attaches an ad set/ad group + ad(s) with real creative to a freshly-created
+    campaign, using AI Campaign Builder data if present. Returns a warning string on
+    failure (never raises) — a campaign that exists but has no ads attached yet is
+    recoverable; the caller decides whether that's acceptable to surface to the user."""
+    targeting = targeting or {}
+    landing_url = targeting.get("landing_url")
+    if not landing_url:
+        return "No landing page URL was provided — campaign created but no ads were attached. Add a landing URL and push again."
+    try:
+        if campaign.platform == "meta":
+            ad_copies = targeting.get("ad_copies") or []
+            if not ad_copies:
+                return "No ad copy available — campaign created but no ads were attached. Generate ad copy first."
+            await MetaAdsService(settings=settings).launch_ads(
+                campaign_id=campaign.platform_id,
+                campaign_name=campaign.name,
+                landing_url=landing_url,
+                audience=targeting.get("audience") or {},
+                ad_copies=ad_copies,
+            )
+        elif campaign.platform == "google":
+            ad_groups = targeting.get("ad_groups") or []
+            if not ad_groups:
+                return "No ad group data available — campaign created but no ads were attached. Use AI Campaign Builder to generate ad groups first."
+            await GoogleAdsService(settings=settings).launch_ads(
+                campaign_resource=campaign.platform_id,
+                daily_budget=campaign.daily_budget,
+                landing_url=landing_url,
+                ad_groups=ad_groups,
+            )
+    except Exception as e:
+        return f"Campaign created but attaching ads failed: {str(e)}. The campaign exists on {campaign.platform.capitalize()} Ads but is empty — fix the issue and contact support to attach ads, or delete and recreate."
+    return None
+
+
 class CampaignCreate(BaseModel):
     name: str
     platform: str
@@ -58,6 +94,7 @@ class CampaignCreate(BaseModel):
     total_budget: Optional[float] = None
     start_date: Optional[str] = None
     end_date: Optional[str] = None
+    landing_url: Optional[str] = None
     targeting: Optional[dict] = None
     push_to_platform: bool = False
 
@@ -70,6 +107,7 @@ class AIBuildRequest(BaseModel):
 class AICreateRequest(BaseModel):
     brief: dict
     platform: str
+    landing_url: Optional[str] = None
     push_to_platform: bool = False
 
 
@@ -121,6 +159,8 @@ async def ai_create_campaign(
             "bidding_strategy": camp.get("bidding_strategy"),
             "target_cpa": camp.get("target_cpa"),
         }
+    if payload.landing_url:
+        targeting_payload["landing_url"] = payload.landing_url
 
     campaign = Campaign(
         user_id=current_user.id,
@@ -159,7 +199,11 @@ async def create_campaign(
     settings = await get_user_settings_dict(db, current_user.id)
     platform_id = None
     push_warning = None
+    ads_warning = None
     campaign_status = "draft"
+    targeting = {**(payload.targeting or {})}
+    if payload.landing_url:
+        targeting["landing_url"] = payload.landing_url
 
     if payload.push_to_platform:
         try:
@@ -197,14 +241,20 @@ async def create_campaign(
         total_budget=payload.total_budget,
         start_date=payload.start_date,
         end_date=payload.end_date,
-        targeting=payload.targeting,
+        targeting=targeting,
     )
     db.add(campaign)
     await db.commit()
     await db.refresh(campaign)
+
+    if platform_id:
+        ads_warning = await _launch_ads_for_campaign(campaign, targeting, settings)
+
     response = _campaign_to_dict(campaign)
     if push_warning:
         response["warning"] = push_warning
+    if ads_warning:
+        response["ads_warning"] = ads_warning
     return response
 
 
@@ -338,11 +388,15 @@ async def push_campaign_to_platform(
             campaign.updated_at = datetime.utcnow()
             await db.commit()
             await db.refresh(campaign)
-            return {
+            ads_warning = await _launch_ads_for_campaign(campaign, campaign.targeting or {}, settings)
+            response = {
                 "success": True,
                 "message": f"Campaign created on {campaign.platform.capitalize()} Ads (starts paused — enable it from AdPilot or the platform when ready).",
                 "platform_id": campaign.platform_id,
             }
+            if ads_warning:
+                response["ads_warning"] = ads_warning
+            return response
     except HTTPException:
         raise
     except Exception as e:
