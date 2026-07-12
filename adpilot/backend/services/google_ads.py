@@ -201,6 +201,10 @@ class GoogleAdsService:
                 "status": "PAUSED",
                 "campaignBudget": budget_resource,
                 "manualCpc": {},
+                # Required by Google as of the EU political advertising transparency
+                # rules — every campaign must declare this, regardless of region.
+                # AdPilot doesn't build political ad campaigns.
+                "containsEuPoliticalAdvertising": "DOES_NOT_CONTAIN_EU_POLITICAL_ADVERTISING",
             }
             if channel_type == "SEARCH":
                 # Required in practice for SEARCH campaigns created via the raw REST
