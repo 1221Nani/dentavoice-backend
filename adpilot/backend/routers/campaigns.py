@@ -64,23 +64,29 @@ async def _launch_ads_for_campaign(campaign: Campaign, targeting: dict, settings
             ad_copies = targeting.get("ad_copies") or []
             if not ad_copies:
                 return "No ad copy available — campaign created but no ads were attached. Generate ad copy first."
-            await MetaAdsService(settings=settings).launch_ads(
+            result = await MetaAdsService(settings=settings).launch_ads(
                 campaign_id=campaign.platform_id,
                 campaign_name=campaign.name,
                 landing_url=landing_url,
                 audience=targeting.get("audience") or {},
                 ad_copies=ad_copies,
             )
+            if result.get("warnings"):
+                created = len(result["ad_ids"])
+                total = len(ad_copies)
+                return f"{created}/{total} ad variant(s) created — the rest were rejected: " + "; ".join(result["warnings"])
         elif campaign.platform == "google":
             ad_groups = targeting.get("ad_groups") or []
             if not ad_groups:
                 return "No ad group data available — campaign created but no ads were attached. Use AI Campaign Builder to generate ad groups first."
-            await GoogleAdsService(settings=settings).launch_ads(
+            result = await GoogleAdsService(settings=settings).launch_ads(
                 campaign_resource=campaign.platform_id,
                 daily_budget=campaign.daily_budget,
                 landing_url=landing_url,
                 ad_groups=ad_groups,
             )
+            if result.get("keyword_warnings"):
+                return f"Ads created, but some keywords were rejected: " + "; ".join(result["keyword_warnings"])
     except Exception as e:
         return f"Campaign created but attaching ads failed: {str(e)}. The campaign exists on {campaign.platform.capitalize()} Ads but is empty — fix the issue and contact support to attach ads, or delete and recreate."
     return None

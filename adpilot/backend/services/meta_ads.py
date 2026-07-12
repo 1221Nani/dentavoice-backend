@@ -153,25 +153,35 @@ class MetaAdsService:
             self._raise_detailed(r)
             return r.json()["id"]
 
-    async def launch_ads(self, campaign_id: str, campaign_name: str, landing_url: str, audience: dict, ad_copies: list[dict]) -> list[str]:
+    async def launch_ads(self, campaign_id: str, campaign_name: str, landing_url: str, audience: dict, ad_copies: list[dict]) -> dict:
         """Creates one ad set and, for each ad_copy variant, one creative + ad under it.
-        Everything is created PAUSED — nothing serves or spends until the user enables it."""
+        Everything is created PAUSED — nothing serves or spends until the user enables it.
+        Each variant is created independently — if one is rejected (e.g. a policy
+        violation on that specific creative), the others still get created instead of
+        the whole batch failing together. Returns {"ad_ids": [...], "warnings": [...]}.
+        Raises only if every single variant failed (nothing was created at all)."""
         if not ad_copies:
             raise ValueError("No ad copy available to create ads from")
         adset_id = await self.create_ad_set(campaign_id, f"{campaign_name} — Ad Set", audience)
         ad_ids = []
+        warnings = []
         for i, copy in enumerate(ad_copies):
-            creative_id = await self.create_ad_creative(
-                name=f"{campaign_name} — Creative {i + 1}",
-                link=landing_url,
-                message=copy.get("primary_text", ""),
-                headline=copy.get("headline", campaign_name)[:40],
-                description=copy.get("description", "")[:30],
-                cta=copy.get("cta", "Learn More"),
-            )
-            ad_id = await self.create_ad(f"{campaign_name} — Ad {i + 1}", adset_id, creative_id)
-            ad_ids.append(ad_id)
-        return ad_ids
+            try:
+                creative_id = await self.create_ad_creative(
+                    name=f"{campaign_name} — Creative {i + 1}",
+                    link=landing_url,
+                    message=copy.get("primary_text", ""),
+                    headline=copy.get("headline", campaign_name)[:40],
+                    description=copy.get("description", "")[:30],
+                    cta=copy.get("cta", "Learn More"),
+                )
+                ad_id = await self.create_ad(f"{campaign_name} — Ad {i + 1}", adset_id, creative_id)
+                ad_ids.append(ad_id)
+            except Exception as e:
+                warnings.append(f'Variant {i + 1} ("{copy.get("headline", "")}"): {str(e)}')
+        if not ad_ids:
+            raise ValueError("All ad variants were rejected — " + "; ".join(warnings))
+        return {"ad_ids": ad_ids, "warnings": warnings}
 
     async def update_campaign_status(self, platform_id: str, status: str):
         if not self._is_configured():

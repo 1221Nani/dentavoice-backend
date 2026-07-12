@@ -248,13 +248,37 @@ class GoogleAdsService:
             self._raise_detailed(r)
             return r.json()["results"][0]["resourceName"]
 
-    async def create_ad_group_keywords(self, ad_group_resource: str, keywords: list[dict]):
+    def _parse_partial_failure(self, body: dict, items: list[str]) -> list[str]:
+        """Maps a partialFailureError back to which input item (by batch index)
+        failed and why, so one rejected item doesn't obscure which ones were fine."""
+        pf = body.get("partialFailureError")
+        if not pf:
+            return []
+        failures = []
+        for d in pf.get("details", []):
+            for e in d.get("errors", []):
+                idx = None
+                for el in e.get("location", {}).get("fieldPathElements", []):
+                    if el.get("fieldName") == "operations" and "index" in el:
+                        idx = el["index"]
+                item = items[idx] if idx is not None and idx < len(items) else "(unknown)"
+                pvd = e.get("details", {}).get("policyViolationDetails", {})
+                reason = pvd.get("externalPolicyDescription") or e.get("message", "Policy violation")
+                failures.append(f'"{item}": {reason}')
+        return failures
+
+    async def create_ad_group_keywords(self, ad_group_resource: str, keywords: list[dict]) -> list[str]:
+        """Creates keywords with partial failure enabled — if some keywords are
+        rejected (e.g. policy violations), the rest still get created instead of the
+        whole batch failing together. Returns a list of human-readable failure
+        descriptions for any keywords that didn't make it, empty if all succeeded."""
         if not self._is_configured():
             raise ValueError("Google Ads not configured")
         if not keywords:
-            return
+            return []
         headers = await self._headers()
         match_type_map = {"exact": "EXACT", "phrase": "PHRASE", "broad": "BROAD"}
+        kw_texts = [kw.get("keyword", "") for kw in keywords if kw.get("keyword")]
         operations = [
             {
                 "create": {
@@ -269,15 +293,16 @@ class GoogleAdsService:
             for kw in keywords if kw.get("keyword")
         ]
         if not operations:
-            return
+            return []
         async with httpx.AsyncClient() as client:
             r = await client.post(
                 f"{self.BASE_URL}/customers/{self.customer_id}/adGroupCriteria:mutate",
                 headers=headers,
-                json={"operations": operations},
+                json={"operations": operations, "partialFailure": True},
             )
             self._raise_detailed(r)
-            return r.json()
+            body = r.json()
+            return self._parse_partial_failure(body, kw_texts)
 
     async def create_responsive_search_ad(self, ad_group_resource: str, headlines: list[str], descriptions: list[str], final_url: str) -> str:
         if not self._is_configured():
@@ -306,10 +331,13 @@ class GoogleAdsService:
             self._raise_detailed(r)
             return r.json()["results"][0]["resourceName"]
 
-    async def launch_ads(self, campaign_resource: str, daily_budget: float, landing_url: str, ad_groups: list[dict]) -> list[str]:
+    async def launch_ads(self, campaign_resource: str, daily_budget: float, landing_url: str, ad_groups: list[dict]) -> dict:
         """For each ad group in the brief: creates the ad group, its keywords, and one
         responsive search ad. Ad groups and ads are created PAUSED — nothing serves or
-        spends until the user enables the campaign."""
+        spends until the user enables the campaign. Keyword creation uses partial
+        failure, so a policy-rejected keyword doesn't block the rest of the ad group —
+        returns {"ad_groups": [...], "keyword_warnings": [...]} so the caller can
+        surface which specific keywords, if any, were rejected and why."""
         if not ad_groups:
             raise ValueError("No ad group data available to create ads from")
         campaign_resource = self._campaign_resource_name(campaign_resource)
@@ -317,15 +345,17 @@ class GoogleAdsService:
         # zero/missing bid under the campaign's manual CPC bidding strategy.
         cpc_bid_micros = max(int(daily_budget * 1_000_000 / 20), 500_000)
         ad_group_resources = []
+        keyword_failures = []
         for ag in ad_groups:
             ad_group_resource = await self.create_ad_group(campaign_resource, ag.get("name", "Ad Group"), cpc_bid_micros)
-            await self.create_ad_group_keywords(ad_group_resource, ag.get("keywords", []))
+            failures = await self.create_ad_group_keywords(ad_group_resource, ag.get("keywords", []))
+            keyword_failures.extend(failures)
             rsa = ag.get("rsa", {})
             headlines = rsa.get("headlines") or [ag.get("name", "Learn More")]
             descriptions = rsa.get("descriptions") or ["Learn more today."]
             await self.create_responsive_search_ad(ad_group_resource, headlines, descriptions, landing_url)
             ad_group_resources.append(ad_group_resource)
-        return ad_group_resources
+        return {"ad_groups": ad_group_resources, "keyword_warnings": keyword_failures}
 
     async def get_campaign_metrics(self, date_range: str = "LAST_30_DAYS"):
         if not self._is_configured():
