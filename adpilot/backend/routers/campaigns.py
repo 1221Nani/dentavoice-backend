@@ -15,16 +15,39 @@ router = APIRouter(prefix="/api/campaigns", tags=["campaigns"])
 
 
 def _google_status(status: str) -> str:
-    return "ENABLED" if status.lower() == "active" else status.upper()
+    mapping = {"active": "ENABLED", "paused": "PAUSED", "deleted": "REMOVED"}
+    return mapping.get(status.lower(), status.upper())
+
+
+def _meta_delete_status(status: str) -> str:
+    return "DELETED" if status.lower() == "deleted" else status.upper()
 
 
 async def _push_status_to_platform(campaign: Campaign, status: str, settings: dict):
     if not campaign.platform_id:
         return
     if campaign.platform == "meta":
-        await MetaAdsService(settings=settings).update_campaign_status(campaign.platform_id, status)
+        await MetaAdsService(settings=settings).update_campaign_status(campaign.platform_id, _meta_delete_status(status))
     elif campaign.platform == "google":
         await GoogleAdsService(settings=settings).update_campaign_status(campaign.platform_id, _google_status(status))
+
+
+async def _push_name_to_platform(campaign: Campaign, name: str, settings: dict):
+    if not campaign.platform_id:
+        return
+    if campaign.platform == "meta":
+        await MetaAdsService(settings=settings).update_campaign_name(campaign.platform_id, name)
+    elif campaign.platform == "google":
+        await GoogleAdsService(settings=settings).update_campaign_name(campaign.platform_id, name)
+
+
+async def _push_budget_to_platform(campaign: Campaign, daily_budget: float, settings: dict):
+    if not campaign.platform_id:
+        return
+    if campaign.platform == "meta":
+        await MetaAdsService(settings=settings).update_campaign_budget(campaign.platform_id, daily_budget)
+    elif campaign.platform == "google":
+        await GoogleAdsService(settings=settings).update_campaign_budget(campaign.platform_id, daily_budget)
 
 
 class CampaignCreate(BaseModel):
@@ -136,6 +159,7 @@ async def create_campaign(
     settings = await get_user_settings_dict(db, current_user.id)
     platform_id = None
     push_warning = None
+    campaign_status = "draft"
 
     if payload.push_to_platform:
         try:
@@ -155,6 +179,10 @@ async def create_campaign(
                     budget_micros=int(payload.daily_budget * 1_000_000),
                 )
                 platform_id = result.get("results", [{}])[0].get("resourceName")
+            # Both platforms create campaigns in a PAUSED state — reflect that locally
+            # so AdPilot's status never claims something the real account doesn't show.
+            if platform_id:
+                campaign_status = "paused"
         except Exception as e:
             push_warning = f"Campaign saved as draft — platform push failed: {str(e)}"
 
@@ -164,7 +192,7 @@ async def create_campaign(
         platform=payload.platform,
         platform_id=platform_id,
         objective=payload.objective,
-        status="draft",
+        status=campaign_status,
         daily_budget=payload.daily_budget,
         total_budget=payload.total_budget,
         start_date=payload.start_date,
@@ -201,6 +229,13 @@ async def update_campaign(
     settings = await get_user_settings_dict(db, current_user.id)
 
     if payload.name is not None:
+        try:
+            await _push_name_to_platform(campaign, payload.name, settings)
+        except Exception as e:
+            raise HTTPException(
+                status_code=502,
+                detail=f"Failed to rename campaign on {campaign.platform.capitalize()} Ads: {str(e)}. No changes were saved."
+            )
         campaign.name = payload.name
     if payload.status is not None:
         try:
@@ -208,12 +243,22 @@ async def update_campaign(
         except Exception as e:
             raise HTTPException(
                 status_code=502,
-                detail=f"Failed to update status on {campaign.platform.capitalize()} Ads: {str(e)}. Local status not changed."
+                detail=f"Failed to update status on {campaign.platform.capitalize()} Ads: {str(e)}. No changes were saved."
             )
         campaign.status = payload.status
     if payload.daily_budget is not None:
+        try:
+            await _push_budget_to_platform(campaign, payload.daily_budget, settings)
+        except Exception as e:
+            raise HTTPException(
+                status_code=502,
+                detail=f"Failed to update budget on {campaign.platform.capitalize()} Ads: {str(e)}. No changes were saved."
+            )
         campaign.daily_budget = payload.daily_budget
     if payload.end_date is not None:
+        # Note: end_date is stored locally only — Meta/Google campaign-level end date
+        # scheduling differs enough per platform (Meta: ad set level; Google: campaign
+        # level via a separate field) that it is not pushed automatically here.
         campaign.end_date = payload.end_date
 
     campaign.updated_at = datetime.utcnow()
@@ -229,6 +274,19 @@ async def delete_campaign(
     db: AsyncSession = Depends(get_db),
 ):
     campaign = await _get_owned(db, campaign_id, current_user.id)
+    if campaign.platform_id:
+        settings = await get_user_settings_dict(db, current_user.id)
+        try:
+            await _push_status_to_platform(campaign, "deleted", settings)
+        except Exception as e:
+            raise HTTPException(
+                status_code=502,
+                detail=(
+                    f"Could not remove this campaign from {campaign.platform.capitalize()} Ads: {str(e)}. "
+                    "It was NOT deleted from AdPilot either, so it doesn't keep running on the real "
+                    "account unmanaged and invisible here. Check your API credentials in Settings and try again."
+                )
+            )
     await db.delete(campaign)
     await db.commit()
     return {"ok": True}
@@ -274,13 +332,15 @@ async def push_campaign_to_platform(
                 campaign.platform_id = result.get("results", [{}])[0].get("resourceName")
             else:
                 raise HTTPException(status_code=400, detail=f"Unsupported platform: {campaign.platform}")
-            campaign.status = "active"
+            # Both platforms create campaigns in a PAUSED state — match that locally
+            # instead of claiming "active" when the real account shows paused.
+            campaign.status = "paused"
             campaign.updated_at = datetime.utcnow()
             await db.commit()
             await db.refresh(campaign)
             return {
                 "success": True,
-                "message": f"Campaign created on {campaign.platform.capitalize()} Ads (starts paused — enable it in the platform).",
+                "message": f"Campaign created on {campaign.platform.capitalize()} Ads (starts paused — enable it from AdPilot or the platform when ready).",
                 "platform_id": campaign.platform_id,
             }
     except HTTPException:

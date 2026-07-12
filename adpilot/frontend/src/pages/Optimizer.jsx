@@ -74,9 +74,16 @@ export default function Optimizer() {
   }
 
   async function handleApply(id) {
-    await api.applyRecommendation(id)
-    setRecs(prev => prev.filter(r => r.id !== id))
-    await load()
+    setGenerateError(null)
+    setGenerateInfo(null)
+    try {
+      const result = await api.applyRecommendation(id)
+      if (result?.action_taken) setGenerateInfo(result.action_taken)
+      setRecs(prev => prev.filter(r => r.id !== id))
+      await load()
+    } catch (err) {
+      setGenerateError(err.message || 'Failed to apply recommendation.')
+    }
   }
 
   async function handleDismiss(id) {

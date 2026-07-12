@@ -9,6 +9,7 @@ from models import Campaign, PerformanceMetric, OptimizerRecommendation, User
 from services import AnthropicService
 from auth import get_current_user
 from utils import get_user_settings_dict
+from routers.campaigns import _push_status_to_platform
 
 router = APIRouter(prefix="/api/optimizer", tags=["optimizer"])
 
@@ -186,9 +187,32 @@ async def apply_recommendation(
     db: AsyncSession = Depends(get_db),
 ):
     rec = await _get_owned(db, rec_id, current_user.id)
+    action_taken = None
+
+    # Only "pause" recommendations map to an unambiguous, safe automatic action.
+    # Budget-scaling / reactivate / creative / targeting recommendations are worded
+    # as advice with fuzzy ranges (e.g. "increase 20-30%"), not exact values — applying
+    # those automatically would mean guessing a specific change to real ad spend
+    # without the user confirming the number, so those remain advisory-only for now.
+    if rec.type == "pause" and rec.campaign_id:
+        result = await db.execute(select(Campaign).where(Campaign.id == rec.campaign_id, Campaign.user_id == current_user.id))
+        campaign = result.scalar_one_or_none()
+        if campaign and campaign.status != "paused":
+            settings = await get_user_settings_dict(db, current_user.id)
+            try:
+                await _push_status_to_platform(campaign, "paused", settings)
+            except Exception as e:
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"Failed to pause campaign on {campaign.platform.capitalize()} Ads: {str(e)}. Recommendation not marked applied."
+                )
+            campaign.status = "paused"
+            campaign.updated_at = datetime.utcnow()
+            action_taken = f"Paused '{campaign.name}' on {campaign.platform.capitalize()} Ads."
+
     rec.status = "applied"
     await db.commit()
-    return {"ok": True, "status": "applied"}
+    return {"ok": True, "status": "applied", "action_taken": action_taken}
 
 
 @router.post("/{rec_id}/dismiss")

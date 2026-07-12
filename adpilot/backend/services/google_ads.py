@@ -233,3 +233,59 @@ class GoogleAdsService:
             )
             r.raise_for_status()
             return r.json()
+
+    async def update_campaign_name(self, campaign_resource: str, name: str):
+        if not self._is_configured():
+            raise ValueError("Google Ads not configured")
+        headers = await self._headers()
+        async with httpx.AsyncClient() as client:
+            r = await client.post(
+                f"{self.BASE_URL}/customers/{self.customer_id}/campaigns:mutate",
+                headers=headers,
+                json={
+                    "operations": [{
+                        "update": {"resourceName": campaign_resource, "name": name},
+                        "updateMask": "name",
+                    }]
+                },
+            )
+            r.raise_for_status()
+            return r.json()
+
+    async def _get_campaign_budget_resource(self, campaign_resource: str) -> str:
+        headers = await self._headers()
+        query = f"""
+            SELECT campaign_budget.resource_name
+            FROM campaign
+            WHERE campaign.resource_name = '{campaign_resource}'
+        """
+        async with httpx.AsyncClient() as client:
+            r = await client.post(
+                f"{self.BASE_URL}/customers/{self.customer_id}/googleAds:searchStream",
+                headers=headers,
+                json={"query": query},
+            )
+            r.raise_for_status()
+            for batch in r.json():
+                for row in batch.get("results", []):
+                    return row["campaignBudget"]["resourceName"]
+            raise ValueError("Campaign not found on Google Ads — cannot resolve its budget resource")
+
+    async def update_campaign_budget(self, campaign_resource: str, daily_budget: float):
+        if not self._is_configured():
+            raise ValueError("Google Ads not configured")
+        budget_resource = await self._get_campaign_budget_resource(campaign_resource)
+        headers = await self._headers()
+        async with httpx.AsyncClient() as client:
+            r = await client.post(
+                f"{self.BASE_URL}/customers/{self.customer_id}/campaignBudgets:mutate",
+                headers=headers,
+                json={
+                    "operations": [{
+                        "update": {"resourceName": budget_resource, "amountMicros": int(daily_budget * 1_000_000)},
+                        "updateMask": "amountMicros",
+                    }]
+                },
+            )
+            r.raise_for_status()
+            return r.json()

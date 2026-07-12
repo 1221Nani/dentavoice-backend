@@ -61,6 +61,30 @@ class MetaAdsService:
             r.raise_for_status()
             return r.json()
 
+    async def update_campaign_name(self, platform_id: str, name: str):
+        if not self._is_configured():
+            raise ValueError("Meta Ads not configured")
+        async with httpx.AsyncClient() as client:
+            r = await client.post(
+                f"{self.BASE_URL}/{platform_id}",
+                params={"access_token": self.access_token},
+                json={"name": name},
+            )
+            r.raise_for_status()
+            return r.json()
+
+    async def update_campaign_budget(self, platform_id: str, daily_budget: float):
+        if not self._is_configured():
+            raise ValueError("Meta Ads not configured")
+        async with httpx.AsyncClient() as client:
+            r = await client.post(
+                f"{self.BASE_URL}/{platform_id}",
+                params={"access_token": self.access_token},
+                json={"daily_budget": int(daily_budget * 100)},
+            )
+            r.raise_for_status()
+            return r.json()
+
     async def get_insights(self, campaign_ids: list[str] = None, date_preset: str = "last_30d"):
         if not self._is_configured():
             return {"configured": False, "data": []}

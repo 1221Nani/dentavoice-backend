@@ -80,14 +80,27 @@ export default function CampaignManager() {
 
   async function toggleStatus(c) {
     const next = c.status === 'active' ? 'paused' : 'active'
-    await api.changeCampaignStatus(c.id, next)
-    await load()
+    setPageWarning(null)
+    try {
+      await api.changeCampaignStatus(c.id, next)
+      await load()
+    } catch (err) {
+      setPageWarning(`Status change failed: ${err.message}`)
+    }
   }
 
-  async function handleDelete(id) {
-    if (!confirm('Delete this campaign?')) return
-    await api.deleteCampaign(id)
-    await load()
+  async function handleDelete(id, c) {
+    const platformNote = c?.platform_id
+      ? ` This will also remove it from ${c.platform === 'meta' ? 'Meta' : 'Google'} Ads.`
+      : ''
+    if (!confirm(`Delete this campaign?${platformNote}`)) return
+    setPageWarning(null)
+    try {
+      await api.deleteCampaign(id)
+      await load()
+    } catch (err) {
+      setPageWarning(`Delete failed: ${err.message}`)
+    }
   }
 
   async function handlePushLive(c) {
@@ -384,7 +397,7 @@ export default function CampaignManager() {
                         {c.status === 'active' ? <Pause size={14} /> : <Play size={14} />}
                       </button>
                     )}
-                    <button onClick={() => handleDelete(c.id)} title="Delete"
+                    <button onClick={() => handleDelete(c.id, c)} title="Delete"
                       className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
                       <Trash2 size={14} />
                     </button>
