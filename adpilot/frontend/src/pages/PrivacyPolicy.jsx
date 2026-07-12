@@ -53,7 +53,29 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">5. Your Rights</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">5. Google User Data</h2>
+            <p>
+              Where you connect a Google Ads account, AdPilot accesses Google user data solely through the
+              scope <code className="text-sm bg-gray-100 px-1 rounded">https://www.googleapis.com/auth/adwords</code>,
+              limited to your own campaign, ad group, and performance data. This data is used only to display
+              your campaigns and metrics inside your AdPilot dashboard, generate insights and recommendations
+              for your own account, and to create, edit, or pause campaigns in your connected Google Ads
+              account when you take that action.
+            </p>
+            <p className="mt-2">
+              AdPilot's use and transfer of information received from Google APIs adheres to the{' '}
+              <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
+                Google API Services User Data Policy
+              </a>, including the Limited Use requirements. Google user data is never sold, never shared with
+              third parties for advertising or unrelated purposes, and is never used to train or improve
+              AI/ML models — any use of a third-party AI service (Anthropic Claude) to generate insights from
+              your Google Ads data is performed per-request, for your account only, and is not used to train
+              or improve any model.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">6. Your Rights</h2>
             <p>
               You may request deletion of your account and all associated data at any time. See our{' '}
               <Link to="/data-deletion" className="text-blue-600 hover:underline">Data Deletion</Link> page for instructions.
@@ -61,7 +83,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">6. Contact</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">7. Contact</h2>
             <p>Questions about this policy: krishna.jagadish2@gmail.com</p>
           </section>
         </div>
