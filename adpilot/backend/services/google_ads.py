@@ -1,5 +1,6 @@
 import os
 import httpx
+from datetime import datetime
 from typing import Optional
 
 
@@ -165,6 +166,11 @@ class GoogleAdsService:
         if not self._is_configured():
             raise ValueError("Google Ads not configured")
         headers = await self._headers()
+        # Google rejects a campaignBudget create with a name that already exists on the
+        # account. A plain "{name} Budget" collides on retry (e.g. after a prior partial
+        # failure left an orphaned budget) or if two campaigns share a name — append a
+        # timestamp so it's always unique.
+        unique_budget_name = f"{name} Budget {datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
         async with httpx.AsyncClient() as client:
             budget_r = await client.post(
                 f"{self.BASE_URL}/customers/{self.customer_id}/campaignBudgets:mutate",
@@ -172,7 +178,7 @@ class GoogleAdsService:
                 json={
                     "operations": [{
                         "create": {
-                            "name": f"{name} Budget",
+                            "name": unique_budget_name,
                             "amountMicros": budget_micros,
                             "deliveryMethod": "STANDARD",
                         }
