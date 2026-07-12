@@ -28,6 +28,20 @@ class MetaAdsService:
     def _headers(self):
         return {"Authorization": f"Bearer {self.access_token}"}
 
+    def _raise_detailed(self, r: httpx.Response):
+        """Replaces bare r.raise_for_status(). httpx's default error message is just
+        '400 Bad Request' — it discards Meta's actual error payload (error.message,
+        error.error_user_msg), which is where the real reason lives."""
+        if r.status_code < 400:
+            return
+        message = None
+        try:
+            err = r.json().get("error", {})
+            message = err.get("error_user_msg") or err.get("message")
+        except Exception:
+            pass
+        raise ValueError(message or f"Meta Ads API error (HTTP {r.status_code}): {r.text[:300]}")
+
     async def get_campaigns(self):
         if not self._is_configured():
             return {"configured": False, "data": []}
@@ -39,7 +53,7 @@ class MetaAdsService:
                     "access_token": self.access_token,
                 },
             )
-            r.raise_for_status()
+            self._raise_detailed(r)
             return {"configured": True, "data": r.json().get("data", [])}
 
     async def create_campaign(self, name: str, objective: str, status: str, daily_budget: float):
@@ -57,7 +71,7 @@ class MetaAdsService:
                     "daily_budget": int(daily_budget * 100),  # cents
                 },
             )
-            r.raise_for_status()
+            self._raise_detailed(r)
             return r.json()
 
     def _cta_type(self, cta: str) -> str:
@@ -93,7 +107,7 @@ class MetaAdsService:
                     "targeting": targeting,
                 },
             )
-            r.raise_for_status()
+            self._raise_detailed(r)
             return r.json()["id"]
 
     async def create_ad_creative(self, name: str, link: str, message: str, headline: str, description: str, cta: str) -> str:
@@ -119,7 +133,7 @@ class MetaAdsService:
                     },
                 },
             )
-            r.raise_for_status()
+            self._raise_detailed(r)
             return r.json()["id"]
 
     async def create_ad(self, name: str, adset_id: str, creative_id: str) -> str:
@@ -136,7 +150,7 @@ class MetaAdsService:
                     "status": "PAUSED",
                 },
             )
-            r.raise_for_status()
+            self._raise_detailed(r)
             return r.json()["id"]
 
     async def launch_ads(self, campaign_id: str, campaign_name: str, landing_url: str, audience: dict, ad_copies: list[dict]) -> list[str]:
@@ -168,7 +182,7 @@ class MetaAdsService:
                 params={"access_token": self.access_token},
                 json={"status": status.upper()},
             )
-            r.raise_for_status()
+            self._raise_detailed(r)
             return r.json()
 
     async def update_campaign_name(self, platform_id: str, name: str):
@@ -180,7 +194,7 @@ class MetaAdsService:
                 params={"access_token": self.access_token},
                 json={"name": name},
             )
-            r.raise_for_status()
+            self._raise_detailed(r)
             return r.json()
 
     async def update_campaign_budget(self, platform_id: str, daily_budget: float):
@@ -192,7 +206,7 @@ class MetaAdsService:
                 params={"access_token": self.access_token},
                 json={"daily_budget": int(daily_budget * 100)},
             )
-            r.raise_for_status()
+            self._raise_detailed(r)
             return r.json()
 
     async def get_insights(self, campaign_ids: list[str] = None, date_preset: str = "last_30d"):

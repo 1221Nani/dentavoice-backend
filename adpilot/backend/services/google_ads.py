@@ -61,6 +61,27 @@ class GoogleAdsService:
             h["login-customer-id"] = login_id
         return h
 
+    def _raise_detailed(self, r: httpx.Response):
+        """Replaces bare r.raise_for_status() for mutate calls. httpx's default error
+        message is just '400 Bad Request' — it discards Google's actual error payload,
+        which is where the real reason (e.g. a specific required-field violation) lives."""
+        if r.status_code < 400:
+            return
+        message = None
+        try:
+            body = r.json()
+            err = body.get("error", {})
+            parts = [err.get("message", "")]
+            for d in err.get("details", []):
+                for e in d.get("errors", []):
+                    m = e.get("message")
+                    if m:
+                        parts.append(m)
+            message = " — ".join(p for p in parts if p)
+        except Exception:
+            pass
+        raise ValueError(message or f"Google Ads API error (HTTP {r.status_code}): {r.text[:300]}")
+
     async def list_accessible_customers(self) -> dict:
         """List all Google Ads accounts accessible to these credentials (MCC sub-accounts)."""
         if not self._has_mcc_credentials():
@@ -158,25 +179,33 @@ class GoogleAdsService:
                     }]
                 },
             )
-            budget_r.raise_for_status()
+            self._raise_detailed(budget_r)
             budget_resource = budget_r.json()["results"][0]["resourceName"]
+
+            create_op = {
+                "name": name,
+                "advertisingChannelType": channel_type,
+                "status": "PAUSED",
+                "campaignBudget": budget_resource,
+                "manualCpc": {},
+            }
+            if channel_type == "SEARCH":
+                # Required in practice for SEARCH campaigns created via the raw REST
+                # API — without it, creation can fail validation for not targeting
+                # any network.
+                create_op["networkSettings"] = {
+                    "targetGoogleSearch": True,
+                    "targetSearchNetwork": True,
+                    "targetContentNetwork": False,
+                    "targetPartnerSearchNetwork": False,
+                }
 
             r = await client.post(
                 f"{self.BASE_URL}/customers/{self.customer_id}/campaigns:mutate",
                 headers=headers,
-                json={
-                    "operations": [{
-                        "create": {
-                            "name": name,
-                            "advertisingChannelType": channel_type,
-                            "status": "PAUSED",
-                            "campaignBudget": budget_resource,
-                            "manualCpc": {},
-                        }
-                    }]
-                },
+                json={"operations": [{"create": create_op}]},
             )
-            r.raise_for_status()
+            self._raise_detailed(r)
             return r.json()
 
     async def create_ad_group(self, campaign_resource: str, name: str, cpc_bid_micros: int) -> str:
@@ -199,7 +228,7 @@ class GoogleAdsService:
                     }]
                 },
             )
-            r.raise_for_status()
+            self._raise_detailed(r)
             return r.json()["results"][0]["resourceName"]
 
     async def create_ad_group_keywords(self, ad_group_resource: str, keywords: list[dict]):
@@ -230,7 +259,7 @@ class GoogleAdsService:
                 headers=headers,
                 json={"operations": operations},
             )
-            r.raise_for_status()
+            self._raise_detailed(r)
             return r.json()
 
     async def create_responsive_search_ad(self, ad_group_resource: str, headlines: list[str], descriptions: list[str], final_url: str) -> str:
@@ -257,7 +286,7 @@ class GoogleAdsService:
                     }]
                 },
             )
-            r.raise_for_status()
+            self._raise_detailed(r)
             return r.json()["results"][0]["resourceName"]
 
     async def launch_ads(self, campaign_resource: str, daily_budget: float, landing_url: str, ad_groups: list[dict]) -> list[str]:
@@ -343,7 +372,7 @@ class GoogleAdsService:
                     }]
                 },
             )
-            r.raise_for_status()
+            self._raise_detailed(r)
             return r.json()
 
     async def update_campaign_name(self, campaign_resource: str, name: str):
@@ -362,7 +391,7 @@ class GoogleAdsService:
                     }]
                 },
             )
-            r.raise_for_status()
+            self._raise_detailed(r)
             return r.json()
 
     async def _get_campaign_budget_resource(self, campaign_resource: str) -> str:
@@ -379,7 +408,7 @@ class GoogleAdsService:
                 headers=headers,
                 json={"query": query},
             )
-            r.raise_for_status()
+            self._raise_detailed(r)
             for batch in r.json():
                 for row in batch.get("results", []):
                     return row["campaignBudget"]["resourceName"]
@@ -401,5 +430,5 @@ class GoogleAdsService:
                     }]
                 },
             )
-            r.raise_for_status()
+            self._raise_detailed(r)
             return r.json()
