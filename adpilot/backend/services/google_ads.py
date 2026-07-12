@@ -216,9 +216,19 @@ class GoogleAdsService:
                     results.append(row)
             return {"configured": True, "data": results}
 
+    def _campaign_resource_name(self, campaign_id_or_resource: str) -> str:
+        """Accepts either a full resource name (customers/123/campaigns/456) or a
+        bare campaign ID (456, as stored for campaigns pulled in via /sync) and
+        always returns the full resource name Google's mutate endpoints require."""
+        value = str(campaign_id_or_resource)
+        if value.startswith("customers/"):
+            return value
+        return f"customers/{self.customer_id}/campaigns/{value}"
+
     async def update_campaign_status(self, campaign_resource: str, status: str):
         if not self._is_configured():
             raise ValueError("Google Ads not configured")
+        resource_name = self._campaign_resource_name(campaign_resource)
         headers = await self._headers()
         async with httpx.AsyncClient() as client:
             r = await client.post(
@@ -226,7 +236,7 @@ class GoogleAdsService:
                 headers=headers,
                 json={
                     "operations": [{
-                        "update": {"resourceName": campaign_resource, "status": status},
+                        "update": {"resourceName": resource_name, "status": status},
                         "updateMask": "status",
                     }]
                 },
@@ -237,6 +247,7 @@ class GoogleAdsService:
     async def update_campaign_name(self, campaign_resource: str, name: str):
         if not self._is_configured():
             raise ValueError("Google Ads not configured")
+        resource_name = self._campaign_resource_name(campaign_resource)
         headers = await self._headers()
         async with httpx.AsyncClient() as client:
             r = await client.post(
@@ -244,7 +255,7 @@ class GoogleAdsService:
                 headers=headers,
                 json={
                     "operations": [{
-                        "update": {"resourceName": campaign_resource, "name": name},
+                        "update": {"resourceName": resource_name, "name": name},
                         "updateMask": "name",
                     }]
                 },
@@ -253,11 +264,12 @@ class GoogleAdsService:
             return r.json()
 
     async def _get_campaign_budget_resource(self, campaign_resource: str) -> str:
+        resource_name = self._campaign_resource_name(campaign_resource)
         headers = await self._headers()
         query = f"""
             SELECT campaign_budget.resource_name
             FROM campaign
-            WHERE campaign.resource_name = '{campaign_resource}'
+            WHERE campaign.resource_name = '{resource_name}'
         """
         async with httpx.AsyncClient() as client:
             r = await client.post(
