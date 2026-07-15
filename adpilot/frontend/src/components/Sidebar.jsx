@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard, Megaphone, Wand2, BarChart2,
-  Zap, Search, FileBarChart, Settings, Bot, Rocket,
+  Zap, Search, FileBarChart, Settings, Bot, Rocket, X,
 } from 'lucide-react'
 import clsx from 'clsx'
 
@@ -18,50 +18,72 @@ const nav = [
   { to: '/settings', icon: Settings, label: 'Settings' },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ open, onClose }) {
   return (
-    <aside className="fixed left-0 top-0 h-screen w-60 bg-slate-900 flex flex-col z-30">
-      <div className="px-5 py-6 border-b border-slate-700/50">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Zap size={16} className="text-white" />
+    <>
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      <aside
+        className={clsx(
+          'fixed left-0 top-0 h-screen w-60 bg-base-900/90 backdrop-blur-xl border-r border-white/10 flex flex-col z-40',
+          'transform transition-transform duration-200 ease-out',
+          open ? 'translate-x-0' : '-translate-x-full',
+          'lg:translate-x-0',
+        )}
+      >
+        <div className="px-5 py-6 border-b border-white/10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-aurora-amber rounded-lg flex items-center justify-center flex-shrink-0">
+              <Zap size={16} className="text-base-950" />
+            </div>
+            <div>
+              <p className="text-ink-50 font-bold text-sm leading-tight">AdPilot AI</p>
+              <p className="text-ink-500 text-xs">Performance Marketing</p>
+            </div>
           </div>
-          <div>
-            <p className="text-white font-bold text-sm leading-tight">AdPilot AI</p>
-            <p className="text-slate-400 text-xs">Performance Marketing</p>
-          </div>
-        </div>
-      </div>
-
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {nav.map(({ to, icon: Icon, label, highlight }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === '/dashboard'}
-            className={({ isActive }) =>
-              clsx(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
-                isActive
-                  ? 'bg-blue-600 text-white'
-                  : highlight
-                  ? 'text-blue-400 hover:bg-blue-900/40 hover:text-blue-300'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-slate-100',
-              )
-            }
+          <button
+            onClick={onClose}
+            className="lg:hidden p-1.5 text-ink-500 hover:text-ink-50 hover:bg-white/10 rounded-lg transition-colors"
           >
-            <Icon size={18} />
-            <span className="flex-1">{label}</span>
-            {highlight && (
-              <span className="text-[10px] font-semibold bg-blue-500 text-white px-1.5 py-0.5 rounded-full">NEW</span>
-            )}
-          </NavLink>
-        ))}
-      </nav>
+            <X size={18} />
+          </button>
+        </div>
 
-      <div className="px-4 py-4 border-t border-slate-700/50">
-        <p className="text-slate-500 text-xs text-center">v1.0.0 — Meta + Google</p>
-      </div>
-    </aside>
+        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+          {nav.map(({ to, icon: Icon, label, highlight }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === '/dashboard'}
+              onClick={onClose}
+              className={({ isActive }) =>
+                clsx(
+                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
+                  isActive
+                    ? 'bg-aurora-amber/15 text-aurora-amber'
+                    : highlight
+                    ? 'text-aurora-blue hover:bg-aurora-blue/10 hover:text-aurora-cyan'
+                    : 'text-ink-500 hover:bg-white/5 hover:text-ink-50',
+                )
+              }
+            >
+              <Icon size={18} />
+              <span className="flex-1">{label}</span>
+              {highlight && (
+                <span className="text-[10px] font-semibold bg-aurora-amber text-base-950 px-1.5 py-0.5 rounded-full">NEW</span>
+              )}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="px-4 py-4 border-t border-white/10">
+          <p className="text-ink-700 text-xs text-center">v1.0.0 — Meta + Google</p>
+        </div>
+      </aside>
+    </>
   )
 }

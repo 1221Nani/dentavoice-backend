@@ -20,9 +20,9 @@ export default function OAuthCallback() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-3">
-      <Loader2 className="animate-spin text-blue-500" size={28} />
-      <p className="text-sm text-gray-500">Completing connection…</p>
+    <div className="min-h-screen bg-white/5 flex flex-col items-center justify-center gap-3">
+      <Loader2 className="animate-spin text-aurora-blue" size={28} />
+      <p className="text-sm text-ink-500">Completing connection…</p>
     </div>
   )
 }

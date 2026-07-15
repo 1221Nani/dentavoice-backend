@@ -162,30 +162,30 @@ export default function Onboarding() {
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="animate-spin text-blue-500" size={32} />
+      <div className="min-h-screen bg-white/5 flex items-center justify-center">
+        <Loader2 className="animate-spin text-aurora-blue" size={32} />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-white/5 flex flex-col">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-8 py-5 bg-white border-b border-gray-100">
+      <div className="flex items-center justify-between px-8 py-5 bg-base-800 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-aurora-blue rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-base">A</span>
           </div>
-          <span className="text-lg font-bold text-gray-900">AdPilot AI</span>
+          <span className="text-lg font-bold text-ink-50">AdPilot AI</span>
         </div>
         <div className="flex items-center gap-3 text-sm">
           <StepDot n={1} label="Connect" active={step === 1} done={step > 1} />
-          <div className="w-8 h-px bg-gray-200" />
+          <div className="w-8 h-px bg-white/10" />
           <StepDot n={2} label="Select Account" active={step === 2} done={!!anySelected} />
-          <div className="w-8 h-px bg-gray-200" />
+          <div className="w-8 h-px bg-white/10" />
           <StepDot n={3} label="Launch" active={false} done={false} />
         </div>
-        <button onClick={goToDashboard} className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+        <button onClick={goToDashboard} className="text-sm text-ink-500 hover:text-ink-300 transition-colors">
           Skip for now
         </button>
       </div>
@@ -225,11 +225,11 @@ function StepDot({ n, label, active, done }) {
     <div className="flex items-center gap-1.5">
       <div className={clsx(
         'w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold transition-colors',
-        done ? 'bg-green-500 text-white' : active ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+        done ? 'bg-green-500 text-white' : active ? 'bg-aurora-blue text-white' : 'bg-white/10 text-ink-500'
       )}>
         {done ? <CheckCircle size={14} /> : n}
       </div>
-      <span className={clsx('text-sm', active ? 'text-gray-900 font-medium' : 'text-gray-400')}>{label}</span>
+      <span className={clsx('text-sm', active ? 'text-ink-50 font-medium' : 'text-ink-500')}>{label}</span>
     </div>
   )
 }
@@ -238,8 +238,8 @@ function Step1Connect({ meta, google, onConnectMeta, onConnectGoogle, onContinue
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900">Connect your ad platform</h1>
-        <p className="text-gray-500 mt-2">Connect at least one platform to get started. You can add more later.</p>
+        <h1 className="text-2xl font-bold text-ink-50">Connect your ad platform</h1>
+        <p className="text-ink-500 mt-2">Connect at least one platform to get started. You can add more later.</p>
       </div>
 
       <div className="space-y-3">
@@ -270,7 +270,7 @@ function Step1Connect({ meta, google, onConnectMeta, onConnectGoogle, onContinue
       {anyConnected && (
         <button
           onClick={onContinue}
-          className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
+          className="w-full flex items-center justify-center gap-2 py-3 bg-aurora-blue hover:bg-aurora-cyan text-white font-semibold rounded-xl transition-colors"
         >
           Choose Ad Account <ArrowRight size={16} />
         </button>
@@ -283,21 +283,21 @@ function PlatformCard({ name, subtitle, connected, connecting, error, logo, onCo
   return (
     <div className={clsx(
       'rounded-2xl border-2 p-5 transition-all',
-      connected ? 'border-green-400 bg-green-50' : 'border-gray-200 bg-white'
+      connected ? 'border-green-400 bg-green-500/10' : 'border-white/10 bg-base-800'
     )}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white border border-gray-100 shadow-sm flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-base-800 border border-white/10 shadow-sm flex items-center justify-center">
             {logo}
           </div>
           <div>
-            <p className="font-semibold text-gray-900">{name}</p>
-            <p className="text-sm text-gray-500">{subtitle}</p>
+            <p className="font-semibold text-ink-50">{name}</p>
+            <p className="text-sm text-ink-500">{subtitle}</p>
           </div>
         </div>
 
         {connected ? (
-          <div className="flex items-center gap-1.5 text-green-600 font-medium text-sm">
+          <div className="flex items-center gap-1.5 text-green-400 font-medium text-sm">
             <CheckCircle size={18} />
             Connected
           </div>
@@ -305,14 +305,14 @@ function PlatformCard({ name, subtitle, connected, connecting, error, logo, onCo
           <button
             onClick={onConnect}
             disabled={connecting}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-aurora-blue hover:bg-aurora-cyan disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
           >
             {connecting && <Loader2 size={13} className="animate-spin" />}
             {connecting ? connectingLabel : connectLabel}
           </button>
         )}
       </div>
-      {error && <p className="mt-3 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">{error}</p>}
+      {error && <p className="mt-3 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{error}</p>}
     </div>
   )
 }
@@ -321,8 +321,8 @@ function Step2Accounts({ meta, google, onSelectMeta, onSelectGoogle, onBack, onD
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900">Pick your ad account</h1>
-        <p className="text-gray-500 mt-2">Choose the account you want AdPilot to manage.</p>
+        <h1 className="text-2xl font-bold text-ink-50">Pick your ad account</h1>
+        <p className="text-ink-500 mt-2">Choose the account you want AdPilot to manage.</p>
       </div>
 
       <div className="space-y-4">
@@ -359,12 +359,12 @@ function Step2Accounts({ meta, google, onSelectMeta, onSelectGoogle, onBack, onD
         )}
 
         {meta.connected && meta.accounts.length === 0 && (
-          <div className="rounded-xl border border-gray-200 bg-white p-5 text-sm text-gray-500">
+          <div className="rounded-xl border border-white/10 bg-base-800 p-5 text-sm text-ink-500">
             No Meta ad accounts found on your account.
           </div>
         )}
         {google.connected && google.accounts.length === 0 && (
-          <div className="rounded-xl border border-gray-200 bg-white p-5 text-sm text-gray-500">
+          <div className="rounded-xl border border-white/10 bg-base-800 p-5 text-sm text-ink-500">
             No Google Ads accounts found. You may need to enter your Manager Account ID in Settings after setup.
           </div>
         )}
@@ -373,14 +373,14 @@ function Step2Accounts({ meta, google, onSelectMeta, onSelectGoogle, onBack, onD
       <div className="flex gap-3">
         <button
           onClick={onBack}
-          className="flex-1 py-3 border border-gray-200 text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-colors"
+          className="flex-1 py-3 border border-white/10 text-ink-300 font-medium rounded-xl hover:bg-white/5 transition-colors"
         >
           Back
         </button>
         <button
           onClick={onDone}
           disabled={!anySelected}
-          className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 py-3 bg-aurora-blue hover:bg-aurora-cyan disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors"
         >
           Go to Dashboard <ArrowRight size={16} />
         </button>
@@ -390,14 +390,14 @@ function Step2Accounts({ meta, google, onSelectMeta, onSelectGoogle, onBack, onD
 }
 
 function AccountGroup({ platformName, logo, accounts, selectedId, accentColor, onSelect }) {
-  const borderSelected = accentColor === 'blue' ? 'border-blue-500 bg-blue-50' : 'border-red-400 bg-red-50'
-  const borderHover = accentColor === 'blue' ? 'hover:border-blue-300' : 'hover:border-red-300'
+  const borderSelected = accentColor === 'blue' ? 'border-aurora-blue bg-aurora-blue/10' : 'border-red-400/60 bg-red-500/10'
+  const borderHover = accentColor === 'blue' ? 'hover:border-blue-300' : 'hover:border-red-400'
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100 bg-gray-50">
+    <div className="rounded-2xl border border-white/10 bg-base-800 overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-white/5">
         <div className="w-5 h-5">{logo}</div>
-        <span className="text-sm font-semibold text-gray-700">{platformName}</span>
+        <span className="text-sm font-semibold text-ink-300">{platformName}</span>
       </div>
       <div className="p-3 space-y-2">
         {accounts.map(acc => {
@@ -408,14 +408,14 @@ function AccountGroup({ platformName, logo, accounts, selectedId, accentColor, o
               onClick={() => onSelect(acc)}
               className={clsx(
                 'w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left transition-all',
-                isSelected ? borderSelected : `border-gray-200 hover:bg-gray-50 ${borderHover}`
+                isSelected ? borderSelected : `border-white/10 hover:bg-white/5 ${borderHover}`
               )}
             >
               <div>
-                <p className="text-sm font-medium text-gray-900">{acc.name}</p>
-                <p className="text-xs text-gray-400">{acc.sub}</p>
+                <p className="text-sm font-medium text-ink-50">{acc.name}</p>
+                <p className="text-xs text-ink-500">{acc.sub}</p>
               </div>
-              {isSelected && <CheckCircle size={18} className={accentColor === 'blue' ? 'text-blue-500' : 'text-red-500'} />}
+              {isSelected && <CheckCircle size={18} className={accentColor === 'blue' ? 'text-aurora-blue' : 'text-red-400'} />}
             </button>
           )
         })}

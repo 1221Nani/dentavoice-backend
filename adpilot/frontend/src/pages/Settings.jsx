@@ -121,30 +121,30 @@ function MetaSection() {
 
   return (
     <div className="card overflow-hidden">
-      <div className="px-5 py-4 flex items-center justify-between bg-blue-50 border-b border-blue-100">
+      <div className="px-5 py-4 flex items-center justify-between bg-aurora-blue/10 border-b border-aurora-blue/20">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-[#1877F2] flex items-center justify-center flex-shrink-0">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Meta Ads</h3>
-            <p className="text-sm text-gray-500">Facebook & Instagram ad accounts</p>
+            <h3 className="font-semibold text-ink-50">Meta Ads</h3>
+            <p className="text-sm text-ink-500">Facebook & Instagram ad accounts</p>
           </div>
         </div>
         <span className={clsx(
           'text-xs font-medium px-3 py-1 rounded-full',
-          connected && selectedId ? 'bg-green-100 text-green-700' : connected ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
+          connected && selectedId ? 'bg-green-500/15 text-green-400' : connected ? 'bg-aurora-blue/15 text-aurora-blue' : 'bg-white/10 text-ink-500'
         )}>
           {connected && selectedId ? `Active: ${selectedName || selectedId}` : connected ? 'Connected — select account' : 'Not Connected'}
         </span>
       </div>
 
       <div className="p-5 space-y-4">
-        {error && <div className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-2">{error}</div>}
+        {error && <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2">{error}</div>}
 
         {!connected ? (
           <div className="space-y-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-ink-300">
               Click below to log in with your Facebook account and grant AdPilot access to your ad accounts.
             </p>
             <button
@@ -160,17 +160,17 @@ function MetaSection() {
         ) : (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-ink-300">
                 {accounts.length} ad account{accounts.length !== 1 ? 's' : ''} found
               </p>
               <button type="button" onClick={handleDisconnect} disabled={loading}
-                className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-700 transition-colors">
+                className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-400 transition-colors">
                 <LogOut size={13} /> Disconnect
               </button>
             </div>
 
             {accounts.length === 0 ? (
-              <p className="text-sm text-gray-400">No ad accounts found on this Meta account.</p>
+              <p className="text-sm text-ink-500">No ad accounts found on this Meta account.</p>
             ) : (
               <div className="space-y-2">
                 {accounts.map(account => {
@@ -181,31 +181,31 @@ function MetaSection() {
                     <button key={account.id} type="button" onClick={() => handleSelectAccount(account)}
                       className={clsx(
                         'w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left transition-all',
-                        isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                        isSelected ? 'border-aurora-blue bg-aurora-blue/10' : 'border-white/10 hover:border-blue-300 hover:bg-white/5'
                       )}>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{account.name}</p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-sm font-medium text-ink-50">{account.name}</p>
+                        <p className="text-xs text-ink-500">
                           {account.currency} · {statusLabel}
                           {account.business?.name ? ` · ${account.business.name}` : ''}
                         </p>
                       </div>
-                      {isSelected && <CheckCircle size={18} className="text-blue-500 flex-shrink-0" />}
+                      {isSelected && <CheckCircle size={18} className="text-aurora-blue flex-shrink-0" />}
                     </button>
                   )
                 })}
                 {selectedId && (
-                  <div className="mt-3 p-3 bg-green-50 border border-green-100 rounded-xl flex items-center justify-between">
-                    <p className="text-sm text-green-700 font-medium">Account active — campaigns ready to sync</p>
-                    <Link to="/campaigns" className="flex items-center gap-1 text-sm text-green-700 font-semibold hover:text-green-900 transition-colors">
+                  <div className="mt-3 p-3 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center justify-between">
+                    <p className="text-sm text-green-400 font-medium">Account active — campaigns ready to sync</p>
+                    <Link to="/campaigns" className="flex items-center gap-1 text-sm text-green-400 font-semibold hover:text-green-300 transition-colors">
                       Go to Campaigns <ArrowRight size={14} />
                     </Link>
                   </div>
                 )}
 
-                <div className="mt-3 p-3 border border-gray-200 rounded-xl space-y-2">
-                  <p className="text-sm font-medium text-gray-700">Facebook Page ID</p>
-                  <p className="text-xs text-gray-500">
+                <div className="mt-3 p-3 border border-white/10 rounded-xl space-y-2">
+                  <p className="text-sm font-medium text-ink-300">Facebook Page ID</p>
+                  <p className="text-xs text-ink-500">
                     Required to create real ads — Meta attributes every ad to a Page you manage.
                     Find it under your Page's About section on Facebook.
                   </p>
@@ -218,7 +218,7 @@ function MetaSection() {
                       className="input flex-1 text-sm"
                     />
                     <button type="button" onClick={handleSavePageId} disabled={savingPageId || !pageId.trim()}
-                      className="px-4 py-2 bg-gray-900 hover:bg-gray-800 disabled:opacity-40 text-white text-sm font-medium rounded-lg transition-colors">
+                      className="px-4 py-2 bg-base-900 hover:bg-base-700 disabled:opacity-40 text-white text-sm font-medium rounded-lg transition-colors">
                       {savingPageId ? 'Saving…' : pageIdSaved ? 'Saved' : 'Save'}
                     </button>
                   </div>
@@ -311,34 +311,34 @@ function GoogleSection({ mccId, onMccChange, onSaveMcc, saving }) {
 
   return (
     <div className="card overflow-hidden">
-      <div className="px-5 py-4 flex items-center justify-between bg-red-50 border-b border-red-100">
+      <div className="px-5 py-4 flex items-center justify-between bg-red-500/10 border-b border-red-500/20">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-base-800 border border-white/10 flex items-center justify-center flex-shrink-0">
             <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.34-8.16 2.34-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Google Ads</h3>
-            <p className="text-sm text-gray-500">Search & display ad accounts</p>
+            <h3 className="font-semibold text-ink-50">Google Ads</h3>
+            <p className="text-sm text-ink-500">Search & display ad accounts</p>
           </div>
         </div>
         <span className={clsx(
           'text-xs font-medium px-3 py-1 rounded-full',
-          connected && selectedId ? 'bg-green-100 text-green-700' : connected ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'
+          connected && selectedId ? 'bg-green-500/15 text-green-400' : connected ? 'bg-aurora-blue/15 text-aurora-blue' : 'bg-red-500/15 text-red-400'
         )}>
           {connected && selectedId ? `Active: ${selectedId}` : connected ? 'Connected — select account' : 'Not Connected'}
         </span>
       </div>
 
       <div className="p-5 space-y-4">
-        {error && <div className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-2">{error}</div>}
+        {error && <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2">{error}</div>}
 
         {!connected ? (
           <div className="space-y-4">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-ink-300">
               Click below to log in with your Google account and grant AdPilot access to your Google Ads accounts.
             </p>
             <button type="button" onClick={handleConnect} disabled={connecting || loading}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-40 text-gray-700 text-sm font-medium rounded-lg transition-colors shadow-sm">
+              className="flex items-center gap-2 px-5 py-2.5 bg-base-800 border border-white/20 hover:bg-white/5 disabled:opacity-40 text-ink-300 text-sm font-medium rounded-lg transition-colors shadow-sm">
               <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.34-8.16 2.34-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
               {connecting ? 'Redirecting to Google…' : loading ? 'Checking…' : 'Connect with Google'}
             </button>
@@ -346,18 +346,18 @@ function GoogleSection({ mccId, onMccChange, onSaveMcc, saving }) {
         ) : (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-green-700 flex items-center gap-1.5">
+              <p className="text-sm font-medium text-green-400 flex items-center gap-1.5">
                 <CheckCircle size={15} /> Google account connected
               </p>
               <button type="button" onClick={handleDisconnect} disabled={loading}
-                className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-700 transition-colors">
+                className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-400 transition-colors">
                 <LogOut size={13} /> Disconnect
               </button>
             </div>
 
             {accounts.length === 0 ? (
               <div className="space-y-3">
-                <p className="text-sm text-gray-500">No accounts found. If you use a Manager Account (MCC), enter its ID below to find sub-accounts.</p>
+                <p className="text-sm text-ink-500">No accounts found. If you use a Manager Account (MCC), enter its ID below to find sub-accounts.</p>
                 <div className="flex items-end gap-3">
                   <div className="flex-1">
                     <label className="label">Manager Account ID (optional)</label>
@@ -378,20 +378,20 @@ function GoogleSection({ mccId, onMccChange, onSaveMcc, saving }) {
                     <button key={acc.id} type="button" onClick={() => handleSelectAccount(acc)}
                       className={clsx(
                         'w-full flex items-center justify-between px-4 py-3 rounded-xl border text-left transition-all',
-                        isSelected ? 'border-red-400 bg-red-50' : 'border-gray-200 hover:border-red-300 hover:bg-gray-50'
+                        isSelected ? 'border-red-400/60 bg-red-500/10' : 'border-white/10 hover:border-red-400 hover:bg-white/5'
                       )}>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{acc.name || `Account ${acc.id}`}</p>
-                        <p className="text-xs text-gray-400">ID: {acc.id}</p>
+                        <p className="text-sm font-medium text-ink-50">{acc.name || `Account ${acc.id}`}</p>
+                        <p className="text-xs text-ink-500">ID: {acc.id}</p>
                       </div>
-                      {isSelected && <CheckCircle size={18} className="text-red-500 flex-shrink-0" />}
+                      {isSelected && <CheckCircle size={18} className="text-red-400 flex-shrink-0" />}
                     </button>
                   )
                 })}
                 {selectedId && (
-                  <div className="mt-3 p-3 bg-green-50 border border-green-100 rounded-xl flex items-center justify-between">
-                    <p className="text-sm text-green-700 font-medium">Account active — campaigns ready to sync</p>
-                    <Link to="/campaigns" className="flex items-center gap-1 text-sm text-green-700 font-semibold hover:text-green-900">
+                  <div className="mt-3 p-3 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center justify-between">
+                    <p className="text-sm text-green-400 font-medium">Account active — campaigns ready to sync</p>
+                    <Link to="/campaigns" className="flex items-center gap-1 text-sm text-green-400 font-semibold hover:text-green-300">
                       Go to Campaigns <ArrowRight size={14} />
                     </Link>
                   </div>
@@ -457,7 +457,7 @@ export default function Settings() {
     await api.saveSettings({ ...values, GOOGLE_ADS_LOGIN_CUSTOMER_ID: val })
   }
 
-  if (loading) return <div className="text-sm text-gray-400 p-8 text-center">Loading settings…</div>
+  if (loading) return <div className="text-sm text-ink-500 p-8 text-center">Loading settings…</div>
 
   const STATUS_ITEMS = [
     { key: 'meta', label: 'Meta' },
@@ -471,8 +471,8 @@ export default function Settings() {
     <div className="space-y-6 max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">Connections</h2>
-          <p className="text-sm text-gray-500">Connect your ad platforms and AI services</p>
+          <h2 className="text-lg font-bold text-ink-50">Connections</h2>
+          <p className="text-sm text-ink-500">Connect your ad platforms and AI services</p>
         </div>
         <button onClick={checkStatus} disabled={statusLoading} className="btn-secondary text-sm">
           <RefreshCw size={14} className={statusLoading ? 'animate-spin' : ''} />
@@ -481,17 +481,17 @@ export default function Settings() {
       </div>
 
       {/* Status overview */}
-      <div className="grid grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {STATUS_ITEMS.map(({ key, label }) => {
           const s = status[key]
           return (
-            <div key={key} className={clsx('card p-3 flex flex-col items-center gap-2 text-center', s?.connected ? 'border-green-100 bg-green-50/30' : '')}>
+            <div key={key} className={clsx('card p-3 flex flex-col items-center gap-2 text-center', s?.connected ? 'border-green-500/20 bg-green-500/20' : '')}>
               {s?.connected
-                ? <CheckCircle size={20} className="text-green-500" />
-                : <XCircle size={20} className="text-gray-300" />}
+                ? <CheckCircle size={20} className="text-green-400" />
+                : <XCircle size={20} className="text-ink-700" />}
               <div>
-                <p className="text-xs font-semibold text-gray-700">{label}</p>
-                <p className="text-xs text-gray-400 truncate max-w-full">
+                <p className="text-xs font-semibold text-ink-300">{label}</p>
+                <p className="text-xs text-ink-500 truncate max-w-full">
                   {s?.connected ? (s.account || 'Connected') : 'Not set'}
                 </p>
               </div>
@@ -502,7 +502,7 @@ export default function Settings() {
 
       {/* Ad Platform Connections */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Ad Platforms</h3>
+        <h3 className="text-sm font-semibold text-ink-500 uppercase tracking-wide mb-3">Ad Platforms</h3>
         <div className="space-y-4">
           <MetaSection />
           <GoogleSection
@@ -516,14 +516,14 @@ export default function Settings() {
 
       {/* AI Services */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">AI Services</h3>
+        <h3 className="text-sm font-semibold text-ink-500 uppercase tracking-wide mb-3">AI Services</h3>
         <form onSubmit={handleSaveAI} className="card overflow-hidden">
-          <div className="px-5 py-4 flex items-center justify-between bg-purple-50 border-b border-purple-100">
+          <div className="px-5 py-4 flex items-center justify-between bg-aurora-indigo/10 border-b border-aurora-indigo/20">
             <div>
-              <h3 className="font-semibold text-gray-900">AI Services</h3>
-              <p className="text-sm text-gray-500">AI features work out of the box. Add your own keys to use your personal quota.</p>
+              <h3 className="font-semibold text-ink-50">AI Services</h3>
+              <p className="text-sm text-ink-500">AI features work out of the box. Add your own keys to use your personal quota.</p>
             </div>
-            <span className="text-xs font-medium px-3 py-1 rounded-full bg-purple-100 text-purple-700">
+            <span className="text-xs font-medium px-3 py-1 rounded-full bg-aurora-indigo/15 text-aurora-indigo">
               {[status.anthropic, status.openai, status.runway].filter(s => s?.connected).length}/3 Connected
             </span>
           </div>
@@ -540,11 +540,11 @@ export default function Settings() {
                     onChange={e => setValues(v => ({ ...v, [field.key]: e.target.value }))}
                   />
                   <button type="button" onClick={() => setShowKeys(s => ({ ...s, [field.key]: !s[field.key] }))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-500 hover:text-ink-300">
                     {showKeys[field.key] ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
                 </div>
-                {field.help && <p className="text-xs text-gray-400 mt-1">{field.help}</p>}
+                {field.help && <p className="text-xs text-ink-500 mt-1">{field.help}</p>}
               </div>
             ))}
             <div className="flex items-center gap-3 pt-1">
@@ -553,7 +553,7 @@ export default function Settings() {
                 {saving ? 'Saving…' : 'Save AI Keys'}
               </button>
               {saved && (
-                <span className="flex items-center gap-1.5 text-green-700 text-sm font-medium">
+                <span className="flex items-center gap-1.5 text-green-400 text-sm font-medium">
                   <CheckCircle size={15} /> Saved
                 </span>
               )}

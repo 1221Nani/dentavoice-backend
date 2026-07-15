@@ -122,22 +122,22 @@ export default function Performance() {
   return (
     <div className="space-y-6">
       {accountId && (
-        <div className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 border border-blue-100 rounded-xl text-sm text-blue-800">
+        <div className="flex items-center gap-2 px-4 py-2.5 bg-aurora-blue/10 border border-aurora-blue/20 rounded-xl text-sm text-aurora-blue">
           <span className="font-medium">Viewing:</span> {accountName || accountId}
-          <span className="text-blue-400">({ctxPlatform})</span>
-          <span className="text-xs text-blue-500 ml-auto">Change account on Dashboard</span>
+          <span className="text-aurora-cyan">({ctxPlatform})</span>
+          <span className="text-xs text-aurora-blue ml-auto">Change account on Dashboard</span>
         </div>
       )}
       {/* Sync banner */}
-      <div className="card p-4 flex items-center justify-between gap-4 flex-wrap bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-100">
+      <div className="card p-4 flex items-center justify-between gap-4 flex-wrap bg-gradient-to-r from-aurora-blue/10 to-aurora-indigo/10 border-aurora-blue/20">
         <div>
-          <p className="text-sm font-semibold text-gray-900">Sync Real Ad Data</p>
-          <p className="text-xs text-gray-500">Pull live campaign performance from your connected platforms</p>
+          <p className="text-sm font-semibold text-ink-50">Sync Real Ad Data</p>
+          <p className="text-xs text-ink-500">Pull live campaign performance from your connected platforms</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {syncResult && (
             <div className={clsx('flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg',
-              syncResult.ok ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700')}>
+              syncResult.ok ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400')}>
               {syncResult.ok ? <CheckCircle size={13} /> : <AlertCircle size={13} />}
               {syncResult.message}
             </div>
@@ -148,12 +148,12 @@ export default function Performance() {
             {syncing === 'meta' ? 'Syncing Meta…' : 'Sync Meta'}
           </button>
           <button onClick={() => handleSync('google')} disabled={!!syncing}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white rounded-lg transition-colors">
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-500 hover:bg-red-500 disabled:opacity-50 text-white rounded-lg transition-colors">
             <CloudDownload size={13} className={syncing === 'google' ? 'animate-bounce' : ''} />
             {syncing === 'google' ? 'Syncing Google…' : 'Sync Google'}
           </button>
           <button onClick={() => handleSync('all')} disabled={!!syncing}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-gray-800 hover:bg-gray-900 disabled:opacity-50 text-white rounded-lg transition-colors">
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-base-700 hover:bg-base-900 disabled:opacity-50 text-white rounded-lg transition-colors">
             <CloudDownload size={13} className={syncing === 'all' ? 'animate-bounce' : ''} />
             {syncing === 'all' ? 'Syncing All…' : 'Sync All'}
           </button>
@@ -187,21 +187,21 @@ export default function Performance() {
 
       <div className="card p-5">
         <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-          <h3 className="font-semibold text-gray-900">Performance Trends</h3>
+          <h3 className="font-semibold text-ink-50">Performance Trends</h3>
           <div className="flex items-center gap-3">
             <div className="flex gap-1 flex-wrap">
               {METRIC_KEYS.map((m) => (
                 <button key={m} onClick={() => toggleMetric(m)}
                   className={clsx('px-2.5 py-1 rounded text-xs font-medium transition-all',
-                    activeMetrics.includes(m) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200')}>
+                    activeMetrics.includes(m) ? 'bg-aurora-blue text-white' : 'bg-white/10 text-ink-500 hover:bg-white/10')}>
                   {m.toUpperCase()}
                 </button>
               ))}
             </div>
-            <div className="flex gap-1 bg-gray-100 p-0.5 rounded">
+            <div className="flex gap-1 bg-white/10 p-0.5 rounded">
               {['line', 'area', 'bar'].map(t => (
                 <button key={t} onClick={() => setChartType(t)}
-                  className={clsx('px-2.5 py-1 rounded text-xs font-medium transition-all capitalize', chartType === t ? 'bg-white shadow-sm text-gray-800' : 'text-gray-400')}>
+                  className={clsx('px-2.5 py-1 rounded text-xs font-medium transition-all capitalize', chartType === t ? 'bg-base-800 shadow-sm text-ink-50' : 'text-ink-500')}>
                   {t}
                 </button>
               ))}
@@ -209,7 +209,7 @@ export default function Performance() {
           </div>
         </div>
         {trends.length === 0 ? (
-          <div className="h-64 flex items-center justify-center text-gray-400">No trend data available</div>
+          <div className="h-64 flex items-center justify-center text-ink-500">No trend data available</div>
         ) : (
           <ResponsiveContainer width="100%" height={280}>
             <ChartComponent data={trends}>
@@ -230,15 +230,15 @@ export default function Performance() {
       </div>
 
       <div className="card overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-50 space-y-3">
+        <div className="px-5 py-4 border-b border-white/5 space-y-3">
           <div className="flex items-center justify-between flex-wrap gap-3">
-            <h3 className="font-semibold text-gray-900">Campaign Breakdown</h3>
+            <h3 className="font-semibold text-ink-50">Campaign Breakdown</h3>
             <div className="flex items-center gap-2 flex-wrap">
               <div className="relative">
-                <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-500" />
                 <input className="input pl-8 py-1.5 text-sm w-44" placeholder="Search campaigns..."
                   value={tableSearch} onChange={e => setTableSearch(e.target.value)} />
-                {tableSearch && <button onClick={() => setTableSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"><X size={12} /></button>}
+                {tableSearch && <button onClick={() => setTableSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-ink-500 hover:text-ink-300"><X size={12} /></button>}
               </div>
               <select className="input py-1.5 text-sm w-36" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
                 <option value="">All Status</option>
@@ -247,15 +247,15 @@ export default function Performance() {
               </select>
               <button onClick={() => setShowThresholds(p => !p)}
                 className={clsx('flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors',
-                  showThresholds || hasActiveThresholds ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50')}>
-                <SlidersHorizontal size={13} /> Thresholds {hasActiveThresholds && <span className="bg-blue-600 text-white text-xs rounded-full px-1.5">ON</span>}
+                  showThresholds || hasActiveThresholds ? 'bg-aurora-blue/10 border-aurora-blue/25 text-aurora-blue' : 'bg-base-800 border-white/10 text-ink-300 hover:bg-white/5')}>
+                <SlidersHorizontal size={13} /> Thresholds {hasActiveThresholds && <span className="bg-aurora-blue text-white text-xs rounded-full px-1.5">ON</span>}
               </button>
               {(tableSearch || statusFilter || hasActiveThresholds) && (
                 <button onClick={() => { setTableSearch(''); setStatusFilter(''); setThresholds({ minClicks: '', minSpend: '', minRoas: '', minImpressions: '' }) }}
-                  className="text-xs text-red-500 hover:underline">Clear all</button>
+                  className="text-xs text-red-400 hover:underline">Clear all</button>
               )}
               <button onClick={handleExportCSV} disabled={sorted.length === 0}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 rounded-lg transition-colors">
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-base-800 border border-white/10 text-ink-300 hover:bg-white/5 disabled:opacity-40 rounded-lg transition-colors">
                 <Download size={13} /> Export CSV
               </button>
             </div>
@@ -269,19 +269,19 @@ export default function Performance() {
                 { key: 'minImpressions', label: 'Min Impressions', placeholder: 'e.g. 100' },
               ].map(({ key, label, placeholder }) => (
                 <div key={key}>
-                  <label className="block text-xs text-gray-500 mb-1">{label}</label>
+                  <label className="block text-xs text-ink-500 mb-1">{label}</label>
                   <input type="number" min="0" step="any" className="input py-1.5 text-sm" placeholder={placeholder}
                     value={thresholds[key]} onChange={e => setThresholds(p => ({ ...p, [key]: e.target.value }))} />
                 </div>
               ))}
             </div>
           )}
-          <p className="text-xs text-gray-400">{sorted.length} of {campaignPerf.length} campaigns</p>
+          <p className="text-xs text-ink-500">{sorted.length} of {campaignPerf.length} campaigns</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-50 bg-gray-50/50">
+              <tr className="border-b border-white/5 bg-white/5">
                 {[
                   ['campaign_name', 'Campaign'],
                   ['platform', 'Platform'],
@@ -296,7 +296,7 @@ export default function Performance() {
                   ['cpa', 'CPA'],
                 ].map(([key, label]) => (
                   <th key={key} onClick={() => sortCampaigns(key)}
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wide cursor-pointer hover:text-gray-600 select-none whitespace-nowrap">
+                    className="px-4 py-3 text-left text-xs font-medium text-ink-500 uppercase tracking-wide cursor-pointer hover:text-ink-300 select-none whitespace-nowrap">
                     {label} {sort.key === key ? (sort.dir === 'desc' ? '↓' : '↑') : ''}
                   </th>
                 ))}
@@ -304,16 +304,16 @@ export default function Performance() {
             </thead>
             <tbody>
               {sorted.length === 0 ? (
-                <tr><td colSpan={11} className="px-5 py-10 text-center text-gray-400">No campaign data</td></tr>
+                <tr><td colSpan={11} className="px-5 py-10 text-center text-ink-500">No campaign data</td></tr>
               ) : sorted.map((c) => (
-                <tr key={c.campaign_id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                  <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{c.campaign_name}</td>
+                <tr key={c.campaign_id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                  <td className="px-4 py-3 font-medium text-ink-50 whitespace-nowrap">{c.campaign_name}</td>
                   <td className="px-4 py-3"><StatusBadge status={c.platform} type="platform" /></td>
                   <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
                   <td className="px-4 py-3 tabular-nums">{fmt.currency(c.spend)}</td>
-                  <td className="px-4 py-3 tabular-nums text-green-700">{fmt.currency(c.revenue)}</td>
+                  <td className="px-4 py-3 tabular-nums text-green-400">{fmt.currency(c.revenue)}</td>
                   <td className="px-4 py-3 tabular-nums">
-                    <span className={clsx('font-semibold', c.roas >= 3 ? 'text-green-700' : c.roas >= 1.5 ? 'text-yellow-700' : 'text-red-600')}>
+                    <span className={clsx('font-semibold', c.roas >= 3 ? 'text-green-400' : c.roas >= 1.5 ? 'text-yellow-400' : 'text-red-400')}>
                       {fmt.x(c.roas)}
                     </span>
                   </td>

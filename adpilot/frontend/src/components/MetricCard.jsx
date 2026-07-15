@@ -3,11 +3,11 @@ import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 
 export default function MetricCard({ label, value, sub, trend, trendLabel, icon: Icon, color = 'blue', loading }) {
   const colors = {
-    blue: 'bg-blue-50 text-blue-600',
-    green: 'bg-green-50 text-green-600',
-    orange: 'bg-orange-50 text-orange-600',
-    purple: 'bg-purple-50 text-purple-600',
-    red: 'bg-red-50 text-red-600',
+    blue: 'bg-aurora-blue/10 text-aurora-blue',
+    green: 'bg-green-500/10 text-green-400',
+    orange: 'bg-aurora-coral/10 text-aurora-coral',
+    purple: 'bg-aurora-indigo/10 text-aurora-indigo',
+    red: 'bg-red-500/10 text-red-400',
   }
 
   return (
@@ -19,7 +19,7 @@ export default function MetricCard({ label, value, sub, trend, trendLabel, icon:
         {trend !== undefined && (
           <span className={clsx(
             'flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full',
-            trend > 0 ? 'bg-green-50 text-green-700' : trend < 0 ? 'bg-red-50 text-red-700' : 'bg-gray-50 text-gray-500',
+            trend > 0 ? 'bg-green-500/10 text-green-400' : trend < 0 ? 'bg-red-500/10 text-red-400' : 'bg-white/5 text-ink-500',
           )}>
             {trend > 0 ? <TrendingUp size={11} /> : trend < 0 ? <TrendingDown size={11} /> : <Minus size={11} />}
             {Math.abs(trend)}%
@@ -28,15 +28,15 @@ export default function MetricCard({ label, value, sub, trend, trendLabel, icon:
       </div>
       {loading ? (
         <div className="space-y-2">
-          <div className="h-7 bg-gray-100 rounded animate-pulse w-24" />
-          <div className="h-4 bg-gray-100 rounded animate-pulse w-16" />
+          <div className="h-7 bg-white/10 rounded animate-pulse w-24" />
+          <div className="h-4 bg-white/10 rounded animate-pulse w-16" />
         </div>
       ) : (
         <>
-          <p className="text-2xl font-bold text-gray-900">{value ?? '—'}</p>
-          <p className="text-sm text-gray-500 mt-0.5">{label}</p>
-          {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
-          {trendLabel && <p className="text-xs text-gray-400 mt-1">{trendLabel}</p>}
+          <p className="text-2xl font-bold text-ink-50">{value ?? '—'}</p>
+          <p className="text-sm text-ink-500 mt-0.5">{label}</p>
+          {sub && <p className="text-xs text-ink-500 mt-1">{sub}</p>}
+          {trendLabel && <p className="text-xs text-ink-500 mt-1">{trendLabel}</p>}
         </>
       )}
     </div>

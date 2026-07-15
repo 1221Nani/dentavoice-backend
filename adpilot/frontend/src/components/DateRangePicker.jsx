@@ -96,24 +96,24 @@ export default function DateRangePicker({ value, onChange }) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
+        className="flex items-center gap-1.5 px-3 py-1.5 bg-base-800 border border-white/10 rounded-lg text-sm font-medium text-ink-300 hover:bg-white/5 transition-colors shadow-sm"
       >
-        <Calendar size={13} className="text-gray-400" />
+        <Calendar size={13} className="text-ink-500" />
         <span>{value?.label || 'Last 30 days'}</span>
-        <ChevronDown size={12} className={`text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown size={12} className={`text-ink-500 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1.5 w-72 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-3 space-y-3">
+        <div className="absolute right-0 top-full mt-1.5 w-72 bg-base-800 border border-white/10 rounded-xl shadow-xl z-50 p-3 space-y-3">
           <div>
-            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Rolling Window</p>
+            <p className="text-[11px] font-semibold text-ink-500 uppercase tracking-wide mb-1.5">Rolling Window</p>
             <div className="flex flex-wrap gap-1.5">
               {QUICK_PRESETS.map(p => (
                 <button
                   key={p.days}
                   onClick={() => selectDays(p.days, p.label)}
                   className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
-                    isDaysActive(p.days) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    isDaysActive(p.days) ? 'bg-aurora-blue text-white' : 'bg-white/10 text-ink-300 hover:bg-white/10'
                   }`}
                 >
                   {p.label}
@@ -123,14 +123,14 @@ export default function DateRangePicker({ value, onChange }) {
           </div>
 
           <div>
-            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Calendar Presets</p>
+            <p className="text-[11px] font-semibold text-ink-500 uppercase tracking-wide mb-1.5">Calendar Presets</p>
             <div className="grid grid-cols-2 gap-1.5">
               {CALENDAR_PRESETS.map(({ key, label }) => (
                 <button
                   key={key}
                   onClick={() => selectCalendarPreset(key)}
                   className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-left ${
-                    isCalendarPresetActive(key) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    isCalendarPresetActive(key) ? 'bg-aurora-blue text-white' : 'bg-white/10 text-ink-300 hover:bg-white/10'
                   }`}
                 >
                   {label}
@@ -140,10 +140,10 @@ export default function DateRangePicker({ value, onChange }) {
           </div>
 
           <div>
-            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Custom Range</p>
+            <p className="text-[11px] font-semibold text-ink-500 uppercase tracking-wide mb-1.5">Custom Range</p>
             <div className="flex gap-2 items-end">
               <div className="flex-1">
-                <label className="text-[10px] text-gray-400 mb-0.5 block">From</label>
+                <label className="text-[10px] text-ink-500 mb-0.5 block">From</label>
                 <input
                   type="date"
                   className="input py-1 text-xs w-full"
@@ -153,7 +153,7 @@ export default function DateRangePicker({ value, onChange }) {
                 />
               </div>
               <div className="flex-1">
-                <label className="text-[10px] text-gray-400 mb-0.5 block">To</label>
+                <label className="text-[10px] text-ink-500 mb-0.5 block">To</label>
                 <input
                   type="date"
                   className="input py-1 text-xs w-full"
@@ -166,7 +166,7 @@ export default function DateRangePicker({ value, onChange }) {
               <button
                 onClick={applyCustom}
                 disabled={!customStart || !customEnd}
-                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white text-xs font-medium rounded-lg transition-colors whitespace-nowrap"
+                className="px-3 py-1.5 bg-aurora-blue hover:bg-aurora-cyan disabled:opacity-40 text-white text-xs font-medium rounded-lg transition-colors whitespace-nowrap"
               >
                 Apply
               </button>

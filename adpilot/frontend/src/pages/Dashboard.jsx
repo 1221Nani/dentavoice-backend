@@ -23,19 +23,19 @@ const PLATFORM_OPTIONS = [
 ]
 
 const INSIGHT_STYLES = {
-  success: { bg: 'bg-emerald-50', border: 'border-emerald-200', icon: TrendingUp, iconColor: 'text-emerald-600', badge: 'bg-emerald-100 text-emerald-700' },
-  warning: { bg: 'bg-amber-50', border: 'border-amber-200', icon: AlertTriangle, iconColor: 'text-amber-600', badge: 'bg-amber-100 text-amber-700' },
-  danger: { bg: 'bg-red-50', border: 'border-red-200', icon: AlertCircle, iconColor: 'text-red-600', badge: 'bg-red-100 text-red-700' },
-  info: { bg: 'bg-blue-50', border: 'border-blue-200', icon: Lightbulb, iconColor: 'text-blue-600', badge: 'bg-blue-100 text-blue-700' },
+  success: { bg: 'bg-green-500/10', border: 'border-green-500/25', icon: TrendingUp, iconColor: 'text-green-400', badge: 'bg-green-500/15 text-green-400' },
+  warning: { bg: 'bg-yellow-500/10', border: 'border-yellow-500/25', icon: AlertTriangle, iconColor: 'text-yellow-400', badge: 'bg-yellow-500/15 text-yellow-400' },
+  danger: { bg: 'bg-red-500/10', border: 'border-red-500/25', icon: AlertCircle, iconColor: 'text-red-400', badge: 'bg-red-500/15 text-red-400' },
+  info: { bg: 'bg-aurora-blue/10', border: 'border-aurora-blue/25', icon: Lightbulb, iconColor: 'text-aurora-blue', badge: 'bg-aurora-blue/15 text-aurora-blue' },
 }
 
 const OPP_TYPE_LABELS = {
-  scale: { label: 'Scale', color: 'bg-emerald-100 text-emerald-700' },
-  pause: { label: 'Pause', color: 'bg-red-100 text-red-700' },
-  budget_shift: { label: 'Budget Shift', color: 'bg-blue-100 text-blue-700' },
-  creative_refresh: { label: 'Creative Refresh', color: 'bg-purple-100 text-purple-700' },
-  audience: { label: 'Audience', color: 'bg-orange-100 text-orange-700' },
-  bid: { label: 'Bid Adjust', color: 'bg-gray-100 text-gray-700' },
+  scale: { label: 'Scale', color: 'bg-green-500/15 text-green-400' },
+  pause: { label: 'Pause', color: 'bg-red-500/15 text-red-400' },
+  budget_shift: { label: 'Budget Shift', color: 'bg-aurora-blue/15 text-aurora-blue' },
+  creative_refresh: { label: 'Creative Refresh', color: 'bg-aurora-indigo/15 text-aurora-indigo' },
+  audience: { label: 'Audience', color: 'bg-aurora-coral/15 text-aurora-coral' },
+  bid: { label: 'Bid Adjust', color: 'bg-white/10 text-ink-300' },
 }
 
 function HealthRing({ score, grade }) {
@@ -58,8 +58,8 @@ function HealthRing({ score, grade }) {
         />
       </svg>
       <div className="absolute text-center">
-        <div className="text-xl font-bold text-gray-900">{score}</div>
-        <div className="text-[10px] text-gray-500 leading-tight">{grade}</div>
+        <div className="text-xl font-bold text-ink-50">{score}</div>
+        <div className="text-[10px] text-ink-500 leading-tight">{grade}</div>
       </div>
     </div>
   )
@@ -260,29 +260,29 @@ export default function Dashboard() {
     return (
       <div className="min-h-[70vh] flex items-center justify-center p-6">
         <div className="card p-10 text-center max-w-lg w-full">
-          <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-5">
-            <Zap size={30} className="text-blue-500" />
+          <div className="w-16 h-16 bg-aurora-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
+            <Zap size={30} className="text-aurora-blue" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome to AdPilot AI</h2>
-          <p className="text-gray-500 mb-6 leading-relaxed">
+          <h2 className="text-2xl font-bold text-ink-50 mb-2">Welcome to AdPilot AI</h2>
+          <p className="text-ink-500 mb-6 leading-relaxed">
             Your AI-powered performance marketing hub. Get campaign health scores, AI insights,
             ROAS optimization, and competitor intelligence — all in one place.
           </p>
-          <div className="grid grid-cols-3 gap-3 mb-8 text-left">
-            <div className="bg-gray-50 rounded-xl p-3">
-              <Brain size={16} className="text-violet-500 mb-1.5" />
-              <p className="text-xs font-semibold text-gray-700">AI Insights</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">Auto-detected wins and risks</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 text-left">
+            <div className="bg-white/5 rounded-xl p-3">
+              <Brain size={16} className="text-aurora-indigo mb-1.5" />
+              <p className="text-xs font-semibold text-ink-300">AI Insights</p>
+              <p className="text-[11px] text-ink-500 mt-0.5">Auto-detected wins and risks</p>
             </div>
-            <div className="bg-gray-50 rounded-xl p-3">
-              <BarChart2 size={16} className="text-blue-500 mb-1.5" />
-              <p className="text-xs font-semibold text-gray-700">Performance</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">ROAS, CTR, spend trends</p>
+            <div className="bg-white/5 rounded-xl p-3">
+              <BarChart2 size={16} className="text-aurora-blue mb-1.5" />
+              <p className="text-xs font-semibold text-ink-300">Performance</p>
+              <p className="text-[11px] text-ink-500 mt-0.5">ROAS, CTR, spend trends</p>
             </div>
-            <div className="bg-gray-50 rounded-xl p-3">
-              <Target size={16} className="text-orange-500 mb-1.5" />
-              <p className="text-xs font-semibold text-gray-700">Optimizer</p>
-              <p className="text-[11px] text-gray-400 mt-0.5">Budget and bid suggestions</p>
+            <div className="bg-white/5 rounded-xl p-3">
+              <Target size={16} className="text-aurora-coral mb-1.5" />
+              <p className="text-xs font-semibold text-ink-300">Optimizer</p>
+              <p className="text-[11px] text-ink-500 mt-0.5">Budget and bid suggestions</p>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -296,7 +296,7 @@ export default function Dashboard() {
               Connect My Accounts
             </a>
           </div>
-          <p className="text-[11px] text-gray-400 mt-4">
+          <p className="text-[11px] text-ink-500 mt-4">
             Demo data is sample-only and does not affect your real accounts.
           </p>
         </div>
@@ -313,12 +313,12 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {isDemoMode && (
-        <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-800">
+        <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-yellow-500/10 border border-yellow-500/25 text-sm text-yellow-400">
           <div className="flex items-center gap-2">
             <FlaskConical size={14} className="shrink-0" />
             <span>Viewing sample demo data — this is not your real ad performance.</span>
           </div>
-          <a href="/settings" className="font-medium underline whitespace-nowrap hover:text-amber-900">
+          <a href="/settings" className="font-medium underline whitespace-nowrap hover:text-yellow-300">
             Connect accounts →
           </a>
         </div>
@@ -327,15 +327,15 @@ export default function Dashboard() {
       {/* Controls bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+          <div className="flex items-center gap-1 bg-white/10 rounded-lg p-1">
             {PLATFORM_OPTIONS.map((opt) => (
               <button key={opt.value} onClick={() => handlePlatform(opt.value)}
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                   platform === opt.value
-                    ? opt.value === 'meta' ? 'bg-blue-500 text-white shadow-sm'
+                    ? opt.value === 'meta' ? 'bg-aurora-blue text-white shadow-sm'
                       : opt.value === 'google' ? 'bg-red-500 text-white shadow-sm'
-                      : 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
+                      : 'bg-base-800 text-ink-50 shadow-sm'
+                    : 'text-ink-500 hover:text-ink-300'
                 }`}>{opt.label}</button>
             ))}
           </div>
@@ -346,19 +346,19 @@ export default function Dashboard() {
                   handleAccount(e.target.value, opt?.label || null)
                 }}
                 disabled={accountsLoading}
-                className="appearance-none pl-3 pr-8 py-1.5 text-sm bg-white border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer disabled:opacity-50">
+                className="appearance-none pl-3 pr-8 py-1.5 text-sm bg-base-800 border border-white/10 rounded-lg text-ink-300 focus:outline-none focus:ring-2 focus:ring-aurora-blue cursor-pointer disabled:opacity-50">
                 <option value="">All Accounts</option>
                 {accountOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>
-              <ChevronDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <ChevronDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-500 pointer-events-none" />
             </div>
           )}
           {platform !== 'all' && !showAccountSelector && !accountsLoading && (
-            <span className="text-xs text-gray-400 px-2">
+            <span className="text-xs text-ink-500 px-2">
               {platform === 'meta' ? 'No Meta account connected' : 'No Google account configured'}
-              {' — '}<a href="/settings" className="underline hover:text-gray-600">Settings</a>
+              {' — '}<a href="/settings" className="underline hover:text-ink-300">Settings</a>
             </span>
           )}
         </div>
@@ -370,7 +370,7 @@ export default function Dashboard() {
             Refresh
           </button>
           <button onClick={handleSync} disabled={!!syncing}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-gray-800 hover:bg-gray-900 disabled:opacity-50 text-white rounded-lg transition-colors">
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-base-700 hover:bg-base-900 disabled:opacity-50 text-white rounded-lg transition-colors">
             <CloudDownload size={13} className={syncing ? 'animate-bounce' : ''} />
             {syncing ? 'Syncing…' : 'Sync Live Data'}
           </button>
@@ -378,7 +378,7 @@ export default function Dashboard() {
       </div>
 
       {syncResult && (
-        <div className={`flex items-center gap-2 text-xs px-4 py-2.5 rounded-xl border ${syncResult.ok ? 'bg-green-50 text-green-700 border-green-100' : 'bg-red-50 text-red-700 border-red-100'}`}>
+        <div className={`flex items-center gap-2 text-xs px-4 py-2.5 rounded-xl border ${syncResult.ok ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
           {syncResult.ok ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
           {syncResult.message}
         </div>
@@ -388,14 +388,14 @@ export default function Dashboard() {
       <div className="card p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-violet-100 rounded-lg flex items-center justify-center">
-                <Brain size={15} className="text-violet-600" />
+              <div className="w-7 h-7 bg-aurora-indigo/15 rounded-lg flex items-center justify-center">
+                <Brain size={15} className="text-aurora-indigo" />
               </div>
-              <h3 className="font-semibold text-gray-900">AI Insights</h3>
-              <span className="text-xs text-gray-400">{dateRange.label}</span>
+              <h3 className="font-semibold text-ink-50">AI Insights</h3>
+              <span className="text-xs text-ink-500">{dateRange.label}</span>
             </div>
             <button onClick={() => loadAI()} disabled={insightsLoading}
-              className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1">
+              className="text-xs text-ink-500 hover:text-ink-300 flex items-center gap-1">
               <RefreshCw size={12} className={insightsLoading ? 'animate-spin' : ''} />
               Refresh
             </button>
@@ -404,16 +404,16 @@ export default function Dashboard() {
           {insightsLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {[1,2,3].map(i => (
-                <div key={i} className="h-28 bg-gray-50 rounded-xl animate-pulse" />
+                <div key={i} className="h-28 bg-white/5 rounded-xl animate-pulse" />
               ))}
             </div>
           ) : insightsError ? (
-            <div className="py-3 px-4 rounded-xl bg-amber-50 border border-amber-100 text-sm text-amber-800 flex items-start gap-2">
+            <div className="py-3 px-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-sm text-yellow-400 flex items-start gap-2">
               <AlertTriangle size={14} className="shrink-0 mt-0.5" />
               <span>AI Insights temporarily unavailable. {insightsError}</span>
             </div>
           ) : insights.length === 0 ? (
-            <div className="py-8 text-center text-gray-400 text-sm">
+            <div className="py-8 text-center text-ink-500 text-sm">
               No insights yet — sync your ad data to get AI analysis.
             </div>
           ) : (
@@ -426,14 +426,14 @@ export default function Dashboard() {
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2 min-w-0">
                         <Icon size={14} className={style.iconColor} />
-                        <span className="text-sm font-semibold text-gray-900 truncate">{ins.title}</span>
+                        <span className="text-sm font-semibold text-ink-50 truncate">{ins.title}</span>
                       </div>
                       <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${style.badge}`}>
                         {ins.metric}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-600 mb-3 leading-relaxed">{ins.insight}</p>
-                    <div className="flex items-center gap-1 text-xs font-medium text-gray-700">
+                    <p className="text-xs text-ink-300 mb-3 leading-relaxed">{ins.insight}</p>
+                    <div className="flex items-center gap-1 text-xs font-medium text-ink-300">
                       <ArrowRight size={11} />
                       {ins.action}
                     </div>
@@ -445,32 +445,32 @@ export default function Dashboard() {
         </div>
 
       {/* ── 2. HEALTH SCORE + OPPORTUNITIES ── */}
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Health Score */}
           <div className="card p-5">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 bg-emerald-100 rounded-lg flex items-center justify-center">
-                <Activity size={15} className="text-emerald-600" />
+              <div className="w-7 h-7 bg-green-500/15 rounded-lg flex items-center justify-center">
+                <Activity size={15} className="text-green-400" />
               </div>
-              <h3 className="font-semibold text-gray-900">Account Health</h3>
+              <h3 className="font-semibold text-ink-50">Account Health</h3>
             </div>
             {healthLoading ? (
               <div className="flex flex-col items-center gap-3">
-                <div className="w-24 h-24 rounded-full bg-gray-100 animate-pulse" />
-                <div className="w-32 h-3 bg-gray-100 rounded animate-pulse" />
+                <div className="w-24 h-24 rounded-full bg-white/10 animate-pulse" />
+                <div className="w-32 h-3 bg-white/10 rounded animate-pulse" />
               </div>
             ) : health ? (
               <div className="flex flex-col items-center gap-4">
                 <HealthRing score={health.score} grade={health.grade} />
                 <div className="w-full space-y-1.5">
                   {health.reasons?.slice(0, 3).map((r, i) => (
-                    <div key={i} className="flex items-start gap-1.5 text-xs text-gray-600">
-                      <CheckCircle size={11} className="text-emerald-500 mt-0.5 shrink-0" />
+                    <div key={i} className="flex items-start gap-1.5 text-xs text-ink-300">
+                      <CheckCircle size={11} className="text-green-400 mt-0.5 shrink-0" />
                       {r}
                     </div>
                   ))}
                   {health.suggestions?.slice(0, 2).map((s, i) => (
-                    <div key={i} className="flex items-start gap-1.5 text-xs text-amber-700">
+                    <div key={i} className="flex items-start gap-1.5 text-xs text-yellow-400">
                       <AlertTriangle size={11} className="mt-0.5 shrink-0" />
                       {s}
                     </div>
@@ -478,11 +478,11 @@ export default function Dashboard() {
                 </div>
               </div>
             ) : (
-              <div className="text-center text-sm text-gray-400 py-6">No data available</div>
+              <div className="text-center text-sm text-ink-500 py-6">No data available</div>
             )}
 
             <button onClick={handleRunAudit} disabled={auditLoading}
-              className="mt-4 w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium bg-gray-900 hover:bg-gray-800 disabled:opacity-60 text-white rounded-lg transition-colors">
+              className="mt-4 w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium bg-base-900 hover:bg-base-700 disabled:opacity-60 text-white rounded-lg transition-colors">
               {auditLoading ? <RefreshCw size={12} className="animate-spin" /> : <Play size={12} />}
               {auditLoading ? 'Running Audit…' : 'Run AI Audit'}
             </button>
@@ -492,45 +492,45 @@ export default function Dashboard() {
           <div className="card p-5 col-span-2">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <Target size={15} className="text-orange-600" />
+                <div className="w-7 h-7 bg-aurora-coral/15 rounded-lg flex items-center justify-center">
+                  <Target size={15} className="text-aurora-coral" />
                 </div>
-                <h3 className="font-semibold text-gray-900">Opportunity Center</h3>
+                <h3 className="font-semibold text-ink-50">Opportunity Center</h3>
               </div>
-              <a href="/optimizer" className="text-xs text-blue-600 hover:underline">Full optimizer →</a>
+              <a href="/optimizer" className="text-xs text-aurora-blue hover:underline">Full optimizer →</a>
             </div>
 
             {oppLoading ? (
               <div className="space-y-2">
-                {[1,2,3].map(i => <div key={i} className="h-16 bg-gray-50 rounded-xl animate-pulse" />)}
+                {[1,2,3].map(i => <div key={i} className="h-16 bg-white/5 rounded-xl animate-pulse" />)}
               </div>
             ) : oppError ? (
-              <div className="py-3 px-4 rounded-xl bg-amber-50 border border-amber-100 text-sm text-amber-800 flex items-start gap-2">
+              <div className="py-3 px-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-sm text-yellow-400 flex items-start gap-2">
                 <AlertTriangle size={14} className="shrink-0 mt-0.5" />
                 <span>Opportunity analysis temporarily unavailable. {oppError}</span>
               </div>
             ) : opportunities.length === 0 ? (
-              <div className="py-8 text-center text-gray-400 text-sm">
+              <div className="py-8 text-center text-ink-500 text-sm">
                 Sync your ad data to surface opportunities.
               </div>
             ) : (
               <div className="space-y-2">
                 {opportunities.slice(0, 4).map((opp) => {
-                  const typeStyle = OPP_TYPE_LABELS[opp.type] || { label: opp.type, color: 'bg-gray-100 text-gray-700' }
+                  const typeStyle = OPP_TYPE_LABELS[opp.type] || { label: opp.type, color: 'bg-white/10 text-ink-300' }
                   return (
-                    <div key={opp.id} className="flex items-start gap-3 p-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors">
+                    <div key={opp.id} className="flex items-start gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${typeStyle.color}`}>
                             {typeStyle.label}
                           </span>
-                          <span className="text-xs font-medium text-gray-900 truncate">{opp.title}</span>
+                          <span className="text-xs font-medium text-ink-50 truncate">{opp.title}</span>
                         </div>
-                        <p className="text-xs text-gray-500 line-clamp-2">{opp.description}</p>
+                        <p className="text-xs text-ink-500 line-clamp-2">{opp.description}</p>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="text-xs font-semibold text-emerald-600">{opp.expected_impact}</div>
-                        <div className="text-[10px] text-gray-400">{opp.confidence} conf.</div>
+                        <div className="text-xs font-semibold text-green-400">{opp.expected_impact}</div>
+                        <div className="text-[10px] text-ink-500">{opp.confidence} conf.</div>
                       </div>
                     </div>
                   )
@@ -545,83 +545,83 @@ export default function Dashboard() {
         <div className="card p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <ShieldCheck size={18} className="text-violet-600" />
-              <h3 className="font-semibold text-gray-900">AI Account Audit</h3>
+              <ShieldCheck size={18} className="text-aurora-indigo" />
+              <h3 className="font-semibold text-ink-50">AI Account Audit</h3>
             </div>
-            <button onClick={() => setAuditOpen(false)} className="text-xs text-gray-400 hover:text-gray-600">Close</button>
+            <button onClick={() => setAuditOpen(false)} className="text-xs text-ink-500 hover:text-ink-300">Close</button>
           </div>
 
           {auditLoading ? (
             <div className="space-y-3">
-              {[1,2,3,4].map(i => <div key={i} className="h-8 bg-gray-50 rounded-lg animate-pulse" />)}
+              {[1,2,3,4].map(i => <div key={i} className="h-8 bg-white/5 rounded-lg animate-pulse" />)}
             </div>
           ) : audit?.error ? (
-            <div className="text-sm text-amber-800 bg-amber-50 border border-amber-100 p-4 rounded-xl flex items-start gap-2">
+            <div className="text-sm text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-xl flex items-start gap-2">
               <AlertTriangle size={14} className="shrink-0 mt-0.5" />
               AI Audit temporarily unavailable. {audit.error}
             </div>
           ) : audit ? (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <div className="text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-2">Strengths</div>
+                <div className="text-xs font-semibold text-green-400 uppercase tracking-wide mb-2">Strengths</div>
                 <ul className="space-y-1.5">
                   {audit.strengths?.map((s, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                      <CheckCircle size={13} className="text-emerald-500 mt-0.5 shrink-0" />{s}
+                    <li key={i} className="flex items-start gap-2 text-sm text-ink-300">
+                      <CheckCircle size={13} className="text-green-400 mt-0.5 shrink-0" />{s}
                     </li>
                   ))}
                 </ul>
               </div>
               <div>
-                <div className="text-xs font-semibold text-red-700 uppercase tracking-wide mb-2">Weaknesses</div>
+                <div className="text-xs font-semibold text-red-400 uppercase tracking-wide mb-2">Weaknesses</div>
                 <ul className="space-y-1.5">
                   {audit.weaknesses?.map((s, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                      <AlertCircle size={13} className="text-red-500 mt-0.5 shrink-0" />{s}
+                    <li key={i} className="flex items-start gap-2 text-sm text-ink-300">
+                      <AlertCircle size={13} className="text-red-400 mt-0.5 shrink-0" />{s}
                     </li>
                   ))}
                 </ul>
               </div>
               <div>
-                <div className="text-xs font-semibold text-amber-700 uppercase tracking-wide mb-2">Risks</div>
+                <div className="text-xs font-semibold text-yellow-400 uppercase tracking-wide mb-2">Risks</div>
                 <ul className="space-y-1.5">
                   {audit.risks?.map((s, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                      <AlertTriangle size={13} className="text-amber-500 mt-0.5 shrink-0" />{s}
+                    <li key={i} className="flex items-start gap-2 text-sm text-ink-300">
+                      <AlertTriangle size={13} className="text-yellow-400 mt-0.5 shrink-0" />{s}
                     </li>
                   ))}
                 </ul>
               </div>
               <div>
-                <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-2">Opportunities</div>
+                <div className="text-xs font-semibold text-aurora-blue uppercase tracking-wide mb-2">Opportunities</div>
                 <ul className="space-y-1.5">
                   {audit.opportunities?.map((s, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                      <Lightbulb size={13} className="text-blue-500 mt-0.5 shrink-0" />{s}
+                    <li key={i} className="flex items-start gap-2 text-sm text-ink-300">
+                      <Lightbulb size={13} className="text-aurora-blue mt-0.5 shrink-0" />{s}
                     </li>
                   ))}
                 </ul>
               </div>
               {audit.recommended_actions?.length > 0 && (
                 <div className="col-span-2 mt-2">
-                  <div className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2">Recommended Actions</div>
+                  <div className="text-xs font-semibold text-ink-300 uppercase tracking-wide mb-2">Recommended Actions</div>
                   <div className="space-y-2">
                     {audit.recommended_actions.map((a, i) => (
-                      <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div key={i} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
                         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${
-                          a.priority === 'immediate' ? 'bg-red-100 text-red-700'
-                          : a.priority === 'this_week' ? 'bg-amber-100 text-amber-700'
-                          : 'bg-gray-100 text-gray-600'
+                          a.priority === 'immediate' ? 'bg-red-500/15 text-red-400'
+                          : a.priority === 'this_week' ? 'bg-yellow-500/15 text-yellow-400'
+                          : 'bg-white/10 text-ink-300'
                         }`}>{a.priority?.replace('_', ' ')}</span>
-                        <span className="text-sm text-gray-800 flex-1">{a.action}</span>
-                        <span className="text-xs font-medium text-emerald-600 shrink-0">{a.expected_impact}</span>
+                        <span className="text-sm text-ink-50 flex-1">{a.action}</span>
+                        <span className="text-xs font-medium text-green-400 shrink-0">{a.expected_impact}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
               {audit.summary && (
-                <div className="col-span-2 p-4 bg-violet-50 rounded-xl text-sm text-violet-900 border border-violet-100">
+                <div className="col-span-2 p-4 bg-aurora-indigo/10 rounded-xl text-sm text-ink-50 border border-aurora-indigo/20">
                   {audit.summary}
                 </div>
               )}
@@ -654,10 +654,10 @@ export default function Dashboard() {
         const worstRoas    = withSpend.reduce((a, b) => b.roas < a.roas ? b : a)
 
         const cards = [
-          { label: 'Top Campaign', icon: Trophy, color: 'text-green-600', bg: 'bg-green-50', name: topRevenue.campaign_name, stat: `$${topRevenue.revenue.toFixed(0)}`, sub: 'revenue' },
-          { label: 'Highest ROAS', icon: TrendingUp, color: 'text-blue-600', bg: 'bg-blue-50', name: highestRoas.campaign_name, stat: `${highestRoas.roas.toFixed(1)}x`, sub: 'ROAS' },
-          { label: 'Highest CTR', icon: Percent, color: 'text-purple-600', bg: 'bg-purple-50', name: highestCtr.campaign_name, stat: `${highestCtr.ctr.toFixed(2)}%`, sub: 'click-through rate' },
-          { label: 'Needs Attention', icon: ThumbsDown, color: 'text-red-500', bg: 'bg-red-50', name: worstRoas.campaign_name, stat: `${worstRoas.roas.toFixed(1)}x`, sub: 'ROAS — lowest' },
+          { label: 'Top Campaign', icon: Trophy, color: 'text-green-400', bg: 'bg-green-500/10', name: topRevenue.campaign_name, stat: `$${topRevenue.revenue.toFixed(0)}`, sub: 'revenue' },
+          { label: 'Highest ROAS', icon: TrendingUp, color: 'text-aurora-blue', bg: 'bg-aurora-blue/10', name: highestRoas.campaign_name, stat: `${highestRoas.roas.toFixed(1)}x`, sub: 'ROAS' },
+          { label: 'Highest CTR', icon: Percent, color: 'text-aurora-indigo', bg: 'bg-aurora-indigo/10', name: highestCtr.campaign_name, stat: `${highestCtr.ctr.toFixed(2)}%`, sub: 'click-through rate' },
+          { label: 'Needs Attention', icon: ThumbsDown, color: 'text-red-400', bg: 'bg-red-500/10', name: worstRoas.campaign_name, stat: `${worstRoas.roas.toFixed(1)}x`, sub: 'ROAS — lowest' },
         ]
         return (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -667,11 +667,11 @@ export default function Dashboard() {
                   <div className={`w-7 h-7 ${bg} rounded-lg flex items-center justify-center`}>
                     <Icon size={14} className={color} />
                   </div>
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</span>
+                  <span className="text-xs font-medium text-ink-500 uppercase tracking-wide">{label}</span>
                 </div>
                 <p className={`text-2xl font-bold ${color} tabular-nums`}>{stat}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{sub}</p>
-                <p className="text-sm font-medium text-gray-700 mt-2 truncate" title={name}>{name}</p>
+                <p className="text-xs text-ink-500 mt-0.5">{sub}</p>
+                <p className="text-sm font-medium text-ink-300 mt-2 truncate" title={name}>{name}</p>
               </div>
             ))}
           </div>
@@ -683,23 +683,23 @@ export default function Dashboard() {
         const withSpend = campaigns.filter(c => c.spend > 0 && c.status === 'active')
         const wins = []
         withSpend.filter(c => c.roas >= 4.0).slice(0, 2).forEach(c => {
-          wins.push({ type: 'scale', color: 'text-green-700', bg: 'bg-green-50 border-green-100', dot: 'bg-green-500', title: `Scale "${c.campaign_name}"`, desc: `${c.roas.toFixed(1)}x ROAS — increase daily budget 20-30% to capture more revenue.` })
+          wins.push({ type: 'scale', color: 'text-green-400', bg: 'bg-green-500/10 border-green-500/20', dot: 'bg-green-500', title: `Scale "${c.campaign_name}"`, desc: `${c.roas.toFixed(1)}x ROAS — increase daily budget 20-30% to capture more revenue.` })
         })
         withSpend.filter(c => c.conversions === 0 && c.spend > 50).slice(0, 2).forEach(c => {
-          wins.push({ type: 'pause', color: 'text-red-700', bg: 'bg-red-50 border-red-100', dot: 'bg-red-500', title: `Pause "${c.campaign_name}"`, desc: `$${c.spend.toFixed(0)} spent with zero conversions — stop budget waste immediately.` })
+          wins.push({ type: 'pause', color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20', dot: 'bg-red-500', title: `Pause "${c.campaign_name}"`, desc: `$${c.spend.toFixed(0)} spent with zero conversions — stop budget waste immediately.` })
         })
         withSpend.filter(c => c.ctr < 0.5 && c.impressions > 5000).slice(0, 1).forEach(c => {
-          wins.push({ type: 'creative', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-100', dot: 'bg-amber-500', title: `Refresh creative on "${c.campaign_name}"`, desc: `${c.ctr.toFixed(2)}% CTR across ${c.impressions.toLocaleString()} impressions — test new ad variations.` })
+          wins.push({ type: 'creative', color: 'text-yellow-400', bg: 'bg-yellow-500/10 border-yellow-500/20', dot: 'bg-yellow-500', title: `Refresh creative on "${c.campaign_name}"`, desc: `${c.ctr.toFixed(2)}% CTR across ${c.impressions.toLocaleString()} impressions — test new ad variations.` })
         })
         if (wins.length === 0) return null
         return (
           <div className="card p-5">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <Zap size={15} className="text-yellow-600" />
+              <div className="w-7 h-7 bg-yellow-500/15 rounded-lg flex items-center justify-center">
+                <Zap size={15} className="text-yellow-400" />
               </div>
-              <h3 className="font-semibold text-gray-900">Quick Wins</h3>
-              <span className="text-xs text-gray-400">{wins.length} action{wins.length !== 1 ? 's' : ''} available</span>
+              <h3 className="font-semibold text-ink-50">Quick Wins</h3>
+              <span className="text-xs text-ink-500">{wins.length} action{wins.length !== 1 ? 's' : ''} available</span>
             </div>
             <div className="space-y-2">
               {wins.map((w, i) => (
@@ -707,7 +707,7 @@ export default function Dashboard() {
                   <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${w.dot}`} />
                   <div>
                     <p className={`text-sm font-semibold ${w.color}`}>{w.title}</p>
-                    <p className="text-xs text-gray-600 mt-0.5">{w.desc}</p>
+                    <p className="text-xs text-ink-300 mt-0.5">{w.desc}</p>
                   </div>
                 </div>
               ))}
@@ -717,16 +717,16 @@ export default function Dashboard() {
       })()}
 
       {/* ── 5. TRENDS + PLATFORM SPLIT ── */}
-      <div className="grid grid-cols-3 gap-6">
-        <div className="card p-5 col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="card p-5 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900">Spend vs Revenue</h3>
-            <span className="text-xs text-gray-400">
+            <h3 className="font-semibold text-ink-50">Spend vs Revenue</h3>
+            <span className="text-xs text-ink-500">
               {dateRange.label}{platform !== 'all' ? ` · ${platform}` : ''}
             </span>
           </div>
           {trends.length === 0 ? (
-            <div className="h-56 flex items-center justify-center text-gray-400 text-sm">No data yet</div>
+            <div className="h-56 flex items-center justify-center text-ink-500 text-sm">No data yet</div>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <LineChart data={trends}>
@@ -742,9 +742,9 @@ export default function Dashboard() {
           )}
         </div>
         <div className="card p-5">
-          <h3 className="font-semibold text-gray-900 mb-4">Platform Split</h3>
+          <h3 className="font-semibold text-ink-50 mb-4">Platform Split</h3>
           {platformSplit.length === 0 ? (
-            <div className="h-56 flex items-center justify-center text-gray-400 text-sm">No data yet</div>
+            <div className="h-56 flex items-center justify-center text-ink-500 text-sm">No data yet</div>
           ) : (
             <>
               <ResponsiveContainer width="100%" height={160}>
@@ -762,7 +762,7 @@ export default function Dashboard() {
                   <div key={p.platform} className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <div className="w-2.5 h-2.5 rounded-full" style={{ background: PLATFORM_COLORS[p.platform] || '#94a3b8' }} />
-                      <span className="capitalize text-gray-600">{p.platform}</span>
+                      <span className="capitalize text-ink-300">{p.platform}</span>
                     </div>
                     <span className="font-medium">${p.spend.toFixed(0)}</span>
                   </div>
@@ -775,32 +775,32 @@ export default function Dashboard() {
 
       {/* ── 5. CAMPAIGN TABLE ── */}
       <div className="card">
-        <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
-          <h3 className="font-semibold text-gray-900">
+        <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between">
+          <h3 className="font-semibold text-ink-50">
             Top Campaigns
             {platform !== 'all' && (
-              <span className={`ml-2 text-xs px-2 py-0.5 rounded-full font-normal ${platform === 'meta' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>
+              <span className={`ml-2 text-xs px-2 py-0.5 rounded-full font-normal ${platform === 'meta' ? 'bg-aurora-blue/15 text-aurora-blue' : 'bg-red-500/15 text-red-400'}`}>
                 {platform}
               </span>
             )}
           </h3>
-          <a href="/performance" className="text-sm text-blue-600 hover:underline">Full report →</a>
+          <a href="/performance" className="text-sm text-aurora-blue hover:underline">Full report →</a>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-50">
+              <tr className="border-b border-white/5">
                 {['Campaign', 'Platform', 'Status', 'Spend', 'Revenue', 'ROAS', 'CTR'].map((h) => (
-                  <th key={h} className="px-5 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wide">{h}</th>
+                  <th key={h} className="px-5 py-3 text-left text-xs font-medium text-ink-500 uppercase tracking-wide">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {campaigns.length === 0 ? (
-                <tr><td colSpan={7} className="px-5 py-8 text-center text-gray-400">No campaign data</td></tr>
+                <tr><td colSpan={7} className="px-5 py-8 text-center text-ink-500">No campaign data</td></tr>
               ) : campaigns.slice(0, 5).map((c) => (
-                <tr key={c.campaign_id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                  <td className="px-5 py-3 font-medium text-gray-900">{c.campaign_name}</td>
+                <tr key={c.campaign_id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                  <td className="px-5 py-3 font-medium text-ink-50">{c.campaign_name}</td>
                   <td className="px-5 py-3">
                     <span className={c.platform === 'meta' ? 'badge-meta' : 'badge-google'}>{c.platform}</span>
                   </td>
@@ -808,7 +808,7 @@ export default function Dashboard() {
                     <span className={`badge-${c.status}`}>{c.status}</span>
                   </td>
                   <td className="px-5 py-3 tabular-nums">${c.spend.toFixed(2)}</td>
-                  <td className="px-5 py-3 tabular-nums text-green-700">${c.revenue.toFixed(2)}</td>
+                  <td className="px-5 py-3 tabular-nums text-green-400">${c.revenue.toFixed(2)}</td>
                   <td className="px-5 py-3 tabular-nums font-medium">{c.roas.toFixed(2)}x</td>
                   <td className="px-5 py-3 tabular-nums">{c.ctr.toFixed(2)}%</td>
                 </tr>

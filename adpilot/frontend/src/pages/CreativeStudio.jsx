@@ -5,7 +5,7 @@ import { api } from '../api/client'
 
 function CharCount({ text, max }) {
   const len = (text || '').length
-  const color = len > max ? 'text-red-500' : len >= Math.floor(max * 0.9) ? 'text-amber-500' : 'text-gray-400'
+  const color = len > max ? 'text-red-400' : len >= Math.floor(max * 0.9) ? 'text-yellow-400' : 'text-ink-500'
   return <span className={`text-xs font-medium ${color}`}>{len}/{max}</span>
 }
 
@@ -76,14 +76,14 @@ export default function CreativeStudio() {
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+      <div className="flex gap-1 bg-white/10 p-1 rounded-xl w-fit">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             onClick={() => setTab(id)}
             className={clsx(
               'flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all',
-              tab === id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700',
+              tab === id ? 'bg-base-800 text-ink-50 shadow-sm' : 'text-ink-500 hover:text-ink-300',
             )}
           >
             <Icon size={15} />
@@ -93,15 +93,15 @@ export default function CreativeStudio() {
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-100 rounded-lg text-red-700 text-sm">
+        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
           {error}
         </div>
       )}
 
       {tab === 'copy' && (
-        <div className="grid grid-cols-5 gap-6">
-          <div className="col-span-2 card p-5 space-y-4">
-            <h3 className="font-semibold text-gray-900">Generate Ad Copy</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <div className="lg:col-span-2 card p-5 space-y-4">
+            <h3 className="font-semibold text-ink-50">Generate Ad Copy</h3>
             <form onSubmit={handleGenerateCopy} className="space-y-4">
               <div>
                 <label className="label">Product / Service</label>
@@ -111,7 +111,7 @@ export default function CreativeStudio() {
                 <label className="label">Target Audience</label>
                 <input className="input" required placeholder="e.g. Women aged 25-40 who run 3+ times/week" value={copyForm.audience} onChange={(e) => setCopyForm(f => ({...f, audience: e.target.value}))} />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="label">Platform</label>
                   <select className="input" value={copyForm.platform} onChange={(e) => setCopyForm(f => ({...f, platform: e.target.value}))}>
@@ -129,7 +129,7 @@ export default function CreativeStudio() {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="label">Tone</label>
                   <select className="input" value={copyForm.tone} onChange={(e) => setCopyForm(f => ({...f, tone: e.target.value}))}>
@@ -159,13 +159,13 @@ export default function CreativeStudio() {
 
           <div className="col-span-3 space-y-4">
             {copyWarning && (
-              <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-xs">
-                <AlertTriangle size={14} className="shrink-0 mt-0.5 text-amber-500" />
+              <div className="flex items-start gap-2 p-3 bg-yellow-500/10 border border-yellow-500/25 rounded-lg text-yellow-400 text-xs">
+                <AlertTriangle size={14} className="shrink-0 mt-0.5 text-yellow-400" />
                 <span>{copyWarning} — Showing template-based copy. <a href="/settings" className="underline font-medium">Add AI credits in Settings</a> for Claude-generated variants.</span>
               </div>
             )}
             {copyResults.length === 0 && !loading && (
-              <div className="card p-8 text-center text-gray-400">
+              <div className="card p-8 text-center text-ink-500">
                 <Copy size={32} className="mx-auto mb-3 opacity-30" />
                 <p>Fill in the form and click Generate Copy</p>
               </div>
@@ -175,8 +175,8 @@ export default function CreativeStudio() {
                 <div key={i} className="card p-5 space-y-5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-1 rounded">Google RSA · Set {i + 1}</span>
-                      <span className="text-xs text-gray-400">Google picks the best combinations automatically</span>
+                      <span className="text-xs font-semibold text-red-400 bg-red-500/10 px-2 py-1 rounded">Google RSA · Set {i + 1}</span>
+                      <span className="text-xs text-ink-500">Google picks the best combinations automatically</span>
                     </div>
                     <button
                       onClick={() => navigator.clipboard.writeText(v.headlines.join('\n') + '\n\n' + v.descriptions.join('\n'))}
@@ -188,17 +188,17 @@ export default function CreativeStudio() {
 
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-xs font-semibold text-gray-700">Headlines <span className="text-gray-400 font-normal">({v.headlines.length}/15)</span></p>
-                      <p className="text-xs text-gray-400">Max 30 chars each</p>
+                      <p className="text-xs font-semibold text-ink-300">Headlines <span className="text-ink-500 font-normal">({v.headlines.length}/15)</span></p>
+                      <p className="text-xs text-ink-500">Max 30 chars each</p>
                     </div>
                     <div className="space-y-1.5">
                       {v.headlines.map((h, j) => {
                         const len = h.length
-                        const color = len > 30 ? 'text-red-500' : len >= 27 ? 'text-amber-500' : 'text-gray-400'
+                        const color = len > 30 ? 'text-red-400' : len >= 27 ? 'text-yellow-400' : 'text-ink-500'
                         return (
-                          <div key={j} className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
-                            <span className="text-xs text-gray-400 w-5 shrink-0">{j + 1}</span>
-                            <span className="text-sm text-gray-900 flex-1">{h}</span>
+                          <div key={j} className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2">
+                            <span className="text-xs text-ink-500 w-5 shrink-0">{j + 1}</span>
+                            <span className="text-sm text-ink-50 flex-1">{h}</span>
                             <span className={`text-xs font-medium shrink-0 ${color}`}>{len}/30</span>
                           </div>
                         )
@@ -208,18 +208,18 @@ export default function CreativeStudio() {
 
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-xs font-semibold text-gray-700">Descriptions <span className="text-gray-400 font-normal">({v.descriptions.length}/4)</span></p>
-                      <p className="text-xs text-gray-400">Max 90 chars each</p>
+                      <p className="text-xs font-semibold text-ink-300">Descriptions <span className="text-ink-500 font-normal">({v.descriptions.length}/4)</span></p>
+                      <p className="text-xs text-ink-500">Max 90 chars each</p>
                     </div>
                     <div className="space-y-1.5">
                       {v.descriptions.map((d, j) => {
                         const len = d.length
-                        const color = len > 90 ? 'text-red-500' : len >= 81 ? 'text-amber-500' : 'text-gray-400'
+                        const color = len > 90 ? 'text-red-400' : len >= 81 ? 'text-yellow-400' : 'text-ink-500'
                         return (
-                          <div key={j} className="bg-gray-50 rounded-lg px-3 py-2">
+                          <div key={j} className="bg-white/5 rounded-lg px-3 py-2">
                             <div className="flex items-start gap-2">
-                              <span className="text-xs text-gray-400 w-5 shrink-0 mt-0.5">{j + 1}</span>
-                              <span className="text-sm text-gray-700 flex-1 leading-relaxed">{d}</span>
+                              <span className="text-xs text-ink-500 w-5 shrink-0 mt-0.5">{j + 1}</span>
+                              <span className="text-sm text-ink-300 flex-1 leading-relaxed">{d}</span>
                               <span className={`text-xs font-medium shrink-0 mt-0.5 ${color}`}>{len}/90</span>
                             </div>
                           </div>
@@ -231,7 +231,7 @@ export default function CreativeStudio() {
               ) : (
                 <div key={i} className="card p-5 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded">Variant {i + 1}</span>
+                    <span className="text-xs font-semibold text-aurora-blue bg-aurora-blue/10 px-2 py-1 rounded">Variant {i + 1}</span>
                     <button
                       onClick={() => navigator.clipboard.writeText(`${v.headline}\n\n${v.primary_text || v.content}\n\n${v.description}`)}
                       className="btn-secondary text-xs py-1"
@@ -241,33 +241,33 @@ export default function CreativeStudio() {
                   </div>
                   {v.hook && (
                     <div>
-                      <p className="text-xs text-gray-400 mb-1">Hook</p>
-                      <p className="text-sm font-semibold text-gray-900">{v.hook}</p>
+                      <p className="text-xs text-ink-500 mb-1">Hook</p>
+                      <p className="text-sm font-semibold text-ink-50">{v.hook}</p>
                     </div>
                   )}
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <p className="text-xs text-gray-400">Headline</p>
+                      <p className="text-xs text-ink-500">Headline</p>
                       <CharCount text={v.headline} max={40} />
                     </div>
-                    <p className="text-sm font-bold text-gray-900">{v.headline}</p>
+                    <p className="text-sm font-bold text-ink-50">{v.headline}</p>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <p className="text-xs text-gray-400">Primary Text</p>
+                      <p className="text-xs text-ink-500">Primary Text</p>
                       <CharCount text={v.primary_text || v.content} max={125} />
                     </div>
-                    <p className="text-sm text-gray-700 leading-relaxed">{v.primary_text || v.content}</p>
+                    <p className="text-sm text-ink-300 leading-relaxed">{v.primary_text || v.content}</p>
                   </div>
-                  <div className="flex items-start justify-between pt-2 border-t border-gray-50 gap-4">
+                  <div className="flex items-start justify-between pt-2 border-t border-white/5 gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-0.5">
-                        <p className="text-xs text-gray-400">Description</p>
+                        <p className="text-xs text-ink-500">Description</p>
                         <CharCount text={v.description} max={30} />
                       </div>
-                      <p className="text-sm text-gray-600 truncate">{v.description}</p>
+                      <p className="text-sm text-ink-300 truncate">{v.description}</p>
                     </div>
-                    <span className="text-xs font-bold text-white bg-blue-600 px-3 py-1 rounded-full shrink-0">{v.cta}</span>
+                    <span className="text-xs font-bold text-white bg-aurora-blue px-3 py-1 rounded-full shrink-0">{v.cta}</span>
                   </div>
                 </div>
               )
@@ -277,9 +277,9 @@ export default function CreativeStudio() {
       )}
 
       {tab === 'image' && (
-        <div className="grid grid-cols-5 gap-6">
-          <div className="col-span-2 card p-5 space-y-4">
-            <h3 className="font-semibold text-gray-900">Generate Ad Image</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <div className="lg:col-span-2 card p-5 space-y-4">
+            <h3 className="font-semibold text-ink-50">Generate Ad Image</h3>
             <form onSubmit={handleGenerateImage} className="space-y-4">
               <div>
                 <label className="label">Image Prompt</label>
@@ -293,7 +293,7 @@ export default function CreativeStudio() {
                   <option value="1024x1792">Portrait 9:16 — Stories/Reels</option>
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="label">Quality</label>
                   <select className="input" value={imageForm.quality} onChange={(e) => setImageForm(f => ({...f, quality: e.target.value}))}>
@@ -318,22 +318,22 @@ export default function CreativeStudio() {
 
           <div className="col-span-3 space-y-4">
             {imageResults.length === 0 && !loading && (
-              <div className="card p-8 text-center text-gray-400">
+              <div className="card p-8 text-center text-ink-500">
                 <Image size={32} className="mx-auto mb-3 opacity-30" />
                 <p>Generated images will appear here</p>
               </div>
             )}
             {loading && (
               <div className="card p-8 text-center">
-                <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-gray-500">Generating with DALL-E 3... this takes ~15 seconds</p>
+                <div className="w-12 h-12 border-4 border-aurora-blue/25 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-ink-500">Generating with DALL-E 3... this takes ~15 seconds</p>
               </div>
             )}
             {imageResults.map((img, i) => (
               <div key={i} className="card overflow-hidden">
                 <img src={img.content} alt="Generated ad" className="w-full object-contain max-h-96" />
                 <div className="p-4">
-                  <p className="text-xs text-gray-400 leading-relaxed">{img.revised_prompt?.slice(0, 150)}...</p>
+                  <p className="text-xs text-ink-500 leading-relaxed">{img.revised_prompt?.slice(0, 150)}...</p>
                   <div className="flex gap-2 mt-3">
                     <a href={img.content} target="_blank" rel="noreferrer" className="btn-secondary text-xs py-1.5">Open Full Size</a>
                     <button onClick={() => navigator.clipboard.writeText(img.content)} className="btn-secondary text-xs py-1.5">Copy URL</button>
@@ -346,18 +346,18 @@ export default function CreativeStudio() {
       )}
 
       {tab === 'video' && (
-        <div className="grid grid-cols-5 gap-6">
-          <div className="col-span-2 card p-5 space-y-4">
-            <h3 className="font-semibold text-gray-900">Generate Ad Video</h3>
-            <div className="p-3 bg-amber-50 border border-amber-100 rounded-lg">
-              <p className="text-xs text-amber-700">Powered by Runway Gen-3 Alpha. Requires Runway API key in Settings. Generation takes 1-2 minutes.</p>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <div className="lg:col-span-2 card p-5 space-y-4">
+            <h3 className="font-semibold text-ink-50">Generate Ad Video</h3>
+            <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+              <p className="text-xs text-yellow-400">Powered by Runway Gen-3 Alpha. Requires Runway API key in Settings. Generation takes 1-2 minutes.</p>
             </div>
             <form onSubmit={handleGenerateVideo} className="space-y-4">
               <div>
                 <label className="label">Video Concept</label>
                 <textarea className="input resize-none" rows={5} required placeholder="Describe the video ad. E.g. A dynamic product showcase of running shoes, close-up of shoes hitting the pavement, slow motion splashes, energetic music vibe..." value={videoForm.prompt} onChange={(e) => setVideoForm(f => ({...f, prompt: e.target.value}))} />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="label">Duration</label>
                   <select className="input" value={videoForm.duration} onChange={(e) => setVideoForm(f => ({...f, duration: parseInt(e.target.value)}))}>
@@ -382,16 +382,16 @@ export default function CreativeStudio() {
 
           <div className="col-span-3">
             {!videoResult && !loading && (
-              <div className="card p-8 text-center text-gray-400">
+              <div className="card p-8 text-center text-ink-500">
                 <Video size={32} className="mx-auto mb-3 opacity-30" />
                 <p>Generated video will appear here</p>
               </div>
             )}
             {loading && (
               <div className="card p-12 text-center">
-                <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-gray-700 font-medium">Generating video with Runway Gen-3...</p>
-                <p className="text-gray-400 text-sm mt-1">This usually takes 60-120 seconds</p>
+                <div className="w-12 h-12 border-4 border-aurora-blue/25 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-ink-300 font-medium">Generating video with Runway Gen-3...</p>
+                <p className="text-ink-500 text-sm mt-1">This usually takes 60-120 seconds</p>
               </div>
             )}
             {videoResult && (
@@ -411,23 +411,23 @@ export default function CreativeStudio() {
       {tab === 'library' && (
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900">Creative Library ({creatives.length})</h3>
+            <h3 className="font-semibold text-ink-50">Creative Library ({creatives.length})</h3>
             <button onClick={() => setTab('copy')} className="btn-primary text-sm">
               <Plus size={15} /> Create New
             </button>
           </div>
           {creatives.length === 0 ? (
-            <div className="card p-10 text-center text-gray-400">
+            <div className="card p-10 text-center text-ink-500">
               <Wand2 size={32} className="mx-auto mb-3 opacity-30" />
               <p>No creatives generated yet</p>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {creatives.map((c) => (
                 <div key={c.id} className="card p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium px-2 py-1 rounded bg-gray-100 text-gray-600 capitalize">{c.type}</span>
-                    <button onClick={() => handleDeleteCreative(c.id)} className="text-gray-300 hover:text-red-500 transition-colors">
+                    <span className="text-xs font-medium px-2 py-1 rounded bg-white/10 text-ink-300 capitalize">{c.type}</span>
+                    <button onClick={() => handleDeleteCreative(c.id)} className="text-ink-700 hover:text-red-400 transition-colors">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -438,32 +438,32 @@ export default function CreativeStudio() {
                     try { const p = JSON.parse(c.content); if (p.type === 'google_rsa' || p.type === 'search_rsa') rsa = p } catch {}
                     if (rsa) return (
                       <div className="space-y-2">
-                        <span className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded">Google RSA</span>
+                        <span className="text-xs font-semibold text-red-400 bg-red-500/10 px-2 py-0.5 rounded">Google RSA</span>
                         <div>
-                          <p className="text-xs text-gray-400 mb-1">Headlines ({rsa.headlines.length}/15)</p>
+                          <p className="text-xs text-ink-500 mb-1">Headlines ({rsa.headlines.length}/15)</p>
                           {rsa.headlines.slice(0, 3).map((h, i) => (
-                            <p key={i} className="text-xs font-medium text-blue-700 truncate">{h}</p>
+                            <p key={i} className="text-xs font-medium text-aurora-blue truncate">{h}</p>
                           ))}
-                          {rsa.headlines.length > 3 && <p className="text-xs text-gray-400">+{rsa.headlines.length - 3} more</p>}
+                          {rsa.headlines.length > 3 && <p className="text-xs text-ink-500">+{rsa.headlines.length - 3} more</p>}
                         </div>
                         <div>
-                          <p className="text-xs text-gray-400 mb-1">Descriptions ({rsa.descriptions.length}/4)</p>
+                          <p className="text-xs text-ink-500 mb-1">Descriptions ({rsa.descriptions.length}/4)</p>
                           {rsa.descriptions.slice(0, 1).map((d, i) => (
-                            <p key={i} className="text-xs text-gray-600 line-clamp-2">{d}</p>
+                            <p key={i} className="text-xs text-ink-300 line-clamp-2">{d}</p>
                           ))}
                         </div>
                       </div>
                     )
                     return (
                       <div className="space-y-1">
-                        {c.platform === 'meta' && <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">Meta Ad</span>}
-                        {c.headline && <p className="font-semibold text-sm text-gray-900">{c.headline}</p>}
-                        <p className="text-xs text-gray-500 line-clamp-3">{c.content}</p>
-                        {c.cta && <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-medium">{c.cta}</span>}
+                        {c.platform === 'meta' && <span className="text-xs font-semibold text-aurora-blue bg-aurora-blue/10 px-2 py-0.5 rounded">Meta Ad</span>}
+                        {c.headline && <p className="font-semibold text-sm text-ink-50">{c.headline}</p>}
+                        <p className="text-xs text-ink-500 line-clamp-3">{c.content}</p>
+                        {c.cta && <span className="text-xs bg-aurora-blue/10 text-aurora-blue px-2 py-0.5 rounded font-medium">{c.cta}</span>}
                       </div>
                     )
                   })()}
-                  <p className="text-xs text-gray-300">{new Date(c.created_at).toLocaleDateString()}</p>
+                  <p className="text-xs text-ink-700">{new Date(c.created_at).toLocaleDateString()}</p>
                 </div>
               ))}
             </div>
