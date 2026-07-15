@@ -58,7 +58,7 @@ export default function Register() {
                 autoComplete="name"
                 value={form.full_name}
                 onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-                className="w-full px-4 py-2.5 border border-white/10 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-aurora-blue focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-white/10 rounded-lg text-sm bg-base-700/40 text-ink-50 placeholder:text-ink-700 focus:outline-none focus:ring-2 focus:ring-aurora-blue focus:border-transparent"
                 placeholder="Jane Smith"
               />
             </div>
@@ -70,7 +70,7 @@ export default function Register() {
                 autoComplete="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full px-4 py-2.5 border border-white/10 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-aurora-blue focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-white/10 rounded-lg text-sm bg-base-700/40 text-ink-50 placeholder:text-ink-700 focus:outline-none focus:ring-2 focus:ring-aurora-blue focus:border-transparent"
                 placeholder="you@company.com"
               />
             </div>
@@ -84,7 +84,7 @@ export default function Register() {
                 autoComplete="new-password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full px-4 py-2.5 border border-white/10 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-aurora-blue focus:border-transparent"
+                className="w-full px-4 py-2.5 border border-white/10 rounded-lg text-sm bg-base-700/40 text-ink-50 placeholder:text-ink-700 focus:outline-none focus:ring-2 focus:ring-aurora-blue focus:border-transparent"
                 placeholder="••••••••"
               />
             </div>

@@ -72,7 +72,7 @@ export default function ResetPassword() {
                   minLength={8}
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="w-full px-4 py-2.5 border border-white/10 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-aurora-blue focus:border-transparent"
+                  className="w-full px-4 py-2.5 border border-white/10 rounded-lg text-sm bg-base-700/40 text-ink-50 placeholder:text-ink-700 focus:outline-none focus:ring-2 focus:ring-aurora-blue focus:border-transparent"
                   placeholder="Min. 8 characters"
                 />
               </div>
@@ -83,7 +83,7 @@ export default function ResetPassword() {
                   required
                   value={form.confirm}
                   onChange={(e) => setForm({ ...form, confirm: e.target.value })}
-                  className="w-full px-4 py-2.5 border border-white/10 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-aurora-blue focus:border-transparent"
+                  className="w-full px-4 py-2.5 border border-white/10 rounded-lg text-sm bg-base-700/40 text-ink-50 placeholder:text-ink-700 focus:outline-none focus:ring-2 focus:ring-aurora-blue focus:border-transparent"
                   placeholder="••••••••"
                 />
               </div>
