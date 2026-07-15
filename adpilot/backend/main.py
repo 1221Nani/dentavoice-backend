@@ -59,21 +59,6 @@ async def health():
     return {"status": "ok", "service": "AdPilot AI"}
 
 
-@app.get("/api/debug/db-role")
-async def debug_db_role(
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    """TEMPORARY — remove after determining what Postgres role DATABASE_URL
-    authenticates as, needed to scope an RLS policy correctly. Render's free tier
-    has no Shell access to check this directly. Delete this endpoint once the
-    answer is captured."""
-    from sqlalchemy import text
-    result = await db.execute(text("SELECT current_user, session_user;"))
-    row = result.fetchone()
-    return {"current_user": row[0], "session_user": row[1]}
-
-
 @app.get("/api/dashboard/summary")
 async def dashboard_summary(
     current_user: User = Depends(get_current_user),
