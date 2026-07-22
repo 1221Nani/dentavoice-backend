@@ -9,16 +9,28 @@ jobs:
     steps:
       - name: Ping DentaVoice booking backend
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://dentavoice-backend.onrender.com/health)
-          echo "DentaVoice health: $STATUS"
-          if [ "$STATUS" != "200" ]; then
+          set +e
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 45 https://dentavoice-backend.onrender.com/health)
+          CURL_EXIT=$?
+          set -e
+          if [ $CURL_EXIT -ne 0 ]; then
+            echo "::warning::DentaVoice backend unreachable (curl exit $CURL_EXIT) — likely a cold start, next run will retry"
+          elif [ "$STATUS" != "200" ]; then
             echo "::warning::DentaVoice backend returned $STATUS"
+          else
+            echo "DentaVoice health: $STATUS"
           fi
 
       - name: Ping AdPilot backend
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://adpilot-h3um.onrender.com/api/health)
-          echo "AdPilot health: $STATUS"
-          if [ "$STATUS" != "200" ]; then
+          set +e
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 45 https://adpilot-h3um.onrender.com/api/health)
+          CURL_EXIT=$?
+          set -e
+          if [ $CURL_EXIT -ne 0 ]; then
+            echo "::warning::AdPilot backend unreachable (curl exit $CURL_EXIT) — likely a cold start, next run will retry"
+          elif [ "$STATUS" != "200" ]; then
             echo "::warning::AdPilot backend returned $STATUS"
+          else
+            echo "AdPilot health: $STATUS"
           fi
