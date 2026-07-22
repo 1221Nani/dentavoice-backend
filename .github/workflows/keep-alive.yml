@@ -1,7 +1,7 @@
 name: Keep Backends Alive
 on:
   schedule:
-    - cron: '*/14 * * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 jobs:
   ping:
@@ -9,22 +9,16 @@ jobs:
     steps:
       - name: Ping DentaVoice booking backend
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://dentavoice-backend.onrender.com/health)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://dentavoice-backend.onrender.com/health)
           echo "DentaVoice health: $STATUS"
           if [ "$STATUS" != "200" ]; then
-            echo "Warning: DentaVoice backend returned $STATUS"
+            echo "::warning::DentaVoice backend returned $STATUS"
           fi
 
       - name: Ping AdPilot backend
-        env:
-          RENDER_BACKEND_URL: ${{ secrets.RENDER_BACKEND_URL }}
         run: |
-          if [ -z "$RENDER_BACKEND_URL" ]; then
-            echo "RENDER_BACKEND_URL not set — skipping AdPilot ping"
-            exit 0
-          fi
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$RENDER_BACKEND_URL/api/health")
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://adpilot-h3um.onrender.com/api/health)
           echo "AdPilot health: $STATUS"
           if [ "$STATUS" != "200" ]; then
-            echo "Warning: AdPilot backend returned $STATUS"
+            echo "::warning::AdPilot backend returned $STATUS"
           fi
