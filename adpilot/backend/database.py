@@ -15,7 +15,13 @@ is_postgres = DATABASE_URL.startswith("postgresql+asyncpg://")
 engine = create_async_engine(
     DATABASE_URL,
     echo=False,
-    connect_args={"ssl": "require"} if is_postgres else {},
+    # Supabase's pooler silently drops idle backend connections; without pre_ping
+    # SQLAlchemy hands out the dead connection anyway and the request hangs forever
+    # instead of failing fast. pool_recycle proactively replaces connections before
+    # they're old enough to have been reaped server-side.
+    pool_pre_ping=True,
+    pool_recycle=280,
+    connect_args={"ssl": "require", "timeout": 10, "command_timeout": 10} if is_postgres else {},
 )
 AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
