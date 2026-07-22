@@ -172,4 +172,10 @@ export const api = {
     return get(url)
   },
 
+  // Google Ads Audit Toolkit
+  getAuditSkills: () => get('/audit/skills'),
+  runAuditSkill: (skill, payload = {}) => post(`/audit/${skill}/run`, payload),
+  getAuditResults: (skill = null) => get(`/audit/results${skill ? `?skill=${skill}` : ''}`),
+  getAuditResult: (id) => get(`/audit/results/${id}`),
+
 }

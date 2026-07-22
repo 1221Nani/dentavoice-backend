@@ -14,6 +14,7 @@ import CreativeStudio from './pages/CreativeStudio'
 import CampaignManager from './pages/CampaignManager'
 import Performance from './pages/Performance'
 import Optimizer from './pages/Optimizer'
+import AuditToolkit from './pages/AuditToolkit'
 import CompetitorIntel from './pages/CompetitorIntel'
 import Reports from './pages/Reports'
 import Settings from './pages/Settings'
@@ -63,6 +64,7 @@ export default function App() {
                     <Route path="/campaigns/ai-build" element={<AICampaignBuilder />} />
                     <Route path="/performance" element={<Performance />} />
                     <Route path="/optimizer" element={<Optimizer />} />
+                    <Route path="/audit-toolkit" element={<AuditToolkit />} />
                     <Route path="/competitors" element={<CompetitorIntel />} />
                     <Route path="/reports" element={<Reports />} />
                     <Route path="/ai" element={<AIAssistant />} />

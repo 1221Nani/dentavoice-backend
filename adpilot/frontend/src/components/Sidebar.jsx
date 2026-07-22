@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard, Megaphone, Wand2, BarChart2,
-  Zap, Search, FileBarChart, Settings, Bot, Rocket, X,
+  Zap, Search, FileBarChart, Settings, Bot, Rocket, X, ClipboardCheck,
 } from 'lucide-react'
 import clsx from 'clsx'
 
@@ -13,6 +13,7 @@ const nav = [
   { to: '/campaigns/ai-build', icon: Rocket, label: 'AI Campaign Builder', highlight: true },
   { to: '/performance', icon: BarChart2, label: 'Performance' },
   { to: '/optimizer', icon: Zap, label: 'Optimizer' },
+  { to: '/audit-toolkit', icon: ClipboardCheck, label: 'Audit Toolkit', highlight: true },
   { to: '/competitors', icon: Search, label: 'Competitor Intel' },
   { to: '/reports', icon: FileBarChart, label: 'Reports' },
   { to: '/settings', icon: Settings, label: 'Settings' },
