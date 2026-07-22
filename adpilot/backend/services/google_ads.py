@@ -403,6 +403,188 @@ class GoogleAdsService:
                     results.append(row)
             return {"configured": True, "data": results}
 
+    async def _search_stream(self, query: str) -> dict:
+        """Shared helper for read-only GAQL queries used by the audit toolkit —
+        returns {"configured": bool, "data": [...], "error": str|None} in the same
+        shape as get_campaigns()/get_campaign_metrics() so router code can treat
+        every audit data source uniformly."""
+        if not self._is_configured():
+            return {"configured": False, "data": []}
+        try:
+            headers = await self._headers()
+        except Exception as e:
+            return {"configured": True, "data": [], "error": f"Token error: {str(e)}"}
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            r = await client.post(
+                f"{self.BASE_URL}/customers/{self.customer_id}/googleAds:searchStream",
+                headers=headers,
+                json={"query": query},
+            )
+            if r.status_code != 200:
+                try:
+                    err_body = r.json()
+                    err_msg = err_body.get("error", {}).get("message") or str(err_body)
+                except Exception:
+                    err_msg = f"Google Ads API error (HTTP {r.status_code})."
+                return {"configured": True, "data": [], "error": err_msg}
+            results = []
+            for batch in r.json():
+                for row in batch.get("results", []):
+                    results.append(row)
+            return {"configured": True, "data": results}
+
+    async def get_campaign_diagnostics(self, date_range: str = "LAST_30_DAYS"):
+        """Per-campaign impression-share and channel-type data. Feeds two audit
+        skills off one query: rank-vs-budget-diagnosis (search_rank_lost_impression_share
+        vs search_budget_lost_impression_share tells you whether a Search campaign is
+        losing volume to weak Ad Rank or a capped budget) and pmax-vs-search-scorecard
+        (advertising_channel_type segmentation). Impression-share fields are
+        Search-specific and come back null/0 for Shopping/PMax campaigns — that's
+        expected, not a bug, and callers should treat missing impression-share data
+        as "not applicable" rather than "zero"."""
+        query = f"""
+            SELECT campaign.id, campaign.name, campaign.status,
+                   campaign.advertising_channel_type,
+                   metrics.impressions, metrics.clicks, metrics.cost_micros,
+                   metrics.conversions, metrics.conversions_value,
+                   metrics.search_impression_share,
+                   metrics.search_rank_lost_impression_share,
+                   metrics.search_budget_lost_impression_share
+            FROM campaign
+            WHERE segments.date DURING {date_range}
+              AND campaign.status != 'REMOVED'
+        """
+        return await self._search_stream(query)
+
+    async def get_search_terms(self, date_range: str = "LAST_30_DAYS"):
+        """search_term_view — actual queries that triggered an ad, with the campaign's
+        channel type included so callers can filter to Shopping/PMax specifically
+        (shopping-negative-term-catcher) vs all channels (wasted-spend-finder)."""
+        query = f"""
+            SELECT search_term_view.search_term, search_term_view.status,
+                   campaign.id, campaign.name, campaign.advertising_channel_type,
+                   ad_group.id, ad_group.name,
+                   metrics.impressions, metrics.clicks, metrics.cost_micros,
+                   metrics.conversions, metrics.conversions_value
+            FROM search_term_view
+            WHERE segments.date DURING {date_range}
+            ORDER BY metrics.cost_micros DESC
+        """
+        return await self._search_stream(query)
+
+    async def get_rsa_asset_performance(self):
+        """ad_group_ad_asset_view — Google's per-asset performance_label (LOW/GOOD/
+        BEST/PENDING/UNRATED) for each headline/description in a Responsive Search
+        Ad, plus the ad's overall ad_strength grade. This is a structural/quality
+        signal, not a time-series metric, so no date range — it reflects current
+        ad state."""
+        query = """
+            SELECT campaign.id, campaign.name, ad_group.id, ad_group.name,
+                   ad_group_ad.ad.id, ad_group_ad.ad_strength, ad_group_ad.status,
+                   ad_group_ad_asset_view.field_type,
+                   ad_group_ad_asset_view.performance_label,
+                   ad_group_ad_asset_view.enabled,
+                   asset.id, asset.text_asset.text
+            FROM ad_group_ad_asset_view
+            WHERE ad_group_ad.status != 'REMOVED'
+              AND ad_group_ad_asset_view.enabled = true
+        """
+        return await self._search_stream(query)
+
+    async def get_shopping_performance(self, date_range: str = "LAST_30_DAYS"):
+        """shopping_performance_view — per-product performance for Shopping/PMax
+        campaigns, keyed by segments.product_item_id. Feeds product-scale-or-kill-grader."""
+        query = f"""
+            SELECT segments.product_item_id, segments.product_title,
+                   campaign.id, campaign.name,
+                   metrics.impressions, metrics.clicks, metrics.cost_micros,
+                   metrics.conversions, metrics.conversions_value
+            FROM shopping_performance_view
+            WHERE segments.date DURING {date_range}
+            ORDER BY metrics.cost_micros DESC
+        """
+        return await self._search_stream(query)
+
+    async def get_asset_group_assets(self):
+        """asset_group / asset_group_asset — Performance Max's equivalent of RSA
+        asset-level grading (headlines/images/logos with a performance_label).
+        This is the least-precedented query in the toolkit — PMax asset reporting
+        is newer and more restricted than standard Search reporting, so field
+        availability should be re-verified against the first live response and
+        this query adjusted if Google rejects a field."""
+        query = """
+            SELECT asset_group.id, asset_group.name, asset_group.status,
+                   campaign.id, campaign.name,
+                   asset_group_asset.field_type, asset_group_asset.performance_label,
+                   asset.id, asset.type, asset.text_asset.text
+            FROM asset_group_asset
+            WHERE asset_group.status != 'REMOVED'
+        """
+        return await self._search_stream(query)
+
+    async def generate_keyword_ideas(
+        self,
+        seed_keywords: list[str],
+        landing_page_url: str = None,
+        language_id: str = "1000",  # 1000 = English
+        geo_target_ids: list[str] = None,  # e.g. ["2840"] for United States
+    ) -> dict:
+        """Keyword Plan Ideas — a fundamentally different Google Ads API surface
+        from GAQL (KeywordPlanIdeaService.generateKeywordIdeas), used to power
+        buyer-intent-keyword-filter. Takes seed keywords and/or a landing page URL
+        and returns Google's own keyword suggestions with search volume and
+        competition, which the AI/rule layer then filters for buyer-intent signals
+        (as opposed to informational/research-intent queries)."""
+        if not self._is_configured():
+            return {"configured": False, "data": []}
+        if not seed_keywords and not landing_page_url:
+            return {"configured": True, "data": [], "error": "Provide at least one seed keyword or a landing page URL."}
+        try:
+            headers = await self._headers()
+        except Exception as e:
+            return {"configured": True, "data": [], "error": f"Token error: {str(e)}"}
+
+        body: dict = {
+            "language": f"languageConstants/{language_id}",
+            "keywordPlanNetwork": "GOOGLE_SEARCH",
+            "includeAdultKeywords": False,
+        }
+        if geo_target_ids:
+            body["geoTargetConstants"] = [f"geoTargetConstants/{gid}" for gid in geo_target_ids]
+        if seed_keywords and landing_page_url:
+            body["keywordAndUrlSeed"] = {"url": landing_page_url, "keywords": seed_keywords}
+        elif landing_page_url:
+            body["urlSeed"] = {"url": landing_page_url}
+        else:
+            body["keywordSeed"] = {"keywords": seed_keywords}
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            r = await client.post(
+                f"{self.BASE_URL}/customers/{self.customer_id}:generateKeywordIdeas",
+                headers=headers,
+                json=body,
+            )
+            if r.status_code != 200:
+                try:
+                    err_body = r.json()
+                    err_msg = err_body.get("error", {}).get("message") or str(err_body)
+                except Exception:
+                    err_msg = f"Google Ads API error (HTTP {r.status_code})."
+                return {"configured": True, "data": [], "error": err_msg}
+            body_json = r.json()
+            ideas = []
+            for result in body_json.get("results", []):
+                metrics = result.get("keywordIdeaMetrics", {})
+                ideas.append({
+                    "text": result.get("text", ""),
+                    "avg_monthly_searches": metrics.get("avgMonthlySearches"),
+                    "competition": metrics.get("competition"),
+                    "competition_index": metrics.get("competitionIndex"),
+                    "low_top_of_page_bid_micros": metrics.get("lowTopOfPageBidMicros"),
+                    "high_top_of_page_bid_micros": metrics.get("highTopOfPageBidMicros"),
+                })
+            return {"configured": True, "data": ideas}
+
     def _campaign_resource_name(self, campaign_id_or_resource: str) -> str:
         """Accepts either a full resource name (customers/123/campaigns/456) or a
         bare campaign ID (456, as stored for campaigns pulled in via /sync) and

@@ -620,3 +620,275 @@ Keep it concise and actionable (under 400 words).""",
             return message.content[0].text
         except Exception as e:
             raise _friendly_error(e)
+
+    # ---------------------------------------------------------------------
+    # Google Ads Audit Toolkit — one AI method per skill. Every method follows
+    # the same shape as the analysis above: JSON-only prompt, markdown-fence
+    # strip, json.loads. Callers (routers/audit.py) wrap each in try/except
+    # with a deterministic rule-based fallback, same pattern as optimizer.py
+    # and insights.py, so every skill still returns useful output with no
+    # Anthropic key configured or with credits depleted.
+    # ---------------------------------------------------------------------
+
+    async def generate_rank_budget_analysis(self, campaigns: list[dict]) -> dict:
+        if not self._is_configured():
+            raise ValueError("Anthropic API key not configured. Add it in Settings → AI Services.")
+        try:
+            client = self._client()
+            message = await client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=2500,
+                messages=[{"role": "user", "content": f"""You are a Google Ads Search specialist. For each Search campaign below, diagnose whether it's losing impression share to a weak Ad Rank (needs better ads/bids/Quality Score) or a capped budget (needs more money), using search_rank_lost_impression_share vs search_budget_lost_impression_share.
+
+CAMPAIGNS:
+{json.dumps(campaigns, indent=2)}
+
+Return a JSON object with:
+- summary: string (2-3 sentence account-level narrative)
+- findings: array of objects, one per campaign with impression-share data, each with:
+  - campaign_name: string
+  - diagnosis: "rank_constrained" | "budget_constrained" | "both" | "healthy"
+  - impression_share_pct: number
+  - rank_lost_pct: number
+  - budget_lost_pct: number
+  - recommendation: string (specific next step)
+
+Skip campaigns with no impression-share data (Shopping/PMax). Return ONLY valid JSON, no markdown."""}],
+            )
+        except Exception as e:
+            raise _friendly_error(e)
+        text = message.content[0].text.strip()
+        if text.startswith("```"):
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+        return json.loads(text.strip())
+
+    async def generate_wasted_spend_analysis(self, search_terms: list[dict]) -> dict:
+        if not self._is_configured():
+            raise ValueError("Anthropic API key not configured. Add it in Settings → AI Services.")
+        try:
+            client = self._client()
+            message = await client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=2500,
+                messages=[{"role": "user", "content": f"""You are a Google Ads specialist auditing search terms for wasted spend. These are actual queries that triggered ads, sorted by cost descending, already filtered to terms with meaningful spend and zero conversions.
+
+SEARCH TERMS:
+{json.dumps(search_terms[:100], indent=2)}
+
+Return a JSON object with:
+- summary: string (2-3 sentences on total waste identified and the pattern behind it)
+- total_wasted_spend: number (sum of cost for terms you flag as irrelevant/low-intent)
+- findings: array of objects, each with:
+  - search_term: string
+  - cost: number
+  - clicks: number
+  - reason: string (why this term is likely wasted spend — off-topic, DIY intent, job-seeker intent, wrong product, etc.)
+  - recommended_action: "add_as_negative" | "monitor" | "keep"
+
+Only include terms you're genuinely confident are wasted — don't flag legitimate high-intent terms that simply haven't converted yet due to low volume. Return ONLY valid JSON, no markdown."""}],
+            )
+        except Exception as e:
+            raise _friendly_error(e)
+        text = message.content[0].text.strip()
+        if text.startswith("```"):
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+        return json.loads(text.strip())
+
+    async def generate_negative_term_analysis(self, search_terms: list[dict]) -> dict:
+        if not self._is_configured():
+            raise ValueError("Anthropic API key not configured. Add it in Settings → AI Services.")
+        try:
+            client = self._client()
+            message = await client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=2500,
+                messages=[{"role": "user", "content": f"""You are a Google Ads Shopping/Performance Max specialist. These search terms triggered Shopping or PMax ads. Shopping campaigns have no keyword targeting, so irrelevant terms leak in more easily than in Search — find terms that don't match what's actually being sold.
+
+SEARCH TERMS (Shopping/PMax only):
+{json.dumps(search_terms[:100], indent=2)}
+
+Return a JSON object with:
+- summary: string (2-3 sentences on the pattern of irrelevant traffic found)
+- findings: array of objects, each with:
+  - search_term: string
+  - cost: number
+  - clicks: number
+  - reason: string (why this term doesn't match the product being advertised)
+  - recommended_action: "add_as_negative" | "monitor"
+
+Return ONLY valid JSON, no markdown."""}],
+            )
+        except Exception as e:
+            raise _friendly_error(e)
+        text = message.content[0].text.strip()
+        if text.startswith("```"):
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+        return json.loads(text.strip())
+
+    async def generate_rsa_grade_analysis(self, ads: list[dict]) -> dict:
+        if not self._is_configured():
+            raise ValueError("Anthropic API key not configured. Add it in Settings → AI Services.")
+        try:
+            client = self._client()
+            message = await client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=2500,
+                messages=[{"role": "user", "content": f"""You are a Google Ads Responsive Search Ad specialist. Grade these RSAs using their ad_strength and per-asset performance_label (LOW/GOOD/BEST/PENDING/UNRATED for each headline/description).
+
+RSA ASSET DATA (grouped by ad):
+{json.dumps(ads, indent=2)}
+
+Return a JSON object with:
+- summary: string (2-3 sentences on overall ad copy quality across the account)
+- findings: array of objects, one per ad group with:
+  - campaign_name: string
+  - ad_group_name: string
+  - ad_strength: string
+  - low_performing_asset_count: number
+  - recommendation: string (specific rewrite guidance — which asset types need work)
+
+Return ONLY valid JSON, no markdown."""}],
+            )
+        except Exception as e:
+            raise _friendly_error(e)
+        text = message.content[0].text.strip()
+        if text.startswith("```"):
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+        return json.loads(text.strip())
+
+    async def generate_shopping_grade_analysis(self, products: list[dict]) -> dict:
+        if not self._is_configured():
+            raise ValueError("Anthropic API key not configured. Add it in Settings → AI Services.")
+        try:
+            client = self._client()
+            message = await client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=2500,
+                messages=[{"role": "user", "content": f"""You are a Shopping Ads specialist. For each product below, recommend whether to scale (increase visibility/bid), hold, or kill (exclude) it based on spend, conversions, and ROAS.
+
+PRODUCTS:
+{json.dumps(products[:150], indent=2)}
+
+Return a JSON object with:
+- summary: string (2-3 sentences on overall product feed performance)
+- findings: array of objects, each with:
+  - product_title: string
+  - cost: number
+  - conversions: number
+  - roas: number
+  - verdict: "scale" | "hold" | "kill"
+  - reasoning: string
+
+Return ONLY valid JSON, no markdown."""}],
+            )
+        except Exception as e:
+            raise _friendly_error(e)
+        text = message.content[0].text.strip()
+        if text.startswith("```"):
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+        return json.loads(text.strip())
+
+    async def generate_pmax_search_scorecard(self, campaigns: list[dict]) -> dict:
+        if not self._is_configured():
+            raise ValueError("Anthropic API key not configured. Add it in Settings → AI Services.")
+        try:
+            client = self._client()
+            message = await client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=2000,
+                messages=[{"role": "user", "content": f"""You are a Google Ads specialist comparing Performance Max against Search campaigns on the same account. Google restricts some PMax reporting granularity, so treat PMax numbers as directional, not precise.
+
+CAMPAIGNS (with advertising_channel_type):
+{json.dumps(campaigns, indent=2)}
+
+Return a JSON object with:
+- summary: string (2-3 sentences comparing the two channel types on efficiency)
+- search_totals: object with spend, conversions, roas (aggregated across SEARCH campaigns)
+- pmax_totals: object with spend, conversions, roas (aggregated across PERFORMANCE_MAX campaigns)
+- recommendation: string (where to shift budget, if anywhere, and why)
+
+Return ONLY valid JSON, no markdown."""}],
+            )
+        except Exception as e:
+            raise _friendly_error(e)
+        text = message.content[0].text.strip()
+        if text.startswith("```"):
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+        return json.loads(text.strip())
+
+    async def generate_pmax_asset_grade(self, asset_groups: list[dict]) -> dict:
+        if not self._is_configured():
+            raise ValueError("Anthropic API key not configured. Add it in Settings → AI Services.")
+        try:
+            client = self._client()
+            message = await client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=2000,
+                messages=[{"role": "user", "content": f"""You are a Performance Max creative specialist. Grade these asset groups by how many of their assets carry a LOW performance_label vs GOOD/BEST.
+
+ASSET GROUPS (grouped by asset group):
+{json.dumps(asset_groups, indent=2)}
+
+Return a JSON object with:
+- summary: string (2-3 sentences on overall PMax creative health)
+- findings: array of objects, one per asset group with:
+  - campaign_name: string
+  - asset_group_name: string
+  - low_performing_asset_count: number
+  - recommendation: string
+
+Return ONLY valid JSON, no markdown."""}],
+            )
+        except Exception as e:
+            raise _friendly_error(e)
+        text = message.content[0].text.strip()
+        if text.startswith("```"):
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+        return json.loads(text.strip())
+
+    async def generate_buyer_intent_filter(self, keyword_ideas: list[dict]) -> dict:
+        if not self._is_configured():
+            raise ValueError("Anthropic API key not configured. Add it in Settings → AI Services.")
+        try:
+            client = self._client()
+            message = await client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=2500,
+                messages=[{"role": "user", "content": f"""You are a Google Ads keyword research specialist. From these keyword ideas (with search volume and competition data), identify which show genuine BUYER intent (ready to purchase/book/hire) versus informational or research intent (learning, comparing, DIY).
+
+KEYWORD IDEAS:
+{json.dumps(keyword_ideas[:150], indent=2)}
+
+Return a JSON object with:
+- summary: string (2-3 sentences on the buyer-intent keyword opportunity found)
+- findings: array of objects, each with:
+  - keyword: string
+  - avg_monthly_searches: number
+  - competition: string
+  - intent: "buyer" | "informational" | "navigational"
+  - reasoning: string (brief)
+
+Sort findings by buyer-intent confidence, highest first. Return ONLY valid JSON, no markdown."""}],
+            )
+        except Exception as e:
+            raise _friendly_error(e)
+        text = message.content[0].text.strip()
+        if text.startswith("```"):
+            text = text.split("```")[1]
+            if text.startswith("json"):
+                text = text[4:]
+        return json.loads(text.strip())

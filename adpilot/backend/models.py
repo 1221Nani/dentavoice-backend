@@ -120,6 +120,19 @@ class CompetitorAd(Base):
     saved_at = Column(DateTime, default=datetime.utcnow)
 
 
+class AuditResult(Base):
+    __tablename__ = "audit_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    campaign_id = Column(Integer, ForeignKey("campaigns.id"), nullable=True)  # null for account-wide skills
+    skill = Column(String, nullable=False, index=True)  # e.g. "wasted_spend_finder"
+    platform = Column(String, nullable=False, default="google")
+    summary = Column(JSON, nullable=True)  # short AI/rule-based narrative + top-line stats
+    findings = Column(JSON, nullable=True)  # structured multi-row output (search terms, product grades, etc.)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 class AppSetting(Base):
     __tablename__ = "app_settings"
     __table_args__ = (UniqueConstraint("user_id", "key", name="uq_app_setting_user_key"),)

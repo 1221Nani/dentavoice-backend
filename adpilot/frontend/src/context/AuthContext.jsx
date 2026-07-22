@@ -19,16 +19,28 @@ export function AuthProvider({ children }) {
       return
     }
     const base = (import.meta.env.VITE_API_URL || '') + '/api'
-    fetch(`${base}/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => {
-        if (!r.ok) throw new Error('invalid')
-        return r.json()
+
+    const checkAuth = (isRetry) =>
+      fetch(`${base}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then((r) => {
+        // A real 401 means the token itself is invalid — log out.
+        if (r.status === 401) {
+          logout()
+          return
+        }
+        if (!r.ok) throw new Error('network')
+        return r.json().then(setUser)
+      }).catch((err) => {
+        // Network error / server hiccup, not an invalid token — retry once
+        // before giving up, instead of punishing a valid session for a
+        // transient blip (this is what was forcing a logout after every
+        // full-page reload, e.g. the OAuth connect flow).
+        if (!isRetry) return checkAuth(true)
+        throw err
       })
-      .then(setUser)
-      .catch(() => logout())
-      .finally(() => setLoading(false))
+
+    checkAuth(false).finally(() => setLoading(false))
   }, [token, logout])
 
   const login = useCallback((newToken, userData) => {

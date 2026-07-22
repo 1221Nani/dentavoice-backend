@@ -15,6 +15,7 @@ from routers import oauth_meta
 from routers import oauth_google
 from routers import sync as sync_router
 from routers import insights as insights_router
+from routers import audit as audit_router
 from models import Campaign, PerformanceMetric, User
 from auth import get_current_user
 
@@ -43,6 +44,7 @@ app.include_router(oauth_meta.router)
 app.include_router(oauth_google.router)
 app.include_router(sync_router.router)
 app.include_router(insights_router.router)
+app.include_router(audit_router.router)
 
 
 @app.on_event("startup")
